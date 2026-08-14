@@ -26,7 +26,9 @@ import {
   AlertTriangle,
   Sun,
   Sunrise,
-  Sunset
+  Sunset,
+  Smartphone,
+  Download
 } from 'lucide-react';
 import { EmotionCategory, EmotionLog, JournalEntry, ModuleType, UserProfile } from '../types';
 import { getDashboardSummary, generateVoiceAudio } from '../lib/geminiApi';
@@ -38,6 +40,7 @@ interface DashboardProps {
   journals: JournalEntry[];
   onSelectModule: (module: ModuleType) => void;
   onQuickLogMood: (emotion: EmotionCategory, intensity: number) => void;
+  onOpenPwaModal?: () => void;
 }
 
 const MOOD_OPTIONS: { category: EmotionCategory; label: string; icon: any; color: string }[] = [
@@ -66,6 +69,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   journals,
   onSelectModule,
   onQuickLogMood,
+  onOpenPwaModal,
 }) => {
   const [selectedQuickMood, setSelectedQuickMood] = useState<EmotionCategory | null>(null);
   const [moodLoggedSuccess, setMoodLoggedSuccess] = useState(false);
@@ -256,7 +260,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
 
         {/* Action Shortcuts */}
-        <div className="pt-2 flex flex-wrap gap-2.5">
+        <div className="pt-2 flex flex-wrap items-center gap-2.5">
           <button
             onClick={() => onSelectModule('ai-coach')}
             className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-xl text-xs transition flex items-center gap-2 shadow-lg shadow-emerald-900/40"
@@ -278,6 +282,15 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <Activity className="w-4 h-4 text-teal-400" />
             <span>LEGA Breathing</span>
           </button>
+          {onOpenPwaModal && (
+            <button
+              onClick={onOpenPwaModal}
+              className="px-3.5 py-2 bg-stone-900/90 hover:bg-stone-800 text-emerald-300 font-medium rounded-xl text-xs border border-emerald-800/40 transition flex items-center gap-1.5 ml-auto"
+            >
+              <Smartphone className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Mode PWA</span>
+            </button>
+          )}
         </div>
       </div>
 

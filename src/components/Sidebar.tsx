@@ -29,7 +29,9 @@ import {
   Scale,
   EyeOff,
   AlertTriangle,
-  Moon
+  Moon,
+  Smartphone,
+  Download
 } from 'lucide-react';
 import { ModuleType } from '../types';
 
@@ -39,6 +41,7 @@ interface SidebarProps {
   isOpenMobile: boolean;
   onToggleMobile: () => void;
   onOpenCrisis: () => void;
+  onOpenPwaModal?: () => void;
 }
 
 interface NavItem {
@@ -53,7 +56,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onSelectModule,
   isOpenMobile,
   onToggleMobile,
-  onOpenCrisis
+  onOpenCrisis,
+  onOpenPwaModal,
 }) => {
   const categories: { title: string; items: NavItem[] }[] = [
     {
@@ -178,6 +182,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Footer Crisis Button & Info */}
       <div className="p-3.5 border-t border-stone-800/80 bg-stone-950/40 space-y-2">
+        {onOpenPwaModal && (
+          <button
+            onClick={() => {
+              onOpenPwaModal();
+              if (isOpenMobile) onToggleMobile();
+            }}
+            className="w-full py-2 px-3 bg-emerald-950/40 hover:bg-emerald-900/50 text-emerald-300 border border-emerald-800/50 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition active:scale-95"
+          >
+            <Smartphone className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Mode PWA / Pasang App</span>
+          </button>
+        )}
         <button
           onClick={onOpenCrisis}
           className="w-full py-2 px-3 bg-rose-950/50 hover:bg-rose-900/60 text-rose-300 border border-rose-800/50 rounded-xl text-xs font-medium flex items-center justify-center gap-2 transition"
@@ -186,7 +202,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <span>Bantuan Krisis 119</span>
         </button>
         <p className="text-[10px] text-center text-stone-500">
-          Powered by Gemini 3.1 & Gemini TTS
+          Powered by Gemini 3.1 &amp; Gemini TTS
         </p>
       </div>
     </div>

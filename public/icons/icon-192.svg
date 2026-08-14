@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#064e3b" />
+      <stop offset="50%" stop-color="#065f46" />
+      <stop offset="100%" stop-color="#042f2e" />
+    </linearGradient>
+    <linearGradient id="leafGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="glowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6ee7b7" />
+      <stop offset="100%" stop-color="#10b981" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background Rounded Plate -->
+  <rect width="192" height="192" rx="42" fill="url(#bgGrad)" />
+  
+  <!-- Outer Subtle Ring -->
+  <circle cx="96" cy="96" r="76" fill="none" stroke="#10b981" stroke-width="2" stroke-opacity="0.3" stroke-dasharray="4 4" />
+  <circle cx="96" cy="96" r="64" fill="none" stroke="#34d399" stroke-width="1.5" stroke-opacity="0.4" />
+
+  <!-- Lotus / Zen Flower Petals -->
+  <!-- Left Petal -->
+  <path d="M96 138 C60 130 52 90 74 68 C84 94 92 120 96 138 Z" fill="url(#leafGrad)" opacity="0.85" />
+  <!-- Right Petal -->
+  <path d="M96 138 C132 130 140 90 118 68 C108 94 100 120 96 138 Z" fill="url(#leafGrad)" opacity="0.85" />
+  <!-- Center Main Petal -->
+  <path d="M96 142 C72 110 72 65 96 42 C120 65 120 110 96 142 Z" fill="url(#glowGrad)" />
+  
+  <!-- Calming Aura Core Drop -->
+  <circle cx="96" cy="74" r="6" fill="#ecfdf5" />
+  
+  <!-- Base Ripple Arc -->
+  <path d="M68 144 Q96 156 124 144" fill="none" stroke="#6ee7b7" stroke-width="3" stroke-linecap="round" opacity="0.9" />
+  <path d="M78 152 Q96 160 114 152" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" opacity="0.6" />
+</svg>

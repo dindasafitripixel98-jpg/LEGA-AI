@@ -44,11 +44,23 @@ import { ProgressStats } from './components/ProgressStats';
 import { ProfileView } from './components/ProfileView';
 import { SettingsView } from './components/SettingsView';
 import { AdminPanel } from './components/AdminPanel';
+import { PwaInstallModal } from './components/PwaInstallModal';
+import { PwaNotificationBanner } from './components/PwaNotificationBanner';
 
 export default function App() {
-  const [currentModule, setCurrentModule] = useState<ModuleType>('dashboard');
+  const getInitialModule = (): ModuleType => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const mod = params.get('module');
+      if (mod) return mod as ModuleType;
+    }
+    return 'dashboard';
+  };
+
+  const [currentModule, setCurrentModule] = useState<ModuleType>(getInitialModule);
   const [isOpenMobile, setIsOpenMobile] = useState<boolean>(false);
   const [isCrisisOpen, setIsCrisisOpen] = useState<boolean>(false);
+  const [isPwaModalOpen, setIsPwaModalOpen] = useState<boolean>(false);
 
   const [userProfile, setUserProfile] = useState<UserProfile>({
     name: 'Teman LEGA',
@@ -101,6 +113,7 @@ export default function App() {
             journals={journals}
             onSelectModule={(mod) => setCurrentModule(mod as ModuleType)}
             onQuickLogMood={handleQuickLogMood}
+            onOpenPwaModal={() => setIsPwaModalOpen(true)}
           />
         );
       case 'ai-coach':
@@ -284,7 +297,7 @@ export default function App() {
           />
         );
       case 'settings':
-        return <SettingsView />;
+        return <SettingsView onOpenPwaModal={() => setIsPwaModalOpen(true)} />;
       case 'admin':
         return <AdminPanel />;
       default:
@@ -295,6 +308,7 @@ export default function App() {
             journals={journals}
             onSelectModule={(mod) => setCurrentModule(mod as ModuleType)}
             onQuickLogMood={handleQuickLogMood}
+            onOpenPwaModal={() => setIsPwaModalOpen(true)}
           />
         );
     }
@@ -309,6 +323,7 @@ export default function App() {
         isOpenMobile={isOpenMobile}
         onToggleMobile={() => setIsOpenMobile(!isOpenMobile)}
         onOpenCrisis={() => setIsCrisisOpen(true)}
+        onOpenPwaModal={() => setIsPwaModalOpen(true)}
       />
 
       {/* Main Content Viewport */}
@@ -319,6 +334,7 @@ export default function App() {
           onToggleMobile={() => setIsOpenMobile(!isOpenMobile)}
           onOpenCrisis={() => setIsCrisisOpen(true)}
           onSelectModule={(mod) => setCurrentModule(mod)}
+          onOpenPwaModal={() => setIsPwaModalOpen(true)}
         />
 
         <main className="flex-1 pb-12">{renderModuleView()}</main>
@@ -326,6 +342,17 @@ export default function App() {
 
       {/* Crisis Psychological Support Modal */}
       <CrisisModal isOpen={isCrisisOpen} onClose={() => setIsCrisisOpen(false)} />
+
+      {/* PWA Installation & Offline Modal */}
+      <PwaInstallModal
+        isOpen={isPwaModalOpen}
+        onClose={() => setIsPwaModalOpen(false)}
+      />
+
+      {/* PWA Floating Notification & Offline Status Banner */}
+      <PwaNotificationBanner
+        onOpenPwaModal={() => setIsPwaModalOpen(true)}
+      />
     </div>
   );
 }

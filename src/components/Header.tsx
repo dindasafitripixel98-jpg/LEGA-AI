@@ -1,6 +1,7 @@
 import React from 'react';
-import { Menu, PhoneCall, Sparkles, Flame, User } from 'lucide-react';
+import { Menu, PhoneCall, Sparkles, Flame, User, Smartphone, Wifi, WifiOff } from 'lucide-react';
 import { ModuleType, UserProfile } from '../types';
+import { usePwa } from '../lib/pwaManager';
 
 interface HeaderProps {
   currentModule: ModuleType;
@@ -8,6 +9,7 @@ interface HeaderProps {
   onToggleMobile: () => void;
   onOpenCrisis: () => void;
   onSelectModule: (module: ModuleType) => void;
+  onOpenPwaModal?: () => void;
 }
 
 const MODULE_TITLES: Record<ModuleType, { title: string; subtitle: string }> = {
@@ -50,7 +52,10 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleMobile,
   onOpenCrisis,
   onSelectModule,
+  onOpenPwaModal,
 }) => {
+  const { isOnline, isInstalled } = usePwa();
+
   const currentInfo = MODULE_TITLES[currentModule] || {
     title: 'LEGA AI',
     subtitle: 'Platform Kesadaran Diri Indonesia',
@@ -76,7 +81,37 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      <div className="flex items-center gap-2.5">
+      <div className="flex items-center gap-2">
+        {/* PWA / Offline Status Indicator */}
+        {onOpenPwaModal && (
+          <button
+            onClick={onOpenPwaModal}
+            className={`p-2 rounded-xl border text-xs font-medium flex items-center gap-1.5 transition active:scale-95 ${
+              !isOnline
+                ? 'bg-amber-950/50 border-amber-800/60 text-amber-300 hover:bg-amber-900/60'
+                : isInstalled
+                ? 'bg-emerald-950/40 border-emerald-800/60 text-emerald-300 hover:bg-emerald-900/50'
+                : 'bg-stone-800 hover:bg-stone-700 border-stone-700 text-stone-300'
+            }`}
+            title={
+              !isOnline
+                ? 'Mode Offline Aktif (Klik info PWA)'
+                : isInstalled
+                ? 'Aplikasi LEGA Terpasang (PWA)'
+                : 'Pasang Aplikasi LEGA (PWA)'
+            }
+          >
+            {!isOnline ? (
+              <WifiOff className="w-4 h-4 text-amber-400" />
+            ) : (
+              <Smartphone className="w-4 h-4 text-emerald-400" />
+            )}
+            <span className="hidden sm:inline text-[11px]">
+              {!isOnline ? 'Offline' : isInstalled ? 'PWA Aktif' : 'Pasang App'}
+            </span>
+          </button>
+        )}
+
         {/* Streak Counter */}
         <div
           onClick={() => onSelectModule('progress')}
@@ -101,6 +136,7 @@ export const Header: React.FC<HeaderProps> = ({
         <button
           onClick={() => onSelectModule('profile')}
           className="p-2 rounded-xl bg-stone-800 hover:bg-stone-700 border border-stone-700 text-stone-200 transition flex items-center justify-center"
+          title="Profil Saya"
         >
           <User className="w-4 h-4 text-emerald-400" />
         </button>

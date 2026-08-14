@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGradMask" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#064e3b" />
+      <stop offset="50%" stop-color="#065f46" />
+      <stop offset="100%" stop-color="#042f2e" />
+    </linearGradient>
+    <linearGradient id="leafGradMask" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="glowGradMask" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6ee7b7" />
+      <stop offset="100%" stop-color="#10b981" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Safe zone full fill for maskable icon -->
+  <rect width="512" height="512" fill="url(#bgGradMask)" />
+  
+  <!-- Inner Content scaled into 80% safe zone (center: 256, 256) -->
+  <g transform="translate(51.2, 51.2) scale(0.8)">
+    <circle cx="256" cy="256" r="200" fill="none" stroke="#10b981" stroke-width="4" stroke-opacity="0.3" stroke-dasharray="8 8" />
+    <circle cx="256" cy="256" r="170" fill="none" stroke="#34d399" stroke-width="3" stroke-opacity="0.4" />
+
+    <!-- Lotus / Zen Flower Petals -->
+    <path d="M256 368 C160 348 138 240 196 182 C224 250 246 320 256 368 Z" fill="url(#leafGradMask)" opacity="0.85" />
+    <path d="M256 368 C352 348 374 240 316 182 C288 250 266 320 256 368 Z" fill="url(#leafGradMask)" opacity="0.85" />
+    <path d="M256 378 C192 292 192 172 256 112 C320 172 320 292 256 378 Z" fill="url(#glowGradMask)" />
+    
+    <circle cx="256" cy="196" r="16" fill="#ecfdf5" />
+    <path d="M180 384 Q256 416 332 384" fill="none" stroke="#6ee7b7" stroke-width="8" stroke-linecap="round" opacity="0.9" />
+  </g>
+</svg>
