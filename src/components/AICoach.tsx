@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { ConversationMessage, UserProfile } from '../types';
 import { sendChatMessage, generateGeminiTts } from '../lib/geminiApi';
+import { speakIndonesianNarration, stopIndonesianNarration } from '../lib/audioEngine';
 
 interface AICoachProps {
   userProfile: UserProfile;
@@ -144,19 +145,25 @@ export const AICoach: React.FC<AICoachProps> = ({
         audioRef.current.pause();
         audioRef.current = null;
       }
+      stopIndonesianNarration();
       setPlayingAudioId(null);
       return;
     }
 
+    stopIndonesianNarration();
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+
     setTtsLoadingId(msgId);
-    const audioBase64 = await generateGeminiTts(textToSpeak, 'Kore');
+    const audioData = await generateGeminiTts(textToSpeak, 'Kore');
     setTtsLoadingId(null);
 
-    if (audioBase64) {
-      if (audioRef.current) {
-        audioRef.current.pause();
-      }
-      const audioUrl = `data:audio/mp3;base64,${audioBase64}`;
+    if (audioData) {
+      const audioUrl = audioData.startsWith('data:') || audioData.startsWith('blob:') || audioData.startsWith('http')
+        ? audioData
+        : `data:audio/wav;base64,${audioData}`;
       const audio = new Audio(audioUrl);
       audioRef.current = audio;
 
@@ -164,8 +171,19 @@ export const AICoach: React.FC<AICoachProps> = ({
         setPlayingAudioId(null);
       };
 
-      audio.play().catch((e) => console.error('Audio play failed:', e));
+      audio.play().catch(() => {
+        speakIndonesianNarration(textToSpeak, {
+          onEnd: () => setPlayingAudioId(null),
+          onError: () => setPlayingAudioId(null)
+        });
+      });
       setPlayingAudioId(msgId);
+    } else {
+      setPlayingAudioId(msgId);
+      speakIndonesianNarration(textToSpeak, {
+        onEnd: () => setPlayingAudioId(null),
+        onError: () => setPlayingAudioId(null)
+      });
     }
   };
 

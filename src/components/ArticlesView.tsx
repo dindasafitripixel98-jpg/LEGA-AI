@@ -27,6 +27,7 @@ import {
 import { INITIAL_ARTICLES } from '../data/initialData';
 import { Article, ArticleReference } from '../types';
 import { generateLegaArticle, generateGeminiTts } from '../lib/geminiApi';
+import { speakIndonesianNarration, stopIndonesianNarration } from '../lib/audioEngine';
 
 const MASTER_CATEGORIES = [
   'Semua',
@@ -144,19 +145,32 @@ export const ArticlesView: React.FC = () => {
 
   const handlePlayAudioScript = async (scriptText: string) => {
     setIsPlayingAudio(true);
-    showToast('Menyiapkan audio panduan Gemini TTS...');
+    showToast('Memutar narasi audio refleksi...');
     try {
-      const audioBase64 = await generateGeminiTts(scriptText, 'Kore');
-      if (audioBase64) {
-        const audio = new Audio(`data:audio/mp3;base64,${audioBase64}`);
-        audio.play();
+      const audioData = await generateGeminiTts(scriptText, 'Kore');
+      if (audioData) {
+        const audioUrl = audioData.startsWith('data:') || audioData.startsWith('blob:') || audioData.startsWith('http')
+          ? audioData
+          : `data:audio/wav;base64,${audioData}`;
+        const audio = new Audio(audioUrl);
+        audio.play().catch(() => {
+          speakIndonesianNarration(scriptText, {
+            onEnd: () => setIsPlayingAudio(false),
+            onError: () => setIsPlayingAudio(false)
+          });
+        });
         audio.onended = () => setIsPlayingAudio(false);
       } else {
-        setIsPlayingAudio(false);
+        speakIndonesianNarration(scriptText, {
+          onEnd: () => setIsPlayingAudio(false),
+          onError: () => setIsPlayingAudio(false)
+        });
       }
-    } catch (e) {
-      console.error(e);
-      setIsPlayingAudio(false);
+    } catch {
+      speakIndonesianNarration(scriptText, {
+        onEnd: () => setIsPlayingAudio(false),
+        onError: () => setIsPlayingAudio(false)
+      });
     }
   };
 

@@ -1490,20 +1490,20 @@ export async function generateAiInsight(emotionLogs: any[], journals: any[]) {
   }
 }
 
-export async function generateGeminiTts(text: string, voiceName: string = 'Kore') {
+export async function generateGeminiTts(text: string, voiceName: string = 'Kore'): Promise<string | null> {
   try {
     const res = await fetch('/api/gemini/tts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text, voiceName }),
     });
+    if (!res.ok) return null;
     const data = await res.json();
-    if (!res.ok || !data.success) {
-      throw new Error(data.error || 'Gagal memproses suara TTS.');
+    if (!data.success) {
+      return null;
     }
-    return data.audioDataUrl || (data.audioBase64 ? `data:audio/wav;base64,${data.audioBase64}` : null);
+    return data.audioDataUrl || (data.audioBase64 ? (data.audioBase64.startsWith('data:') ? data.audioBase64 : `data:audio/wav;base64,${data.audioBase64}`) : null);
   } catch (err: any) {
-    console.error('generateGeminiTts error:', err);
     return null;
   }
 }

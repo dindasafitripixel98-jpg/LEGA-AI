@@ -3588,53 +3588,69 @@ app.post('/api/gemini/tts', async (req, res) => {
   try {
     const { text, voiceName = 'Kore' } = req.body;
     if (!text) {
-      return res.status(400).json({ error: 'Teks dibutuhkan untuk TTS.' });
+      return res.status(400).json({ success: false, error: 'Teks dibutuhkan untuk TTS.' });
     }
 
-    // Clean pause markers so Gemini TTS reads naturally without vocalizing brackets
+    // Clean pause markers and special characters so Gemini TTS reads naturally
     const cleanedText = text
       .replace(/\[PAUSE_SHORT\]/gi, '... ')
       .replace(/\[PAUSE_MEDIUM\]/gi, '... ... ')
       .replace(/\[PAUSE_LONG\]/gi, '... ... ... ')
       .replace(/\[Jeda \d+ detik\]/gi, '... ')
+      .replace(/[#*`_]/g, '')
       .trim();
 
+    const promptText = cleanedText.length > 800 ? cleanedText.slice(0, 800) + '...' : cleanedText;
     const ai = getGeminiClient();
 
-    // Use Gemini TTS preview model
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.1-flash-tts-preview',
-      contents: [{ parts: [{ text: `Bicaralah dengan nada sangat tenang, hangat, lembut, dan perlahan dalam Bahasa Indonesia: ${cleanedText}` }] }],
-      config: {
-        responseModalities: [Modality.AUDIO],
-        speechConfig: {
-          voiceConfig: {
-            prebuiltVoiceConfig: { voiceName: voiceName }, // Kore, Zephyr, Puck, Fenrir, Charon
+    try {
+      // Use Gemini TTS preview model
+      const response = await ai.models.generateContent({
+        model: 'gemini-3.1-flash-tts-preview',
+        contents: [{ parts: [{ text: `Bicaralah dengan nada sangat tenang, hangat, lembut, dan perlahan dalam Bahasa Indonesia: ${promptText}` }] }],
+        config: {
+          responseModalities: [Modality.AUDIO],
+          speechConfig: {
+            voiceConfig: {
+              prebuiltVoiceConfig: { voiceName: voiceName || 'Kore' }, // Kore, Zephyr, Puck, Fenrir, Charon
+            },
           },
         },
-      },
-    });
+      });
 
-    const rawBase64 = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-    if (!rawBase64) {
-      throw new Error('Gagal menghasilkan audio dari Gemini TTS.');
+      const rawBase64 = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+      if (rawBase64) {
+        const pcmBuffer = Buffer.from(rawBase64, 'base64');
+        const wavBuffer = pcmToWavBuffer(pcmBuffer, 24000, 1, 16);
+        const wavBase64 = wavBuffer.toString('base64');
+        const audioDataUrl = `data:audio/wav;base64,${wavBase64}`;
+
+        return res.json({
+          success: true,
+          audioBase64: wavBase64,
+          audioDataUrl: audioDataUrl,
+          format: 'wav',
+          sampleRate: 24000
+        });
+      }
+    } catch (ttsError: any) {
+      console.warn('Gemini TTS attempt note:', ttsError?.message || ttsError);
     }
-
-    const pcmBuffer = Buffer.from(rawBase64, 'base64');
-    const wavBuffer = pcmToWavBuffer(pcmBuffer, 24000, 1, 16);
-    const wavBase64 = wavBuffer.toString('base64');
-    const audioDataUrl = `data:audio/wav;base64,${wavBase64}`;
 
     res.json({
       success: true,
-      audioBase64: wavBase64,
-      audioDataUrl: audioDataUrl,
-      format: 'wav',
-      sampleRate: 24000
+      audioBase64: null,
+      audioDataUrl: null,
+      fallbackSynthesizer: true
     });
   } catch (error: any) {
-    console.warn('Gemini TTS service handled gracefully:', error?.message || error);
-    res.json({ success: false, error: 'Gemini TTS synthesis unavailable; using local audio synthesizer.' });
+    console.warn('Gemini TTS handler note:', error?.message || error);
+    res.json({
+      success: true,
+      audioBase64: null,
+      audioDataUrl: null,
+      fallbackSynthesizer: true
+    });
   }
 });
 
