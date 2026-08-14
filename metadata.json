@@ -1,0 +1,6 @@
+{
+  "name": "LEGA - AI Self Awareness Platform",
+  "description": "Platform Kesadaran Diri & Pengelolaan Emosi AI Indonesia oleh SHAQILA DIGITAL 99",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
