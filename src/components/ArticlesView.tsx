@@ -28,6 +28,7 @@ import { INITIAL_ARTICLES } from '../data/initialData';
 import { Article, ArticleReference } from '../types';
 import { generateLegaArticle, generateGeminiTts } from '../lib/geminiApi';
 import { speakIndonesianNarration, stopIndonesianNarration } from '../lib/audioEngine';
+import { VoiceGuideButton } from './VoiceGuideButton';
 
 const MASTER_CATEGORIES = [
   'Semua',
@@ -523,46 +524,55 @@ export const ArticlesView: React.FC = () => {
             </div>
 
             {/* Reader Tab Navigation */}
-            <div className="flex items-center gap-2 border-b border-stone-800/80 pb-2 text-xs">
-              <button
-                onClick={() => setActiveTab('reader')}
-                className={`px-3 py-1.5 rounded-xl font-medium transition flex items-center gap-1.5 ${
-                  activeTab === 'reader'
-                    ? 'bg-emerald-950 text-emerald-300 border border-emerald-700'
-                    : 'text-stone-400 hover:text-stone-200'
-                }`}
-              >
-                <BookOpen className="w-3.5 h-3.5" />
-                <span>Baca Artikel</span>
-              </button>
-
-              {(activeArticle.seoTitle || activeArticle.primaryKeyword) && (
+            <div className="flex items-center justify-between flex-wrap gap-2 border-b border-stone-800/80 pb-2 text-xs">
+              <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setActiveTab('seo')}
+                  onClick={() => setActiveTab('reader')}
                   className={`px-3 py-1.5 rounded-xl font-medium transition flex items-center gap-1.5 ${
-                    activeTab === 'seo'
+                    activeTab === 'reader'
                       ? 'bg-emerald-950 text-emerald-300 border border-emerald-700'
                       : 'text-stone-400 hover:text-stone-200'
                   }`}
                 >
-                  <Globe className="w-3.5 h-3.5" />
-                  <span>SEO & Metadata</span>
+                  <BookOpen className="w-3.5 h-3.5" />
+                  <span>Baca Artikel</span>
                 </button>
-              )}
 
-              {activeArticle.references && activeArticle.references.length > 0 && (
-                <button
-                  onClick={() => setActiveTab('references')}
-                  className={`px-3 py-1.5 rounded-xl font-medium transition flex items-center gap-1.5 ${
-                    activeTab === 'references'
-                      ? 'bg-emerald-950 text-emerald-300 border border-emerald-700'
-                      : 'text-stone-400 hover:text-stone-200'
-                  }`}
-                >
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  <span>Referensi ({activeArticle.references.length})</span>
-                </button>
-              )}
+                {(activeArticle.seoTitle || activeArticle.primaryKeyword) && (
+                  <button
+                    onClick={() => setActiveTab('seo')}
+                    className={`px-3 py-1.5 rounded-xl font-medium transition flex items-center gap-1.5 ${
+                      activeTab === 'seo'
+                        ? 'bg-emerald-950 text-emerald-300 border border-emerald-700'
+                        : 'text-stone-400 hover:text-stone-200'
+                    }`}
+                  >
+                    <Globe className="w-3.5 h-3.5" />
+                    <span>SEO & Metadata</span>
+                  </button>
+                )}
+
+                {activeArticle.references && activeArticle.references.length > 0 && (
+                  <button
+                    onClick={() => setActiveTab('references')}
+                    className={`px-3 py-1.5 rounded-xl font-medium transition flex items-center gap-1.5 ${
+                      activeTab === 'references'
+                        ? 'bg-emerald-950 text-emerald-300 border border-emerald-700'
+                        : 'text-stone-400 hover:text-stone-200'
+                    }`}
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <span>Referensi ({activeArticle.references.length})</span>
+                  </button>
+                )}
+              </div>
+
+              <VoiceGuideButton
+                text={`Mendengarkan artikel: ${activeArticle.title}. ${activeArticle.summary}. ${activeArticle.content.slice(0, 500)}`}
+                title={activeArticle.title}
+                subtitle={`Artikel oleh ${activeArticle.author || 'Tim LEGA'}`}
+                variant="compact"
+              />
             </div>
 
             {/* TAB CONTENT: READER */}

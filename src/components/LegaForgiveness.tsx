@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { ModuleType, JournalEntry } from '../types';
 import { reflectForgiveness } from '../lib/geminiApi';
+import { VoiceGuideButton } from './VoiceGuideButton';
 
 interface LegaForgivenessProps {
   onSelectModule?: (module: ModuleType) => void;
@@ -170,8 +171,14 @@ ${journalNote.futureHope || aiForgivenessOutput.realisticNextStep || '-'}`;
             </div>
           </div>
 
-          {/* Quick Option Switches */}
-          <div className="flex flex-wrap gap-2">
+          {/* Quick Option Switches & Voice Guide */}
+          <div className="flex items-center flex-wrap gap-2">
+            <VoiceGuideButton
+              text="Selamat datang di modul LEGA Forgiveness. Memaafkan bukanlah tentang membenarkan tindakan orang lain, bukan melupakan, dan bukan kewajiban untuk kembali dekat. Memaafkan adalah tentang meringankan beban amarah di dalam hati Anda sendiri dan menegakkan batasan yang sehat."
+              title="Panduan LEGA Forgiveness"
+              subtitle="Eksplorasi Memaafkan & Batasan Sehat"
+              variant="pill"
+            />
             <button
               onClick={() => setIsNotReadyYet(!isNotReadyYet)}
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition flex items-center gap-1.5 ${

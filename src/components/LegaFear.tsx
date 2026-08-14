@@ -33,6 +33,7 @@ import {
 import { motion } from 'motion/react';
 import { reflectFear } from '../lib/geminiApi';
 import { JournalEntry } from '../types';
+import { VoiceGuideButton } from './VoiceGuideButton';
 
 interface LegaFearProps {
   onSelectModule: (module: string) => void;
@@ -289,7 +290,13 @@ ${reflectionResult.suggestedSafeAction || '-'}`;
             Mengenali pemicu ketakutan, membedakan bahaya nyata dari kekhawatiran/prediksi, serta mengembangkan langkah bertahap yang realistis tanpa paksaan.
           </p>
 
-          <div className="pt-2 flex flex-wrap gap-2 text-xs text-stone-400">
+          <div className="pt-2 flex flex-wrap items-center gap-2 text-xs text-stone-400">
+            <VoiceGuideButton
+              text="Selamat datang di modul LEGA Fear. Rasa takut adalah bagian alami dari sistem perlindungan manusia. Takut bukan kelemahan. Di sini kita belajar membedakan bahaya nyata dari kekhawatiran pikiran, serta melangkah bertahap secara aman."
+              title="Panduan LEGA Fear"
+              subtitle="Kesadaran & Keberanian Terpandu"
+              variant="pill"
+            />
             <span className="bg-stone-800/80 px-2.5 py-1 rounded-md border border-stone-700/60 flex items-center gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5 text-amber-400" /> Bahaya Nyata vs Kekhawatiran
             </span>

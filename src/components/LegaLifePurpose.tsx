@@ -36,6 +36,7 @@ import {
 import { motion } from 'motion/react';
 import { reflectLifePurpose } from '../lib/geminiApi';
 import { JournalEntry } from '../types';
+import { VoiceGuideButton } from './VoiceGuideButton';
 
 interface LegaLifePurposeProps {
   onSelectModule: (module: string) => void;
@@ -305,7 +306,13 @@ Visi & Goals Translation:
             Menemukan kompas internal melalui pemetaan nilai, kekuatan, minat, makna, serta menyusun tujuan realistis yang dapat dilangkah secara bertahap.
           </p>
 
-          <div className="pt-2 flex flex-wrap gap-2 text-xs text-stone-400">
+          <div className="pt-2 flex flex-wrap items-center gap-2 text-xs text-stone-400">
+            <VoiceGuideButton
+              text="Selamat datang di modul LEGA Life Purpose. Tujuan hidup tidak harus langsung ditemukan secara instan dan sempurna. Tujuan hidup tumbuh dari apa yang Anda pedulikan, nilai yang Anda junjung, dan langkah nyata yang Anda jalani hari demi hari."
+              title="Panduan LEGA Life Purpose"
+              subtitle="Mengeksplorasi Nilai Diri & Makna Hidup"
+              variant="pill"
+            />
             <span className="bg-stone-800/80 px-2.5 py-1 rounded-md border border-stone-700/60 flex items-center gap-1.5">
               <Layers className="w-3.5 h-3.5 text-indigo-400" /> Nilai vs Tujuan
             </span>

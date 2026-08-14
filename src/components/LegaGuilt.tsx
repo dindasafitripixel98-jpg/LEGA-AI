@@ -30,6 +30,7 @@ import {
 import { motion } from 'motion/react';
 import { reflectGuilt } from '../lib/geminiApi';
 import { JournalEntry } from '../types';
+import { VoiceGuideButton } from './VoiceGuideButton';
 
 interface LegaGuiltProps {
   onSelectModule: (module: string) => void;
@@ -234,7 +235,13 @@ ${reflectionResult.selfCompassionMessage || '-'}`;
             Mengurai rasa bersalah secara objektif, membedakan fakta tindakan dari penilaian diri yang berlebihan, serta melatih langkah perbaikan tanpa terus-menerus menghukum diri.
           </p>
 
-          <div className="pt-2 flex flex-wrap gap-2 text-xs text-stone-400">
+          <div className="pt-2 flex flex-wrap items-center gap-2 text-xs text-stone-400">
+            <VoiceGuideButton
+              text="Selamat datang di modul LEGA Guilt. Rasa bersalah adalah sinyal nilai moral batin Anda, namun bukan keseluruhan identitas Anda. Mengakui kesalahan adalah kedewasaan, dan memaafkan diri sendiri adalah langkah menuju pemulihan yang nyata."
+              title="Panduan LEGA Guilt"
+              subtitle="Memahami Rasa Bersalah & Tanggung Jawab Sehat"
+              variant="pill"
+            />
             <span className="bg-stone-800/80 px-2.5 py-1 rounded-md border border-stone-700/60 flex items-center gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5 text-indigo-400" /> Fakta vs Asumsi
             </span>

@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { ModuleType } from '../types';
 import { bodyAwarenessReflect } from '../lib/geminiApi';
+import { VoiceGuideButton } from './VoiceGuideButton';
 
 interface BodyAwarenessProps {
   onSelectModule?: (module: ModuleType | string) => void;
@@ -140,8 +141,15 @@ export const BodyAwareness: React.FC<BodyAwarenessProps> = ({
             </div>
           </div>
 
-          {/* Navigation Mode Tabs */}
-          <div className="flex bg-stone-950 border border-stone-800 rounded-2xl p-1 gap-1 text-xs">
+          <div className="flex items-center gap-2 flex-wrap">
+            <VoiceGuideButton
+              text="Selamat datang di modul LEGA Tubuh & Body Scan. Tubuh Anda adalah rumah yang menyimpan setiap rekaman emosi dan pengalaman. Sadari sensasi fisik tanpa menghakimi, hadirkan rasa terima kasih, dan izinkan ketegangan terurai perlahan."
+              title="Panduan Body Awareness LEGA"
+              subtitle="Latihan Pemindaian Tubuh & Somatis"
+              variant="pill"
+            />
+            {/* Navigation Mode Tabs */}
+            <div className="flex bg-stone-950 border border-stone-800 rounded-2xl p-1 gap-1 text-xs">
             <button
               onClick={() => setActiveTab('body-scan')}
               className={`px-3 py-1.5 rounded-xl font-semibold transition flex items-center gap-1.5 ${
@@ -177,6 +185,7 @@ export const BodyAwareness: React.FC<BodyAwarenessProps> = ({
             </button>
           </div>
         </div>
+      </div>
 
         {/* Non-Medical Disclaimer Banner */}
         <div className="p-3.5 bg-amber-950/40 border border-amber-800/60 rounded-2xl text-[11px] text-amber-200 flex items-start gap-2.5 leading-relaxed">
@@ -227,9 +236,17 @@ export const BodyAwareness: React.FC<BodyAwarenessProps> = ({
 
           {/* Current Step Instruction Box */}
           <div className="p-5 bg-stone-950/80 border border-stone-800 rounded-2xl space-y-2">
-            <p className="text-xs text-emerald-300 font-semibold uppercase tracking-wider">
-              Panduan Pemandu AI (Body Scan)
-            </p>
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-emerald-300 font-semibold uppercase tracking-wider">
+                Panduan Pemandu AI (Body Scan)
+              </p>
+              <VoiceGuideButton
+                text={ALUR_LATIHAN[currentStep].prompt}
+                title={ALUR_LATIHAN[currentStep].title}
+                subtitle="Instruksi Pemindaian Tubuh"
+                variant="compact"
+              />
+            </div>
             <p className="text-sm md:text-base text-stone-200 font-medium leading-relaxed">
               "{ALUR_LATIHAN[currentStep].prompt}"
             </p>

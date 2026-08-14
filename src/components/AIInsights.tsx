@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Sparkles, BrainCircuit, RefreshCw, CheckCircle, Lightbulb } from 'lucide-react';
 import { EmotionLog, JournalEntry } from '../types';
 import { generateAiInsight } from '../lib/geminiApi';
+import { VoiceGuideButton } from './VoiceGuideButton';
 
 interface AIInsightsProps {
   emotionLogs: EmotionLog[];
@@ -38,18 +39,26 @@ export const AIInsights: React.FC<AIInsightsProps> = ({ emotionLogs, journals })
           </p>
         </div>
 
-        <button
-          onClick={handleGenerateInsight}
-          disabled={loading}
-          className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl text-xs sm:text-sm transition flex items-center gap-2 shadow-lg shadow-emerald-950/40 w-fit"
-        >
-          {loading ? (
-            <RefreshCw className="w-4 h-4 animate-spin" />
-          ) : (
-            <Sparkles className="w-4 h-4" />
-          )}
-          <span>{loading ? 'Membuat Insight...' : 'Generasi Insight Baru'}</span>
-        </button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <VoiceGuideButton
+            text={`Insight mingguan Anda: ${insight.overallTrend} Pesan refleksi: ${insight.weeklyWisdom}`}
+            title="Narasi Insight AI"
+            subtitle="Ringkasan Pola & Pertumbuhan Emosi"
+            variant="pill"
+          />
+          <button
+            onClick={handleGenerateInsight}
+            disabled={loading}
+            className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl text-xs sm:text-sm transition flex items-center gap-2 shadow-lg shadow-emerald-950/40 w-fit"
+          >
+            {loading ? (
+              <RefreshCw className="w-4 h-4 animate-spin" />
+            ) : (
+              <Sparkles className="w-4 h-4" />
+            )}
+            <span>{loading ? 'Membuat Insight...' : 'Generasi Insight Baru'}</span>
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

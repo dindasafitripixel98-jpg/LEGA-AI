@@ -123,12 +123,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Brand Header */}
       <div className="p-5 border-b border-stone-800/80 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-emerald-900/30">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 via-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-sky-900/50">
             L
           </div>
           <div>
             <h1 className="font-bold text-stone-100 tracking-wide text-lg flex items-center gap-1.5">
-              LEGA <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/80 text-emerald-300 font-normal">v1.0</span>
+              LEGA <span className="text-[10px] px-1.5 py-0.5 rounded bg-sky-500/30 text-sky-200 border border-sky-400/30 font-semibold">v1.0</span>
             </h1>
             <p className="text-[11px] text-stone-400 truncate">SHAQILA DIGITAL 99</p>
           </div>

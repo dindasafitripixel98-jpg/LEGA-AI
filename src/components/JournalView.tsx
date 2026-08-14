@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { EmotionCategory, JournalEntry } from '../types';
 import { reflectJournal } from '../lib/geminiApi';
+import { VoiceGuideButton } from './VoiceGuideButton';
 
 interface JournalViewProps {
   journals: JournalEntry[];
@@ -83,13 +84,21 @@ export const JournalView: React.FC<JournalViewProps> = ({ journals, onAddJournal
           </p>
         </div>
 
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="px-4 py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-xl text-xs sm:text-sm transition flex items-center gap-2 shadow-lg shadow-amber-950/40 w-fit"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Tulis Jurnal Baru</span>
-        </button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <VoiceGuideButton
+            text="Menulis jurnal refleksi membantu Anda memindahkan pikiran dari kepala ke dalam ruang yang aman dan terstruktur. Tuliskan apa yang Anda rasakan tanpa tuntutan kesempurnaan."
+            title="Panduan Menulis Jurnal"
+            subtitle="Ruang Refleksi & Penulisan Sadar"
+            variant="pill"
+          />
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="px-4 py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-xl text-xs sm:text-sm transition flex items-center gap-2 shadow-lg shadow-amber-950/40 w-fit"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Tulis Jurnal Baru</span>
+          </button>
+        </div>
       </div>
 
       {/* Search Bar */}
@@ -145,9 +154,17 @@ export const JournalView: React.FC<JournalViewProps> = ({ journals, onAddJournal
             {/* AI Feedback Box */}
             {j.aiFeedback && (
               <div className="p-4 bg-stone-950/80 rounded-xl border border-stone-800 text-xs space-y-2">
-                <div className="flex items-center gap-2 text-emerald-400 font-semibold">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Refleksi LEGA AI:</span>
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 text-emerald-400 font-semibold">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Refleksi LEGA AI:</span>
+                  </div>
+                  <VoiceGuideButton
+                    text={`Refleksi untuk jurnal Anda ${j.title}: ${j.aiFeedback.reflection}. Insight utama: ${j.aiFeedback.keyInsight}`}
+                    title={`Audio Refleksi: ${j.title}`}
+                    subtitle="Ulasan AI atas Jurnal Anda"
+                    variant="compact"
+                  />
                 </div>
                 <p className="text-stone-300 italic">"{j.aiFeedback.reflection}"</p>
                 <div className="pt-2 border-t border-stone-800/80 text-[11px] text-amber-300/90 font-medium">

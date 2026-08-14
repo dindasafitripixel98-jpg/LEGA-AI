@@ -25,6 +25,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { reflectOverthinking } from '../lib/geminiApi';
 import { JournalEntry } from '../types';
+import { VoiceGuideButton } from './VoiceGuideButton';
 
 interface LegaOverthinkingProps {
   onSelectModule: (module: string) => void;
@@ -195,7 +196,13 @@ ${jNote.chosenMicroStep || reflectionResult.microAction || microStepInput || '-'
             Di sini, kita tidak memaksakan pikiran berhenti, melainkan membedakan fakta vs asumsi dan mengembalikan fokus pada tindakan kecil saat ini.
           </p>
 
-          <div className="pt-2 flex flex-wrap gap-2 text-xs text-stone-400">
+          <div className="pt-2 flex flex-wrap items-center gap-2 text-xs text-stone-400">
+            <VoiceGuideButton
+              text="Selamat datang di modul LEGA Overthinking. Pikiran berulang adalah tanda bahwa otak sedang berusaha mencari rasa aman. Mari kita urai fakta versus asumsi, sadari momen saat ini, dan kembalikan fokus pada langkah kecil dalam kendali Anda."
+              title="Panduan LEGA Overthinking"
+              subtitle="Pola Pikiran Berulang & Kehadiran"
+              variant="pill"
+            />
             <span className="bg-stone-800/80 px-2.5 py-1 rounded-md border border-stone-700/60 flex items-center gap-1.5">
               <Info className="w-3.5 h-3.5 text-indigo-400" /> Bukan Diagnosis Gangguan Mental
             </span>

@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { EmotionCategory, EmotionLog, ModuleType } from '../types';
 import { analyzeEmotion } from '../lib/geminiApi';
+import { VoiceGuideButton } from './VoiceGuideButton';
 
 interface EmotionAnalysisProps {
   onSaveLog: (log: EmotionLog) => void;
@@ -184,11 +185,19 @@ export const EmotionAnalysis: React.FC<EmotionAnalysisProps> = ({
             </div>
           </div>
 
-          <div className="text-right hidden sm:block">
-            <span className="text-[10px] text-stone-400 font-mono uppercase tracking-wider block">
-              SHAQILA DIGITAL 99
-            </span>
-            <span className="text-xs text-emerald-400 font-semibold">Self Awareness Platform</span>
+          <div className="flex items-center gap-3">
+            <VoiceGuideButton
+              text="Selamat datang di Modul Analisis Emosi LEGA. Emosi bukan musuh yang harus dilawan, melainkan sinyal berharga dari dalam diri. Luangkan waktu sejenak, pilih emosi yang Anda rasakan, amati sensasi tubuh Anda, dan biarkan AI membimbing refleksi Anda."
+              title="Panduan Analisis Emosi LEGA"
+              subtitle="Pengantar Kesadaran Diri Emosional"
+              variant="pill"
+            />
+            <div className="text-right hidden sm:block">
+              <span className="text-[10px] text-stone-400 font-mono uppercase tracking-wider block">
+                SHAQILA DIGITAL 99
+              </span>
+              <span className="text-xs text-emerald-400 font-semibold">Self Awareness Platform</span>
+            </div>
           </div>
         </div>
 
@@ -429,6 +438,14 @@ export const EmotionAnalysis: React.FC<EmotionAnalysisProps> = ({
 
           {analysisResult ? (
             <div className="space-y-4 animate-fade-in">
+              {/* Voice Player Banner for Complete Analysis */}
+              <VoiceGuideButton
+                text={`Hasil Analisis Kesadaran Diri LEGA. Emosi utama yang teridentifikasi adalah ${analysisResult.primaryEmotion || selectedCategory}, dengan intensitas ${analysisResult.intensityLevel || getIntensityText(intensity)}. ${analysisResult.summary}. Sensasi tubuh: ${analysisResult.bodySensations || analysisResult.mindBodyPerspective || ''}. Kebutuhan batin terdalam: ${analysisResult.underlyingNeed}. Saran reflektif: ${analysisResult.reflectiveQuestion || (Array.isArray(analysisResult.reflectiveQuestions) ? analysisResult.reflectiveQuestions[0] : '')}. Luangkan waktu untuk bernapas dan izinkan diri Anda merasakan dengan lembut tanpa menghakimi.`}
+                title={`Audio Analisis: ${analysisResult.primaryEmotion || selectedCategory}`}
+                subtitle="Dengarkan pembacaan diagnostik & panduan batin LEGA"
+                variant="banner"
+              />
+
               {/* Emergency / Safety Alert if detected */}
               {analysisResult.emergencyNotice && (
                 <div className="p-4 rounded-2xl bg-rose-950/80 border border-rose-800 text-rose-200 space-y-2">

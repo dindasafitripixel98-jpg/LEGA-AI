@@ -33,6 +33,7 @@ import {
 import { motion } from 'motion/react';
 import { reflectAnger } from '../lib/geminiApi';
 import { JournalEntry } from '../types';
+import { VoiceGuideButton } from './VoiceGuideButton';
 
 interface LegaAngerProps {
   onSelectModule: (module: string) => void;
@@ -321,7 +322,13 @@ ${reflectionResult.reflectiveInsights?.wiseResponse || desiredWiseResponse || '-
             Memahami emosi marah, mengenali pemicunya, mengamati respon tubuh dan pikiran, serta mempelajari cara merespons kemarahan secara lebih sadar.
           </p>
 
-          <div className="pt-2 flex flex-wrap gap-2 text-xs text-stone-400">
+          <div className="pt-2 flex flex-wrap items-center gap-2 text-xs text-stone-400">
+            <VoiceGuideButton
+              text="Selamat datang di modul LEGA Anger. Kemarahan bukanlah musuh dan bukan dosa. Marah adalah sinyal bahwa ada batasan atau kebutuhan Anda yang terusik. Izinkan tubuh melambat sejenak, amati api kemarahan tanpa menyakiti diri maupun orang lain."
+              title="Panduan LEGA Anger"
+              subtitle="Kesadaran & Regulasi Emosi Marah"
+              variant="pill"
+            />
             <span className="bg-stone-800/80 px-2.5 py-1 rounded-md border border-stone-700/60 flex items-center gap-1.5">
               <Info className="w-3.5 h-3.5 text-rose-400" /> Emosi Normal • Bukan Dosa
             </span>

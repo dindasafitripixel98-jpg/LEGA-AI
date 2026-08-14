@@ -20,10 +20,21 @@ import {
   Smile,
   Zap,
   Info,
-  RefreshCw
+  RefreshCw,
+  Mic,
+  Bell,
+  Check,
+  UserCheck,
+  HeartHandshake
 } from 'lucide-react';
 import { ModuleType } from '../types';
 import { breathingReflect } from '../lib/geminiApi';
+import { VoiceGuideButton } from './VoiceGuideButton';
+import {
+  speakIndonesianNarration,
+  stopIndonesianNarration,
+  playCalmMeditationChime
+} from '../lib/audioEngine';
 
 interface BreathingExercisesProps {
   onSelectModule?: (module: ModuleType | string) => void;
@@ -147,14 +158,54 @@ const VARIATIONS: BreathVariation[] = [
 ];
 
 const ALUR_STEPS = [
-  { title: '1. Berhenti Sejenak', prompt: 'Hentikan sejenak segala rutinitas. Duduk atau berdiri dengan posisi yang nyaman, berikan izin pada diri Anda untuk hadir di sini.' },
-  { title: '2. Sadari Posisi Tubuh', prompt: 'Rasakan titik kontak tubuh Anda dengan tempat duduk atau lantai. Biarkan bahu Anda melunak perlahan.' },
-  { title: '3. Perhatikan Napas Yang Masuk', prompt: 'Bawa perhatian Anda ke ujung hidung atau dada. Rasakan sensasi udara sejuk yang mengalir masuk.' },
-  { title: '4. Perhatikan Napas Yang Keluar', prompt: 'Rasakan udara hangat yang perlahan berhembus keluar. Tidak perlu mengubah kecepatannya, cukup amati.' },
-  { title: '5. Rasakan Gerakan Dada & Perut', prompt: 'Amati kembang kempisnya dada dan perut mengikuti irama napas yang mengalir alami.' },
-  { title: '6. Kembalikan Perhatian Perlahan', prompt: 'Jika pikiran mengembara ke tempat lain, itu wajar. Dengan lembut, kembalikan fokus Anda ke napas.' },
-  { title: '7. Lanjutkan Siklus Napas', prompt: 'Gunakan lingkaran visualisasi di bawah untuk memandu tarikan, tahanan, dan hembusan napas Anda.' },
-  { title: '8. Refleksi & Pemaknaan AI', prompt: 'Selesai. Amati perubahan kondisi tubuh dan batin Anda, lalu dapatkan refleksi dari LEGA AI.' }
+  {
+    title: '1. Berhenti Sejenak',
+    subtitle: 'Menyudahi Ketergesaan',
+    prompt: 'Hentikan sejenak segala rutinitas. Duduk atau berdiri dengan posisi yang nyaman, berikan izin pada diri Anda untuk hadir di sini saat ini.',
+    tip: 'Lepaskan beban aktivitas beberapa saat. Tidak ada yang perlu diselesaikan dalam beberapa menit ke depan.'
+  },
+  {
+    title: '2. Sadari Posisi Tubuh',
+    subtitle: 'Menopang Diri dengan Rileks',
+    prompt: 'Rasakan titik kontak tubuh Anda dengan tempat duduk atau lantai. Biarkan bahu Anda melunak perlahan dan rahang mengendur.',
+    tip: 'Tegakkan punggung tanpa kaku, biarkan bahu turun menjauhi telinga, letakkan telapak tangan santai di pangkuan.'
+  },
+  {
+    title: '3. Perhatikan Napas Masuk',
+    subtitle: 'Mengamati Udara Sejuk',
+    prompt: 'Bawa perhatian Anda ke ujung hidung atau rongga dada. Rasakan sensasi udara sejuk yang mengalir masuk secara alami tanpa perlu dipaksakan.',
+    tip: 'Cukup amati alirannya. Jangan memaksakan napas panjang jika belum nyaman.'
+  },
+  {
+    title: '4. Perhatikan Napas Keluar',
+    subtitle: 'Melepaskan Ketegangan',
+    prompt: 'Rasakan udara hangat yang perlahan berhembus keluar. Biarkan setiap embusan membawa serta sisa-sisa ketegangan dari otot tubuh Anda.',
+    tip: 'Bayangkan beban pikiran ikut mengalir keluar bersama hembusan napas yang lembut.'
+  },
+  {
+    title: '5. Rasakan Gerakan Dada & Perut',
+    subtitle: 'Harmoni Diafragma',
+    prompt: 'Amati kembang kempisnya dada dan perut mengikuti irama napas yang mengalir alami seperti ombak laut yang tenang.',
+    tip: 'Napas diafragma yang santai mengirimkan sinyal rasa aman ke sistem saraf pusat Anda.'
+  },
+  {
+    title: '6. Kembalikan Perhatian Perlahan',
+    subtitle: 'Pikiran Mengembara Itu Wajar',
+    prompt: 'Jika pikiran mengembara ke masa lalu atau masa depan, itu sangat manusiawi. Sadari tanpa menghakimi, lalu dengan lembut bawa kembali perhatian ke napas.',
+    tip: 'Setiap kali Anda menyadari pikiran teralihkan dan kembali ke napas, itu adalah momen keberhasilan kesadaran.'
+  },
+  {
+    title: '7. Latihan Siklus Napas (Visualizer)',
+    subtitle: 'Irama Napas Terpandu',
+    prompt: 'Gunakan lingkaran visualisasi pernapasan di bawah ini untuk memandu tarikan, tahanan, dan hembusan napas sesuai variasi yang Anda pilih.',
+    tip: 'Ikuti lingkaran napas, dengarkan suara pemandu atau bel harmonik untuk memandu ritme Anda.'
+  },
+  {
+    title: '8. Refleksi & Pemaknaan AI',
+    subtitle: 'Integrasi dan Ulasan',
+    prompt: 'Selesai latihan. Amati bagaimana kondisi tubuh dan batin Anda terasa saat ini, lalu catat refleksi singkat untuk dianalisis oleh LEGA AI.',
+    tip: 'Dapatkan wawasan terpersonalisasi untuk mendukung regulasi emosi jangka panjang Anda.'
+  }
 ];
 
 export const BreathingExercises: React.FC<BreathingExercisesProps> = ({
@@ -174,15 +225,17 @@ export const BreathingExercises: React.FC<BreathingExercisesProps> = ({
   // Guided Flow Step (0 to 7)
   const [currentStep, setCurrentStep] = useState<number>(0);
 
+  // Step Section Scroll Ref
+  const stepContainerRef = useRef<HTMLDivElement>(null);
+
   // Timer & Breath Engine
   const [isActive, setIsActive] = useState<boolean>(false);
   const [phase, setPhase] = useState<'Inhale' | 'HoldIn' | 'Exhale' | 'HoldOut'>('Inhale');
   const [countdown, setCountdown] = useState<number>(VARIATIONS[0].inhale);
   const [elapsedSeconds, setElapsedSeconds] = useState<number>(0);
-  const [soundEnabled, setSoundEnabled] = useState<boolean>(false);
-
-  // Audio Synth Context Ref
-  const audioCtxRef = useRef<AudioContext | null>(null);
+  // Sound & Voice Mode
+  type SoundMode = 'voice' | 'bell' | 'mute';
+  const [soundMode, setSoundMode] = useState<SoundMode>('voice');
 
   // Reflective Questions State
   const [breathSensationBefore, setBreathSensationBefore] = useState<string>('Dangkal / Tegang');
@@ -196,44 +249,62 @@ export const BreathingExercises: React.FC<BreathingExercisesProps> = ({
 
   const totalSecondsTarget = selectedDuration * 60;
 
-  // Sound tone trigger
-  const playBreathChime = (type: 'inhale' | 'exhale' | 'hold') => {
-    if (!soundEnabled) return;
-    try {
-      if (!audioCtxRef.current) {
-        audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+  const goToStep = (stepIndex: number) => {
+    stopIndonesianNarration();
+    if (stepIndex >= 8) {
+      setActiveTab('reflection');
+    } else {
+      setCurrentStep(stepIndex);
+      if (activeTab !== 'guided') {
+        setActiveTab('guided');
       }
-      const ctx = audioCtxRef.current;
-      if (ctx.state === 'suspended') {
-        ctx.resume();
+    }
+    setTimeout(() => {
+      stepContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  };
+
+  // Sound & Voice Narration Trigger
+  const playPhaseAudioAndNarration = (targetPhase: 'Inhale' | 'HoldIn' | 'Exhale' | 'HoldOut') => {
+    if (soundMode === 'mute') return;
+
+    // 1. Play serene harmonic bell / chime
+    if (targetPhase === 'Inhale') {
+      playCalmMeditationChime('inhale');
+    } else if (targetPhase === 'Exhale') {
+      playCalmMeditationChime('exhale');
+    } else {
+      playCalmMeditationChime('hold');
+    }
+
+    // 2. Speak voice guide if mode is 'voice'
+    if (soundMode === 'voice') {
+      let textToSpeak = '';
+      if (targetPhase === 'Inhale') {
+        textToSpeak = 'Tarik napas perlahan...';
+      } else if (targetPhase === 'HoldIn') {
+        textToSpeak = 'Tahan napas...';
+      } else if (targetPhase === 'Exhale') {
+        textToSpeak = 'Hembuskan perlahan lewat mulut...';
+      } else if (targetPhase === 'HoldOut') {
+        textToSpeak = 'Tahan sejenak...';
       }
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-
-      if (type === 'inhale') {
-        osc.frequency.setValueAtTime(320, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(520, ctx.currentTime + 0.3);
-      } else if (type === 'exhale') {
-        osc.frequency.setValueAtTime(520, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(320, ctx.currentTime + 0.4);
-      } else {
-        osc.frequency.setValueAtTime(440, ctx.currentTime);
+      if (textToSpeak) {
+        speakIndonesianNarration(textToSpeak, { rate: 0.9, pitch: 0.95 });
       }
-
-      gain.gain.setValueAtTime(0.08, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.4);
-    } catch (e) {
-      // Audio context error ignore
     }
   };
 
+  const handleTestVoiceGuide = () => {
+    playCalmMeditationChime('bowl');
+    speakIndonesianNarration('Tes suara pemandu pernapasan. Tarik napas perlahan, rasakan tubuh rileks, dan hembuskan dengan lembut.', {
+      rate: 0.88,
+      pitch: 0.95
+    });
+  };
+
   useEffect(() => {
+    stopIndonesianNarration();
     setIsActive(false);
     setPhase('Inhale');
     setCountdown(selectedVariation.inhale);
@@ -249,6 +320,12 @@ export const BreathingExercises: React.FC<BreathingExercisesProps> = ({
         setElapsedSeconds((prev) => {
           if (prev >= totalSecondsTarget) {
             setIsActive(false);
+            if (soundMode !== 'mute') {
+              playCalmMeditationChime('bowl');
+              if (soundMode === 'voice') {
+                speakIndonesianNarration('Latihan pernapasan telah selesai. Amati ketenangan dan kelegaan di dalam tubuh Anda.');
+              }
+            }
             return totalSecondsTarget;
           }
           return prev + 1;
@@ -262,30 +339,30 @@ export const BreathingExercises: React.FC<BreathingExercisesProps> = ({
             if (phase === 'Inhale') {
               if (selectedVariation.holdIn > 0) {
                 setPhase('HoldIn');
-                playBreathChime('hold');
+                playPhaseAudioAndNarration('HoldIn');
                 return selectedVariation.holdIn;
               } else {
                 setPhase('Exhale');
-                playBreathChime('exhale');
+                playPhaseAudioAndNarration('Exhale');
                 return selectedVariation.exhale;
               }
             } else if (phase === 'HoldIn') {
               setPhase('Exhale');
-              playBreathChime('exhale');
+              playPhaseAudioAndNarration('Exhale');
               return selectedVariation.exhale;
             } else if (phase === 'Exhale') {
               if (selectedVariation.holdOut > 0) {
                 setPhase('HoldOut');
-                playBreathChime('hold');
+                playPhaseAudioAndNarration('HoldOut');
                 return selectedVariation.holdOut;
               } else {
                 setPhase('Inhale');
-                playBreathChime('inhale');
+                playPhaseAudioAndNarration('Inhale');
                 return selectedVariation.inhale;
               }
             } else {
               setPhase('Inhale');
-              playBreathChime('inhale');
+              playPhaseAudioAndNarration('Inhale');
               return selectedVariation.inhale;
             }
           }
@@ -296,16 +373,20 @@ export const BreathingExercises: React.FC<BreathingExercisesProps> = ({
     return () => {
       if (timer) clearInterval(timer);
     };
-  }, [isActive, phase, countdown, selectedVariation, totalSecondsTarget]);
+  }, [isActive, phase, countdown, selectedVariation, totalSecondsTarget, soundMode]);
 
   const toggleTimer = () => {
     if (!isActive) {
-      playBreathChime('inhale');
+      playPhaseAudioAndNarration(phase);
+      setIsActive(true);
+    } else {
+      stopIndonesianNarration();
+      setIsActive(false);
     }
-    setIsActive(!isActive);
   };
 
   const resetTimer = () => {
+    stopIndonesianNarration();
     setIsActive(false);
     setPhase('Inhale');
     setCountdown(selectedVariation.inhale);
@@ -377,8 +458,15 @@ export const BreathingExercises: React.FC<BreathingExercisesProps> = ({
             </div>
           </div>
 
-          {/* Nav Mode Tabs */}
-          <div className="flex bg-stone-950 border border-stone-800 rounded-2xl p-1 gap-1 text-xs">
+          <div className="flex items-center gap-2 flex-wrap">
+            <VoiceGuideButton
+              text="Selamat datang di modul LEGA Breathing. Napas adalah jembatan antara pikiran dan tubuh Anda. Bernapaslah secara alami tanpa memaksakan ritme, rasakan udara masuk dan keluar, serta izinkan sistem saraf Anda rileks dengan aman."
+              title="Panduan LEGA Breathing"
+              subtitle="Latihan Pernapasan Berkesadaran"
+              variant="pill"
+            />
+            {/* Nav Mode Tabs */}
+            <div className="flex bg-stone-950 border border-stone-800 rounded-2xl p-1 gap-1 text-xs">
             <button
               onClick={() => setActiveTab('guided')}
               className={`px-3 py-1.5 rounded-xl font-semibold transition flex items-center gap-1.5 ${
@@ -414,6 +502,7 @@ export const BreathingExercises: React.FC<BreathingExercisesProps> = ({
             </button>
           </div>
         </div>
+      </div>
 
         {/* Non-Medical Disclaimer & Respiratory Guard */}
         <div className="p-3.5 bg-amber-950/40 border border-amber-800/60 rounded-2xl text-[11px] text-amber-200 space-y-2 leading-relaxed">
@@ -513,109 +602,326 @@ export const BreathingExercises: React.FC<BreathingExercisesProps> = ({
             </div>
           )}
 
-          {/* Step Header */}
-          <div className="flex items-center justify-between text-xs">
-            <span className="font-bold text-emerald-400 flex items-center gap-1.5">
-              <Activity className="w-4 h-4" /> Langkah {currentStep + 1} / 8: {ALUR_STEPS[currentStep].title}
-            </span>
-            <button
-              onClick={() => setCurrentStep(0)}
-              className="text-stone-400 hover:text-stone-200 flex items-center gap-1 transition"
-            >
-              <RotateCcw className="w-3.5 h-3.5" /> Reset Step
-            </button>
-          </div>
-
-          {/* Current Step Instruction Box */}
-          <div className="p-5 bg-stone-950/80 border border-stone-800 rounded-2xl space-y-2">
-            <p className="text-xs text-emerald-300 font-semibold uppercase tracking-wider">
-              Panduan Pemandu AI (LEGA Breathing)
-            </p>
-            <p className="text-sm md:text-base text-stone-200 font-medium leading-relaxed">
-              "{ALUR_STEPS[currentStep].prompt}"
-            </p>
-          </div>
-
-          {/* Step 7: Breathing Visualizer Canvas */}
-          {currentStep >= 0 && (
-            <div className="bg-stone-950/90 p-8 md:p-12 rounded-3xl border border-stone-800 text-center space-y-8 relative overflow-hidden shadow-2xl">
-              <div className="flex justify-between items-center text-xs text-stone-400">
-                <span className="font-semibold text-stone-300">{selectedVariation.name} ({selectedVariation.category})</span>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => setSoundEnabled(!soundEnabled)}
-                    className="hover:text-stone-200 transition flex items-center gap-1"
-                  >
-                    {soundEnabled ? <Volume2 className="w-4 h-4 text-emerald-400" /> : <VolumeX className="w-4 h-4 text-stone-500" />}
-                    <span className="text-[11px]">{soundEnabled ? 'Suara Aktif' : 'Hening'}</span>
-                  </button>
-                  <span className="font-mono">
-                    {Math.floor(elapsedSeconds / 60)}:{(elapsedSeconds % 60).toString().padStart(2, '0')} / {selectedDuration}:00
-                  </span>
-                </div>
-              </div>
-
-              {/* Animated Circle Container */}
-              <div className="relative py-8 flex items-center justify-center">
-                <div
-                  className={`w-48 h-48 sm:w-60 sm:h-60 rounded-full border-4 transition-all duration-1000 flex flex-col items-center justify-center gap-2 ${getCircleStyle()}`}
-                >
-                  <span className="text-3xl sm:text-5xl font-extrabold text-stone-100 font-mono">
-                    {countdown}
-                  </span>
-                  <span className="text-xs sm:text-sm font-medium text-stone-300 max-w-[150px]">
-                    {getPhaseText()}
-                  </span>
-                </div>
-              </div>
-
-              {/* Timer Controls */}
-              <div className="flex items-center justify-center gap-4">
+          {/* 8-Step Interactive Progress Bar */}
+          <div ref={stepContainerRef} className="space-y-2 pt-1">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-bold text-emerald-400 flex items-center gap-1.5">
+                <Activity className="w-4 h-4" /> Alur 8 Langkah: Langkah {currentStep + 1} dari 8
+              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] text-stone-400">
+                  {Math.round(((currentStep + 1) / 8) * 100)}% Selesai
+                </span>
                 <button
-                  onClick={toggleTimer}
-                  className={`px-8 py-3.5 rounded-2xl font-semibold text-sm transition flex items-center gap-2 shadow-lg ${
-                    isActive
-                      ? 'bg-amber-600 hover:bg-amber-500 text-white shadow-amber-950/40'
-                      : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-950/40'
-                  }`}
+                  onClick={() => goToStep(0)}
+                  className="text-stone-400 hover:text-stone-200 flex items-center gap-1 text-[11px] transition bg-stone-900 border border-stone-800 px-2 py-0.5 rounded-lg"
+                  title="Kembali ke Langkah 1"
                 >
-                  {isActive ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                  <span>{isActive ? 'Jeda Latihan' : 'Mulai Latihan Napas'}</span>
-                </button>
-
-                <button
-                  onClick={resetTimer}
-                  className="p-3.5 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-2xl border border-stone-700 transition"
-                  title="Reset Timer"
-                >
-                  <RotateCcw className="w-4 h-4" />
+                  <RotateCcw className="w-3 h-3" /> Reset
                 </button>
               </div>
             </div>
-          )}
+
+            {/* Step Pills Navigation */}
+            <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5">
+              {ALUR_STEPS.map((stepItem, sIdx) => {
+                const isCurrent = currentStep === sIdx;
+                const isPassed = currentStep > sIdx;
+                return (
+                  <button
+                    key={sIdx}
+                    onClick={() => goToStep(sIdx)}
+                    className={`py-2 px-1 rounded-xl text-[11px] font-medium transition flex flex-col items-center justify-center gap-0.5 border ${
+                      isCurrent
+                        ? 'bg-emerald-600 text-white border-emerald-400 shadow-md ring-2 ring-emerald-500/30'
+                        : isPassed
+                        ? 'bg-emerald-950/60 text-emerald-300 border-emerald-800 hover:bg-emerald-900/60'
+                        : 'bg-stone-900/80 text-stone-400 border-stone-800 hover:bg-stone-800 hover:text-stone-200'
+                    }`}
+                    title={stepItem.title}
+                  >
+                    <div className="flex items-center gap-1">
+                      {isPassed ? (
+                        <Check className="w-3 h-3 text-emerald-400" />
+                      ) : (
+                        <span className="text-[10px] opacity-75">#{sIdx + 1}</span>
+                      )}
+                    </div>
+                    <span className="truncate max-w-[65px] text-[10px] hidden sm:inline">
+                      {stepItem.title.replace(/^\d+\.\s*/, '')}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Current Step Active Card */}
+          <div className="p-5 md:p-6 bg-stone-950/90 border border-emerald-900/40 rounded-2xl space-y-4 shadow-xl">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-850 pb-3">
+              <div className="space-y-0.5">
+                <span className="text-[11px] font-semibold text-emerald-400 uppercase tracking-wider flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5" /> Langkah {currentStep + 1} dari 8
+                </span>
+                <h4 className="text-base md:text-lg font-bold text-stone-100">
+                  {ALUR_STEPS[currentStep].title}
+                </h4>
+                <p className="text-xs text-stone-400">
+                  {ALUR_STEPS[currentStep].subtitle}
+                </p>
+              </div>
+
+              {/* Voice Guide Button for this Step */}
+              <VoiceGuideButton
+                text={ALUR_STEPS[currentStep].prompt}
+                title={ALUR_STEPS[currentStep].title}
+                subtitle="Instruksi Napas Berkesadaran"
+                variant="compact"
+              />
+            </div>
+
+            {/* Instruction Quote */}
+            <div className="p-4 bg-stone-900/90 border border-stone-800 rounded-xl space-y-2">
+              <p className="text-sm md:text-base text-stone-100 font-medium leading-relaxed italic">
+                "{ALUR_STEPS[currentStep].prompt}"
+              </p>
+              <div className="flex items-center gap-2 text-xs text-stone-400 pt-1">
+                <Info className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <span><strong>Tips:</strong> {ALUR_STEPS[currentStep].tip}</span>
+              </div>
+            </div>
+
+            {/* Interactive Step-specific helpers for Steps 1-6 */}
+            {currentStep === 0 && (
+              <div className="p-3.5 bg-emerald-950/30 border border-emerald-800/40 rounded-xl text-xs text-emerald-200 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <Smile className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Luangkan 10-15 detik untuk hening sepenuhnya sebelum melanjutkan.</span>
+                </div>
+                <button
+                  onClick={() => goToStep(1)}
+                  className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-semibold shrink-0 transition"
+                >
+                  Saya Siap &rarr;
+                </button>
+              </div>
+            )}
+
+            {currentStep === 1 && (
+              <div className="p-3.5 bg-emerald-950/30 border border-emerald-800/40 rounded-xl text-xs text-emerald-200 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <UserCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Rasakan tumpuan kaki di lantai dan rilekskan ketegangan leher/pundak.</span>
+                </div>
+                <button
+                  onClick={() => goToStep(2)}
+                  className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-semibold shrink-0 transition"
+                >
+                  Posisi Rileks &rarr;
+                </button>
+              </div>
+            )}
+
+            {currentStep === 2 && (
+              <div className="p-3.5 bg-emerald-950/30 border border-emerald-800/40 rounded-xl text-xs text-emerald-200 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <Wind className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Rasakan aliran udara sejuk masuk perlahan melalui hidung.</span>
+                </div>
+                <button
+                  onClick={() => goToStep(3)}
+                  className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-semibold shrink-0 transition"
+                >
+                  Napas Masuk Terasakan &rarr;
+                </button>
+              </div>
+            )}
+
+            {currentStep === 3 && (
+              <div className="p-3.5 bg-emerald-950/30 border border-emerald-800/40 rounded-xl text-xs text-emerald-200 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <Heart className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Hembuskan perlahan, biarkan rasa tegang mengalir keluar.</span>
+                </div>
+                <button
+                  onClick={() => goToStep(4)}
+                  className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-semibold shrink-0 transition"
+                >
+                  Hembusan Terasakan &rarr;
+                </button>
+              </div>
+            )}
+
+            {currentStep === 4 && (
+              <div className="p-3.5 bg-emerald-950/30 border border-emerald-800/40 rounded-xl text-xs text-emerald-200 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Amati gerakan naik-turun rongga dada dan perut secara wajar.</span>
+                </div>
+                <button
+                  onClick={() => goToStep(5)}
+                  className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-semibold shrink-0 transition"
+                >
+                  Irama Terasakan &rarr;
+                </button>
+              </div>
+            )}
+
+            {currentStep === 5 && (
+              <div className="p-3.5 bg-emerald-950/30 border border-emerald-800/40 rounded-xl text-xs text-emerald-200 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <HeartHandshake className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Bawa kembali perhatian dengan ramah setiap kali ada distraksi.</span>
+                </div>
+                <button
+                  onClick={() => goToStep(6)}
+                  className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-semibold shrink-0 transition"
+                >
+                  Menuju Latihan Napas (Visualizer) &rarr;
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Interactive Breathing Visualizer (Prominently featured in Step 7 and accessible anytime) */}
+          <div className="bg-stone-950/90 p-6 md:p-10 rounded-3xl border border-stone-800 text-center space-y-6 relative overflow-hidden shadow-2xl">
+            <div className="flex flex-wrap justify-between items-center gap-3 text-xs text-stone-400 border-b border-stone-850 pb-4">
+              <div className="flex items-center gap-2 text-left">
+                <Wind className="w-4 h-4 text-emerald-400 shrink-0" />
+                <div>
+                  <div className="font-semibold text-stone-200">
+                    {selectedVariation.name} ({selectedVariation.category})
+                  </div>
+                  <div className="text-[11px] text-stone-400">
+                    {selectedVariation.desc}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* Mode Suara Selector */}
+                <div className="flex bg-stone-900 border border-stone-800 rounded-xl p-1 gap-1 text-[11px]">
+                  <button
+                    onClick={() => setSoundMode('voice')}
+                    className={`px-2.5 py-1 rounded-lg font-medium transition flex items-center gap-1.5 ${
+                      soundMode === 'voice'
+                        ? 'bg-emerald-600 text-white shadow-sm'
+                        : 'text-stone-400 hover:text-stone-200'
+                    }`}
+                    title="Narasi Suara Pemandu Bahasa Indonesia + Bel Harmonik"
+                  >
+                    <Mic className="w-3.5 h-3.5" />
+                    <span>Suara Pemandu</span>
+                  </button>
+                  <button
+                    onClick={() => setSoundMode('bell')}
+                    className={`px-2.5 py-1 rounded-lg font-medium transition flex items-center gap-1.5 ${
+                      soundMode === 'bell'
+                        ? 'bg-emerald-600 text-white shadow-sm'
+                        : 'text-stone-400 hover:text-stone-200'
+                    }`}
+                    title="Hanya Denting Bel Lonceng Meditatif"
+                  >
+                    <Bell className="w-3.5 h-3.5" />
+                    <span>Bel Saja</span>
+                  </button>
+                  <button
+                    onClick={() => setSoundMode('mute')}
+                    className={`px-2.5 py-1 rounded-lg font-medium transition flex items-center gap-1.5 ${
+                      soundMode === 'mute'
+                        ? 'bg-stone-700 text-white'
+                        : 'text-stone-400 hover:text-stone-200'
+                    }`}
+                    title="Hening tanpa suara"
+                  >
+                    <VolumeX className="w-3.5 h-3.5" />
+                    <span>Hening</span>
+                  </button>
+                </div>
+
+                <button
+                  onClick={handleTestVoiceGuide}
+                  className="px-2.5 py-1 bg-stone-900 hover:bg-stone-800 border border-stone-800 rounded-xl text-[11px] text-emerald-300 font-medium transition flex items-center gap-1.5"
+                  title="Dengarkan contoh suara pemandu pernapasan"
+                >
+                  <Volume2 className="w-3.5 h-3.5" />
+                  <span>Tes Suara</span>
+                </button>
+
+                <span className="font-mono bg-stone-900 border border-stone-800 px-2.5 py-1 rounded-xl text-stone-300 text-[11px]">
+                  {Math.floor(elapsedSeconds / 60)}:{(elapsedSeconds % 60).toString().padStart(2, '0')} / {selectedDuration}:00
+                </span>
+              </div>
+            </div>
+
+            {/* Animated Circle Container */}
+            <div className="relative py-6 flex flex-col items-center justify-center gap-3">
+              <div
+                className={`w-44 h-44 sm:w-56 sm:h-56 rounded-full border-4 transition-all duration-1000 flex flex-col items-center justify-center gap-2 ${getCircleStyle()}`}
+              >
+                <span className="text-3xl sm:text-5xl font-extrabold text-stone-100 font-mono">
+                  {countdown}
+                </span>
+                <span className="text-xs sm:text-sm font-medium text-stone-300 max-w-[150px]">
+                  {getPhaseText()}
+                </span>
+              </div>
+
+              {/* Spoken Narration Live Status Pill */}
+              {isActive && soundMode === 'voice' && (
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-950/80 border border-emerald-700/60 rounded-full text-xs text-emerald-300 animate-pulse">
+                  <Mic className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Narasi Pemandu: "{getPhaseText()}"</span>
+                </div>
+              )}
+            </div>
+
+            {/* Timer Controls */}
+            <div className="flex items-center justify-center gap-4">
+              <button
+                onClick={toggleTimer}
+                className={`px-8 py-3.5 rounded-2xl font-semibold text-sm transition flex items-center gap-2 shadow-lg ${
+                  isActive
+                    ? 'bg-amber-600 hover:bg-amber-500 text-white shadow-amber-950/40'
+                    : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-950/40'
+                }`}
+              >
+                {isActive ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                <span>{isActive ? 'Jeda Latihan' : 'Mulai Latihan Napas'}</span>
+              </button>
+
+              <button
+                onClick={resetTimer}
+                className="p-3.5 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-2xl border border-stone-700 transition"
+                title="Reset Timer"
+              >
+                <RotateCcw className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
 
           {/* Step Navigation Controls */}
           <div className="flex items-center justify-between pt-4 border-t border-stone-800">
             <button
-              onClick={() => setCurrentStep((prev) => Math.max(0, prev - 1))}
+              onClick={() => goToStep(Math.max(0, currentStep - 1))}
               disabled={currentStep === 0}
-              className="px-4 py-2 bg-stone-800 hover:bg-stone-700 disabled:opacity-40 text-stone-300 rounded-xl text-xs font-medium transition"
+              className="px-4 py-2.5 bg-stone-800 hover:bg-stone-700 disabled:opacity-40 disabled:hover:bg-stone-800 text-stone-200 rounded-xl text-xs font-semibold transition cursor-pointer disabled:cursor-not-allowed"
             >
-              Sebelumnya
+              &larr; Langkah Sebelumnya
             </button>
 
             <button
               onClick={() => {
-                if (currentStep === 7) {
-                  setActiveTab('reflection');
+                if (currentStep >= 7) {
+                  goToStep(8);
                 } else {
-                  setCurrentStep((prev) => Math.min(7, prev + 1));
+                  goToStep(currentStep + 1);
                 }
               }}
-              className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold transition flex items-center gap-1.5"
+              className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white rounded-xl text-xs font-semibold transition flex items-center gap-1.5 shadow-lg shadow-emerald-950/30 cursor-pointer"
             >
-              <span>{currentStep === 7 ? 'Lanjut ke Refleksi AI' : 'Langkah Selanjutnya'}</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <span>{currentStep >= 7 ? 'Lanjut ke Refleksi & Ulasan AI' : `Lanjut ke Langkah ${currentStep + 2}`}</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         </div>

@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { ModuleType } from '../types';
 import { observerReflect } from '../lib/geminiApi';
+import { VoiceGuideButton } from './VoiceGuideButton';
 
 interface LegaObserverProps {
   onSelectModule?: (module: ModuleType | string) => void;
@@ -123,8 +124,15 @@ export const LegaObserver: React.FC<LegaObserverProps> = ({
             </div>
           </div>
 
-          {/* Mode Tabs */}
-          <div className="flex bg-stone-950 border border-stone-800 rounded-2xl p-1 gap-1 text-xs">
+          <div className="flex items-center gap-2 flex-wrap">
+            <VoiceGuideButton
+              text="Selamat datang di modul LEGA Sang Pengamat. Anda bukanlah pikiran Anda, dan Anda bukanlah emosi Anda. Anda adalah ruang batin yang luas dan tenang, saksi abadi yang mengamati semua peristiwa batin dengan kedamaian."
+              title="Panduan LEGA Observer"
+              subtitle="Latihan Menjadi Saksi Batin"
+              variant="pill"
+            />
+            {/* Mode Tabs */}
+            <div className="flex bg-stone-950 border border-stone-800 rounded-2xl p-1 gap-1 text-xs">
             <button
               onClick={() => setActiveTab('observer-journey')}
               className={`px-3 py-1.5 rounded-xl font-semibold transition flex items-center gap-1.5 ${
@@ -149,6 +157,7 @@ export const LegaObserver: React.FC<LegaObserverProps> = ({
             </button>
           </div>
         </div>
+      </div>
 
         {/* Core Principle Card */}
         <div className="p-3.5 bg-stone-950/90 border border-stone-800/80 rounded-2xl text-[11px] text-stone-300 flex items-start gap-2.5 leading-relaxed">
@@ -178,9 +187,17 @@ export const LegaObserver: React.FC<LegaObserverProps> = ({
           {/* Current Step Content */}
           <div className="space-y-6">
             <div className="p-5 bg-stone-950/80 border border-stone-800 rounded-2xl space-y-2">
-              <p className="text-xs text-purple-300 font-semibold uppercase tracking-wider">
-                Panduan Saksi Batin
-              </p>
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-purple-300 font-semibold uppercase tracking-wider">
+                  Panduan Saksi Batin
+                </p>
+                <VoiceGuideButton
+                  text={OBSERVER_STEPS[currentStep].prompt}
+                  title={OBSERVER_STEPS[currentStep].title}
+                  subtitle="Instruksi Pengamatan Batin"
+                  variant="compact"
+                />
+              </div>
               <p className="text-sm md:text-base text-stone-200 font-medium leading-relaxed">
                 "{OBSERVER_STEPS[currentStep].prompt}"
               </p>

@@ -30,6 +30,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { reflectAnxiety } from '../lib/geminiApi';
 import { JournalEntry } from '../types';
+import { VoiceGuideButton } from './VoiceGuideButton';
 
 interface LegaAnxietyProps {
   onSelectModule: (module: string) => void;
@@ -207,7 +208,13 @@ ${reflectionResult.lifestyleRecommendations?.join('\n• ') || '-'}`;
             Di sini, kita belajar memahami sinyal tubuh, mengurai pemicu, serta melatih respon yang sadar dan penuh belas kasih.
           </p>
 
-          <div className="pt-2 flex flex-wrap gap-2 text-xs text-stone-400">
+          <div className="pt-2 flex flex-wrap items-center gap-2 text-xs text-stone-400">
+            <VoiceGuideButton
+              text="Selamat datang di modul LEGA Anxiety. Rasa cemas adalah sinyal alami tubuh yang berusaha melindungi Anda. Di sini kita belajar mengenali respon tubuh tanpa panik, memilah apa yang ada dalam kendali, dan memulihkan rasa aman."
+              title="Panduan LEGA Anxiety"
+              subtitle="Edukasi & Regulasi Kecemasan"
+              variant="pill"
+            />
             <span className="bg-stone-800/80 px-2.5 py-1 rounded-md border border-stone-700/60 flex items-center gap-1.5">
               <Info className="w-3.5 h-3.5 text-rose-400" /> Bukan Diagnosis & Bukan Terapi
             </span>
@@ -582,13 +589,21 @@ ${reflectionResult.lifestyleRecommendations?.join('\n• ') || '-'}`;
               className="space-y-6"
             >
               <div className="bg-stone-900 border border-rose-800/40 rounded-2xl p-6 md:p-8 space-y-6 shadow-xl">
-                <div className="flex items-center justify-between border-b border-stone-800 pb-4">
+                <div className="flex items-center justify-between border-b border-stone-800 pb-4 flex-wrap gap-2">
                   <div className="flex items-center gap-2 text-rose-400 font-bold text-lg">
                     <ShieldAlert className="w-6 h-6" /> Hasil Analisis LEGA Anxiety
                   </div>
-                  <span className="text-xs bg-rose-500/10 text-rose-300 border border-rose-500/30 px-3 py-1 rounded-full">
-                    Perspektif Edukatif
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <VoiceGuideButton
+                      text={`Hasil analisis LEGA Anxiety. Pemahaman kecemasan: ${reflectionResult.anxietyTypeUnderstanding || ''}. Fokus dalam kendali: ${reflectionResult.reflectiveAnswers?.inControl || ''}.`}
+                      title="Analisis LEGA Anxiety"
+                      subtitle="Dengarkan Ulasan Regulasi Kecemasan"
+                      variant="compact"
+                    />
+                    <span className="text-xs bg-rose-500/10 text-rose-300 border border-rose-500/30 px-3 py-1 rounded-full">
+                      Perspektif Edukatif
+                    </span>
+                  </div>
                 </div>
 
                 <div className="space-y-4 text-stone-200 leading-relaxed text-sm md:text-base">

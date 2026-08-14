@@ -28,6 +28,7 @@ import {
 import { motion } from 'motion/react';
 import { reflectSpiritual } from '../lib/geminiApi';
 import { JournalEntry } from '../types';
+import { VoiceGuideButton } from './VoiceGuideButton';
 
 interface LegaSpiritualReflectionProps {
   onSelectModule: (module: string) => void;
@@ -344,7 +345,13 @@ Doa Pribadi:
             Menghubungkan pengalaman hidup, emosi, dan kesadaran diri dengan nilai-nilai Islami secara lembut, bertanggung jawab, serta tidak menghakimi (Sabar, Syukur, Ikhtiar & Tawakal).
           </p>
 
-          <div className="pt-2 flex flex-wrap gap-2 text-xs text-stone-400">
+          <div className="pt-2 flex flex-wrap items-center gap-2 text-xs text-stone-400">
+            <VoiceGuideButton
+              text="Selamat datang di modul LEGA Spiritual Reflection. Muhasabah adalah dialog hening yang penuh kerendahan hati dengan Sang Pencipta. Menyadari keterbatasan diri, mengikhtiarkan yang terbaik, dan memasrahkan hasil akhir dalam tawakal yang menenangkan."
+              title="Panduan LEGA Spiritual Reflection"
+              subtitle="Muhasabah, Sabar, Syukur & Tawakal"
+              variant="pill"
+            />
             <span className="bg-stone-800/80 px-2.5 py-1 rounded-md border border-stone-700/60 flex items-center gap-1.5">
               <Moon className="w-3.5 h-3.5 text-emerald-400" /> Muhasabah
             </span>

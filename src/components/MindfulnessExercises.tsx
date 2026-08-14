@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { ModuleType } from '../types';
 import { presenceReflect } from '../lib/geminiApi';
+import { VoiceGuideButton } from './VoiceGuideButton';
 
 interface MindfulnessExercisesProps {
   onSelectModule?: (module: ModuleType | string) => void;
@@ -196,8 +197,15 @@ export const MindfulnessExercises: React.FC<MindfulnessExercisesProps> = ({
             </div>
           </div>
 
-          {/* Mode Tabs */}
-          <div className="flex bg-stone-950 border border-stone-800 rounded-2xl p-1 gap-1 text-xs">
+          <div className="flex items-center gap-2 flex-wrap">
+            <VoiceGuideButton
+              text="Selamat datang di LEGA Presence. Ini bukan latihan untuk mengosongkan pikiran, melainkan latihan melatih perhatian penuh terhadap apa yang hadir saat ini. Jika pikiran mengembara, kembalikan dengan lembut tanpa menghakimi."
+              title="Panduan LEGA Presence"
+              subtitle="Latihan Perhatian Penuh"
+              variant="pill"
+            />
+            {/* Mode Tabs */}
+            <div className="flex bg-stone-950 border border-stone-800 rounded-2xl p-1 gap-1 text-xs">
             <button
               onClick={() => setActiveTab('presence-session')}
               className={`px-3 py-1.5 rounded-xl font-semibold transition flex items-center gap-1.5 ${
@@ -233,6 +241,7 @@ export const MindfulnessExercises: React.FC<MindfulnessExercisesProps> = ({
             </button>
           </div>
         </div>
+      </div>
 
         {/* Disclaimer Notice */}
         <div className="p-3 bg-stone-950/80 border border-stone-800/80 rounded-2xl text-[11px] text-stone-400 flex items-start gap-2 leading-relaxed">
@@ -333,9 +342,17 @@ export const MindfulnessExercises: React.FC<MindfulnessExercisesProps> = ({
                   <Wind className="w-10 h-10" />
                 </div>
 
-                <h3 className="text-lg md:text-xl font-bold text-stone-100">
-                  {PRESENCE_STEPS[currentStepIdx].title}
-                </h3>
+                <div className="flex items-center justify-center gap-3">
+                  <h3 className="text-lg md:text-xl font-bold text-stone-100">
+                    {PRESENCE_STEPS[currentStepIdx].title}
+                  </h3>
+                  <VoiceGuideButton
+                    text={PRESENCE_STEPS[currentStepIdx].prompt}
+                    title={PRESENCE_STEPS[currentStepIdx].title}
+                    subtitle="Bimbingan Langkah Kesadaran"
+                    variant="compact"
+                  />
+                </div>
 
                 <p className="text-sm md:text-base text-stone-200 leading-relaxed font-medium bg-stone-950/80 p-5 rounded-2xl border border-stone-800/80">
                   "{PRESENCE_STEPS[currentStepIdx].prompt}"
@@ -598,9 +615,17 @@ export const MindfulnessExercises: React.FC<MindfulnessExercisesProps> = ({
                 {React.createElement(groundingSteps[groundingStep].icon, { className: 'w-8 h-8' })}
               </div>
               <div className="space-y-2 max-w-md mx-auto">
-                <h3 className="text-lg md:text-xl font-bold text-stone-100">
-                  {groundingSteps[groundingStep].title}
-                </h3>
+                <div className="flex items-center justify-center gap-2">
+                  <h3 className="text-lg md:text-xl font-bold text-stone-100">
+                    {groundingSteps[groundingStep].title}
+                  </h3>
+                  <VoiceGuideButton
+                    text={`${groundingSteps[groundingStep].title}. ${groundingSteps[groundingStep].desc}`}
+                    title={groundingSteps[groundingStep].title}
+                    subtitle="Bimbingan Grounding Indrawi"
+                    variant="compact"
+                  />
+                </div>
                 <p className="text-xs md:text-sm text-stone-300 leading-relaxed">
                   {groundingSteps[groundingStep].desc}
                 </p>

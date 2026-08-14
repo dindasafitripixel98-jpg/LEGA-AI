@@ -16,6 +16,7 @@ import {
 import { ConversationMessage, UserProfile } from '../types';
 import { sendChatMessage, generateGeminiTts } from '../lib/geminiApi';
 import { speakIndonesianNarration, stopIndonesianNarration } from '../lib/audioEngine';
+import { VoiceGuideButton } from './VoiceGuideButton';
 
 interface AICoachProps {
   userProfile: UserProfile;
@@ -191,13 +192,21 @@ export const AICoach: React.FC<AICoachProps> = ({
     <div className="flex flex-col h-[calc(100vh-4rem)] max-w-5xl mx-auto p-3 sm:p-5 text-stone-100">
       {/* Stage Indicator Header */}
       <div className="bg-stone-900/90 p-3 rounded-2xl border border-stone-800 mb-3 space-y-2">
-        <div className="flex items-center justify-between text-xs">
-          <span className="font-semibold text-emerald-400 flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5" /> Alur Refleksi LEGA: Tahap {currentStage}/10
-          </span>
-          <span className="text-stone-400 font-medium">
-            {FLOW_STEPS[currentStage - 1]}
-          </span>
+        <div className="flex items-center justify-between flex-wrap gap-2 text-xs">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-emerald-400 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5" /> Alur Refleksi LEGA: Tahap {currentStage}/10
+            </span>
+            <span className="text-stone-400 font-medium">
+              ({FLOW_STEPS[currentStage - 1]})
+            </span>
+          </div>
+          <VoiceGuideButton
+            text="Selamat datang di sesi pendampingan LEGA AI Coach. Anda berada di ruang aman tanpa penghakiman. Bagikan apa yang sedang Anda rasakan atau alami, dan mari kita uraikan bersama langkah demi langkah secara terarah."
+            title="Panduan LEGA AI Coach"
+            subtitle="Sesi Dialog Refleksi Terpandu"
+            variant="compact"
+          />
         </div>
         <div className="w-full bg-stone-800 h-1.5 rounded-full overflow-hidden">
           <div

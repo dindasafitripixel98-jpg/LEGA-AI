@@ -38,6 +38,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { reflectStress } from '../lib/geminiApi';
 import { JournalEntry } from '../types';
+import { VoiceGuideButton } from './VoiceGuideButton';
 
 interface LegaStressProps {
   onSelectModule: (module: string) => void;
@@ -233,7 +234,13 @@ ${reflectionResult.reflectiveInsights?.microAction || '-'}`;
             Memahami stres secara ilmiah, mengenali sumbernya, memahami respon tubuh, pikiran, emosi, dan perilaku, serta mempelajari latihan kesadaran untuk mengelola stres.
           </p>
 
-          <div className="pt-2 flex flex-wrap gap-2 text-xs text-stone-400">
+          <div className="pt-2 flex flex-wrap items-center gap-2 text-xs text-stone-400">
+            <VoiceGuideButton
+              text="Selamat datang di modul LEGA Stress. Stres bukanlah musuh, melainkan sinyal adaptasi tubuh dan pikiran. Sadari beban yang Anda rasakan, berikan diri Anda waktu jeda, dan temukan kembali keseimbangan energi Anda."
+              title="Panduan LEGA Stress"
+              subtitle="Edukasi & Pengelolaan Stres Terpandu"
+              variant="pill"
+            />
             <span className="bg-stone-800/80 px-2.5 py-1 rounded-md border border-stone-700/60 flex items-center gap-1.5">
               <Info className="w-3.5 h-3.5 text-amber-400" /> Bersifat Edukatif • Tanpa Diagnosis
             </span>

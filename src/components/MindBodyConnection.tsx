@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { ModuleType } from '../types';
 import { emotionBodyKnowledgeReflect } from '../lib/geminiApi';
+import { VoiceGuideButton } from './VoiceGuideButton';
 
 interface MindBodyConnectionProps {
   onSelectModule?: (module: ModuleType | string) => void;
@@ -220,8 +221,15 @@ export const MindBodyConnection: React.FC<MindBodyConnectionProps> = ({
             </div>
           </div>
 
-          {/* Nav Mode Tabs */}
-          <div className="flex bg-stone-950 border border-stone-800 rounded-2xl p-1 gap-1 text-xs">
+          <div className="flex items-center gap-2 flex-wrap">
+            <VoiceGuideButton
+              text="Selamat datang di modul Koneksi Pikiran & Tubuh LEGA. Emosi, pikiran, dan tubuh saling berbicara setiap detik. Memahami respon biologis tubuh terhadap stres dan emosi membantu kita menyayangi diri dengan lebih bijaksana."
+              title="Panduan Mind & Body Knowledge"
+              subtitle="Edukasi Ilmiah Psikosomatis"
+              variant="pill"
+            />
+            {/* Nav Mode Tabs */}
+            <div className="flex bg-stone-950 border border-stone-800 rounded-2xl p-1 gap-1 text-xs">
             <button
               onClick={() => setActiveTab('topics')}
               className={`px-3 py-1.5 rounded-xl font-semibold transition flex items-center gap-1.5 ${
@@ -257,6 +265,7 @@ export const MindBodyConnection: React.FC<MindBodyConnectionProps> = ({
             </button>
           </div>
         </div>
+      </div>
 
         {/* Non-Medical Disclaimer Banner */}
         <div className="p-3.5 bg-amber-950/40 border border-amber-800/60 rounded-2xl text-[11px] text-amber-200 space-y-1.5 leading-relaxed">
@@ -309,9 +318,17 @@ export const MindBodyConnection: React.FC<MindBodyConnectionProps> = ({
           {/* Topic Detail View */}
           <div className="lg:col-span-7 bg-stone-900/90 p-6 md:p-8 rounded-3xl border border-stone-800 space-y-6 shadow-xl">
             <div className="space-y-2 border-b border-stone-800 pb-4">
-              <span className="px-3 py-1 bg-rose-950 border border-rose-800 text-rose-300 rounded-full text-xs font-semibold">
-                {selectedTopic.category}
-              </span>
+              <div className="flex items-center justify-between">
+                <span className="px-3 py-1 bg-rose-950 border border-rose-800 text-rose-300 rounded-full text-xs font-semibold">
+                  {selectedTopic.category}
+                </span>
+                <VoiceGuideButton
+                  text={`Topik: ${selectedTopic.name}. ${selectedTopic.shortDesc}. Mekanisme biologis: ${selectedTopic.scientificMechanism}. Rekomendasi gaya hidup: ${selectedTopic.lifestyleTips.join(', ')}.`}
+                  title={`Edukasi: ${selectedTopic.name}`}
+                  subtitle="Penjelasan Biologis & Gaya Hidup"
+                  variant="compact"
+                />
+              </div>
               <h3 className="text-lg md:text-xl font-bold text-stone-100">
                 {selectedTopic.name}
               </h3>

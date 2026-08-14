@@ -232,6 +232,22 @@ function writeString(view: DataView, offset: number, string: string) {
 /**
  * Spoken Indonesian Speech Narration via Web Speech API
  */
+let cachedVoices: SpeechSynthesisVoice[] = [];
+
+if (typeof window !== 'undefined' && window.speechSynthesis) {
+  const updateVoices = () => {
+    try {
+      cachedVoices = window.speechSynthesis.getVoices();
+    } catch {
+      // ignore
+    }
+  };
+  updateVoices();
+  if (window.speechSynthesis.onvoiceschanged !== undefined) {
+    window.speechSynthesis.onvoiceschanged = updateVoices;
+  }
+}
+
 export function speakIndonesianNarration(
   text: string,
   options?: {
@@ -248,24 +264,34 @@ export function speakIndonesianNarration(
     return null;
   }
 
-  window.speechSynthesis.cancel(); // Stop any previous speech
+  try {
+    window.speechSynthesis.cancel(); // Stop any previous speech
+    if (window.speechSynthesis.paused) {
+      window.speechSynthesis.resume();
+    }
+  } catch {
+    // ignore
+  }
 
   const cleanText = text
     .replace(/\[PAUSE_SHORT\]/gi, '... ')
     .replace(/\[PAUSE_MEDIUM\]/gi, '... ... ')
     .replace(/\[PAUSE_LONG\]/gi, '... ... ... ')
     .replace(/\[Jeda \d+ detik\]/gi, '... ')
-    .replace(/[*#_`]/g, '');
+    .replace(/[*#_`]/g, '')
+    .trim();
+
+  if (!cleanText) return null;
 
   const utterance = new SpeechSynthesisUtterance(cleanText);
   utterance.rate = options?.rate ?? 0.88; // Gentle, slower pace for meditation
   utterance.pitch = options?.pitch ?? 0.95; // Soft warm pitch
-  utterance.volume = options?.volume ?? 0.9;
+  utterance.volume = options?.volume ?? 1.0;
   utterance.lang = 'id-ID';
 
   // Find Indonesian voice if available
-  const voices = window.speechSynthesis.getVoices();
-  const idVoice = voices.find((v) => v.lang.startsWith('id') || v.lang.includes('ID'));
+  const voices = cachedVoices.length > 0 ? cachedVoices : (window.speechSynthesis.getVoices() || []);
+  const idVoice = voices.find((v) => v.lang.startsWith('id') || v.lang.includes('ID') || v.name.toLowerCase().includes('indonesia'));
   if (idVoice) {
     utterance.voice = idVoice;
   }
@@ -274,8 +300,95 @@ export function speakIndonesianNarration(
   if (options?.onEnd) utterance.onend = options.onEnd;
   if (options?.onError) utterance.onerror = options.onError;
 
-  window.speechSynthesis.speak(utterance);
+  try {
+    window.speechSynthesis.speak(utterance);
+  } catch (err) {
+    console.warn('Failed to call speechSynthesis.speak:', err);
+  }
   return utterance;
+}
+
+/**
+ * Play a crystal-clear harmonic chime or Tibetan singing bowl bell using Web Audio API
+ */
+let sharedAudioCtx: AudioContext | null = null;
+
+export function playCalmMeditationChime(type: 'inhale' | 'exhale' | 'hold' | 'bell' | 'bowl' = 'bowl', volume = 0.15) {
+  if (typeof window === 'undefined') return;
+  try {
+    if (!sharedAudioCtx || sharedAudioCtx.state === 'closed') {
+      sharedAudioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    if (sharedAudioCtx.state === 'suspended') {
+      sharedAudioCtx.resume();
+    }
+    const ctx = sharedAudioCtx;
+    const now = ctx.currentTime;
+
+    if (type === 'inhale') {
+      // Warm ascending harmonic tone
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(320, now);
+      osc.frequency.exponentialRampToValueAtTime(528, now + 0.4);
+      gain.gain.setValueAtTime(volume * 0.8, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.6);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.7);
+    } else if (type === 'exhale') {
+      // Soft descending soothing tone
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(528, now);
+      osc.frequency.exponentialRampToValueAtTime(320, now + 0.5);
+      gain.gain.setValueAtTime(volume * 0.8, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.7);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.8);
+    } else if (type === 'hold') {
+      // Steady gentle harmonic chime
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(432, now);
+      gain.gain.setValueAtTime(volume * 0.6, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.6);
+    } else {
+      // Resonant Tibetan Singing Bowl Bell (528 Hz Love Frequency + 1457 Hz overtone)
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(528, now);
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(528 * 2.76, now);
+
+      gain.gain.setValueAtTime(volume, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 3.5);
+
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc1.start(now);
+      osc2.start(now);
+      osc1.stop(now + 3.6);
+      osc2.stop(now + 3.6);
+    }
+  } catch (err) {
+    console.warn('Audio chime playback error:', err);
+  }
 }
 
 /**

@@ -46,6 +46,7 @@ import { SettingsView } from './components/SettingsView';
 import { AdminPanel } from './components/AdminPanel';
 import { PwaInstallModal } from './components/PwaInstallModal';
 import { PwaNotificationBanner } from './components/PwaNotificationBanner';
+import { GlobalVoiceBar } from './components/GlobalVoiceBar';
 
 export default function App() {
   const getInitialModule = (): ModuleType => {
@@ -353,6 +354,9 @@ export default function App() {
       <PwaNotificationBanner
         onOpenPwaModal={() => setIsPwaModalOpen(true)}
       />
+
+      {/* Global AI Voice Guide Floating Controller */}
+      <GlobalVoiceBar />
     </div>
   );
 }

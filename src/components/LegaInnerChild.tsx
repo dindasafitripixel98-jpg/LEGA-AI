@@ -23,6 +23,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { reflectInnerChild } from '../lib/geminiApi';
 import { JournalEntry } from '../types';
+import { VoiceGuideButton } from './VoiceGuideButton';
 
 interface LegaInnerChildProps {
   onSelectModule: (module: string) => void;
@@ -211,8 +212,14 @@ ${jNote.futureHope || 'Tumbuh dengan belas kasih dan ruang batin yang lebih seha
             Proses ini hadir untuk memberikan belas kasih kepada perjalanan Anda, tanpa menyalahkan siapapun.
           </p>
 
-          {/* Explicit Disclaimers */}
-          <div className="pt-2 flex flex-wrap gap-2 text-xs text-stone-400">
+          {/* Explicit Disclaimers & Voice Guide */}
+          <div className="pt-2 flex flex-wrap items-center gap-2 text-xs text-stone-400">
+            <VoiceGuideButton
+              text="Selamat datang di modul LEGA Inner Child. Konsep anak batin adalah metafora untuk merangkul kembali ingatan masa kecil, kebutuhan emosional yang belum terpenuhi, dan menyayangi diri masa kini dengan kehangatan tanpa menyalahkan siapapun."
+              title="Panduan LEGA Inner Child"
+              subtitle="Refleksi Merawat Diri Masa Kini"
+              variant="pill"
+            />
             <span className="bg-stone-800/80 px-2.5 py-1 rounded-md border border-stone-700/60 flex items-center gap-1.5">
               <Info className="w-3.5 h-3.5 text-amber-400" /> Bukan Terapi Trauma
             </span>

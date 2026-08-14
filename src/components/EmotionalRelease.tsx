@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { ModuleType } from '../types';
 import { releaseReflect } from '../lib/geminiApi';
+import { VoiceGuideButton } from './VoiceGuideButton';
 
 interface EmotionalReleaseProps {
   onSelectModule?: (module: ModuleType | string) => void;
@@ -196,8 +197,15 @@ export const EmotionalRelease: React.FC<EmotionalReleaseProps> = ({
             </div>
           </div>
 
-          {/* Mode Switcher Tabs */}
-          <div className="flex bg-stone-950 border border-stone-800 rounded-2xl p-1 gap-1 text-xs">
+          <div className="flex items-center gap-2 flex-wrap">
+            <VoiceGuideButton
+              text="Selamat datang di modul LEGA Release. Emosi bukanlah sesuatu yang harus dimusuhi atau langsung dibuang. Di sini, kita belajar menyambut emosi dengan kelembutan, memberi ruang bagi tubuh untuk merasakan, dan melepaskan beban secara perlahan."
+              title="Panduan LEGA Release"
+              subtitle="Latihan Katarsis & Pelepasan Emosional"
+              variant="pill"
+            />
+            {/* Mode Switcher Tabs */}
+            <div className="flex bg-stone-950 border border-stone-800 rounded-2xl p-1 gap-1 text-xs">
             <button
               onClick={() => setActiveTab('guided-release')}
               className={`px-3 py-1.5 rounded-xl font-semibold transition flex items-center gap-1.5 ${
@@ -222,6 +230,7 @@ export const EmotionalRelease: React.FC<EmotionalReleaseProps> = ({
             </button>
           </div>
         </div>
+      </div>
 
         {/* Disclaimer Notice */}
         <div className="p-3 bg-stone-950/80 border border-stone-800/80 rounded-2xl text-[11px] text-stone-400 flex items-start gap-2 leading-relaxed">

@@ -6,10 +6,12 @@ import {
   Sparkles,
   PieChart,
   Save,
-  RotateCcw
+  RotateCcw,
+  Volume2
 } from 'lucide-react';
 import { SELF_DISCOVERY_QUESTIONS } from '../data/initialData';
 import { SelfDiscoveryItem } from '../types';
+import { VoiceGuideButton } from './VoiceGuideButton';
 
 export const SelfDiscovery: React.FC = () => {
   const [items, setItems] = useState<SelfDiscoveryItem[]>(SELF_DISCOVERY_QUESTIONS);
@@ -45,15 +47,24 @@ export const SelfDiscovery: React.FC = () => {
   };
 
   return (
-    <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-8 text-stone-100">
-      <div className="space-y-1">
-        <h2 className="text-xl md:text-2xl font-bold text-stone-100 flex items-center gap-2">
-          <Compass className="w-6 h-6 text-emerald-400" />
-          <span>Mengenal Diri (Self Discovery)</span>
-        </h2>
-        <p className="text-xs md:text-sm text-stone-400">
-          Refleksi terpandu untuk mengenali pola pikir, pemicu utama, nilai hidup, dan keseimbangan batinmu.
-        </p>
+    <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-8 text-stone-100 animate-fade-in">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <h2 className="text-xl md:text-2xl font-bold text-stone-100 flex items-center gap-2">
+            <Compass className="w-6 h-6 text-emerald-400" />
+            <span>Mengenal Diri (Self Discovery)</span>
+          </h2>
+          <p className="text-xs md:text-sm text-stone-400">
+            Refleksi terpandu untuk mengenali pola pikir, pemicu utama, nilai hidup, dan keseimbangan batinmu.
+          </p>
+        </div>
+
+        <VoiceGuideButton
+          text="Selamat datang di modul Mengenal Diri LEGA. Perjalanan mengenal diri adalah fondasi kedamaian sejati. Luangkan waktu untuk menilai roda keseimbangan hidup Anda dan renungkan pertanyaan batin berikut dengan kejujuran dan welas asih pada diri sendiri."
+          title="Panduan Mengenal Diri LEGA"
+          subtitle="Refleksi Eksplorasi Batin"
+          variant="pill"
+        />
       </div>
 
       {/* Wheel of Life Balance Assessment */}
@@ -106,11 +117,20 @@ export const SelfDiscovery: React.FC = () => {
               key={item.id}
               className="p-5 rounded-2xl bg-stone-900 border border-stone-800 space-y-3"
             >
-              <div className="flex items-center gap-2">
-                <span className="w-6 h-6 rounded-lg bg-emerald-950 text-emerald-400 border border-emerald-800 text-xs font-bold flex items-center justify-center shrink-0">
-                  {idx + 1}
-                </span>
-                <h4 className="font-semibold text-sm text-stone-200">{item.title}</h4>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-lg bg-emerald-950 text-emerald-400 border border-emerald-800 text-xs font-bold flex items-center justify-center shrink-0">
+                    {idx + 1}
+                  </span>
+                  <h4 className="font-semibold text-sm text-stone-200">{item.title}</h4>
+                </div>
+
+                <VoiceGuideButton
+                  text={`Pertanyaan ke-${idx + 1}: ${item.title}. ${item.question}. ${item.reflectionNote ? `Catatan refleksi: ${item.reflectionNote}` : ''}`}
+                  title={`${item.title}`}
+                  subtitle="Bimbingan Pertanyaan Refleksi"
+                  variant="compact"
+                />
               </div>
 
               <p className="text-xs text-stone-300 leading-relaxed font-medium">

@@ -33,6 +33,7 @@ import {
 import { EmotionCategory, EmotionLog, JournalEntry, ModuleType, UserProfile } from '../types';
 import { getDashboardSummary, generateVoiceAudio } from '../lib/geminiApi';
 import { pcmToWavBlobUrl, speakIndonesianNarration, generateMeditationAmbientWav, stopIndonesianNarration } from '../lib/audioEngine';
+import { VoiceGuideButton } from './VoiceGuideButton';
 
 interface DashboardProps {
   userProfile: UserProfile;
@@ -233,7 +234,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <VoiceGuideButton
+              text={`Selamat datang di LEGA. ${dashboardData?.reflectionPrompt || 'Ruang pribadimu untuk berhenti sejenak, menenangkan sistem saraf, dan mendengarkan apa yang sedang terjadi di dalam diri dengan penuh kelembutan.'}`}
+              title="Sapaan Suara Harian"
+              subtitle="Refleksi Singkat Hari Ini"
+              variant="pill"
+            />
+
             {/* Spiritual Mode Toggle */}
             <button
               onClick={() => setSpiritualMode(!spiritualMode)}

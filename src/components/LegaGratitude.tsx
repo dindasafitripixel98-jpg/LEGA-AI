@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { ModuleType, JournalEntry } from '../types';
 import { reflectGratitude } from '../lib/geminiApi';
+import { VoiceGuideButton } from './VoiceGuideButton';
 
 interface LegaGratitudeProps {
   onSelectModule?: (module: ModuleType) => void;
@@ -172,18 +173,26 @@ ${aiGratitudeOutput.journalNote?.tomorrowHope || '-'}`;
             </div>
           </div>
 
-          {/* Hardship Mode Toggle */}
-          <button
-            onClick={() => setIsHardshipMode(!isHardshipMode)}
-            className={`px-3.5 py-2 rounded-2xl text-xs font-semibold border transition flex items-center gap-2 ${
-              isHardshipMode
-                ? 'bg-rose-950 border-rose-800 text-rose-300 shadow-md shadow-rose-950/50'
-                : 'bg-stone-950 border-stone-800 text-stone-400 hover:text-stone-200'
-            }`}
-          >
-            <AlertCircle className={`w-4 h-4 ${isHardshipMode ? 'text-rose-400' : 'text-stone-500'}`} />
-            <span>{isHardshipMode ? 'Mode Masa Sulit Aktif' : 'Sedang Masa Sulit / Berat?'}</span>
-          </button>
+          {/* Hardship Mode Toggle & Voice Guide */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <VoiceGuideButton
+              text="Selamat datang di modul LEGA Gratitude. Bersyukur di sini bukan kepalsuan atau memaksakan rasa senang. Bersyukur adalah menyadari hal-hal nyata yang masih menopang kita di saat ini, sekecil apapun itu, tanpa mengabaikan kesulitan yang sedang dihadapi."
+              title="Panduan LEGA Gratitude"
+              subtitle="Refleksi Rasa Syukur Realistis"
+              variant="pill"
+            />
+            <button
+              onClick={() => setIsHardshipMode(!isHardshipMode)}
+              className={`px-3.5 py-2 rounded-2xl text-xs font-semibold border transition flex items-center gap-2 ${
+                isHardshipMode
+                  ? 'bg-rose-950 border-rose-800 text-rose-300 shadow-md shadow-rose-950/50'
+                  : 'bg-stone-950 border-stone-800 text-stone-400 hover:text-stone-200'
+              }`}
+            >
+              <AlertCircle className={`w-4 h-4 ${isHardshipMode ? 'text-rose-400' : 'text-stone-500'}`} />
+              <span>{isHardshipMode ? 'Mode Masa Sulit Aktif' : 'Sedang Masa Sulit / Berat?'}</span>
+            </button>
+          </div>
         </div>
 
         {/* Philosophy & Hardship Notice */}

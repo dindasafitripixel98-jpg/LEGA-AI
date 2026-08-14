@@ -32,6 +32,7 @@ import {
 import { motion } from 'motion/react';
 import { reflectShame } from '../lib/geminiApi';
 import { JournalEntry } from '../types';
+import { VoiceGuideButton } from './VoiceGuideButton';
 
 interface LegaShameProps {
   onSelectModule: (module: string) => void;
@@ -262,7 +263,13 @@ ${reflectionResult.selfCompassionMessage || '-'}`;
             Mengenali pemicu dan pikiran negatif tentang diri sendiri, membedakan kesalahan dari nilai diri, serta belajar memperlakukan diri secara seimbang dan manusiawi.
           </p>
 
-          <div className="pt-2 flex flex-wrap gap-2 text-xs text-stone-400">
+          <div className="pt-2 flex flex-wrap items-center gap-2 text-xs text-stone-400">
+            <VoiceGuideButton
+              text="Selamat datang di modul LEGA Shame. Perasaan malu yang menyakitkan bukanlah identitas diri Anda. Pernah melakukan kesalahan atau ditolak tidak menjadikan Anda manusia yang cacat atau tidak berharga. Mari kita bangun penerimaan diri dengan kelembutan dan kejujuran."
+              title="Panduan LEGA Shame"
+              subtitle="Memahami Rasa Malu & Penerimaan Diri"
+              variant="pill"
+            />
             <span className="bg-stone-800/80 px-2.5 py-1 rounded-md border border-stone-700/60 flex items-center gap-1.5">
               <UserCheck className="w-3.5 h-3.5 text-purple-400" /> Identitas vs Perilaku
             </span>

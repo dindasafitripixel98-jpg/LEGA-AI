@@ -38,6 +38,7 @@ import {
 import { motion } from 'motion/react';
 import { reflectSadness } from '../lib/geminiApi';
 import { JournalEntry } from '../types';
+import { VoiceGuideButton } from './VoiceGuideButton';
 
 interface LegaSadnessProps {
   onSelectModule: (module: string) => void;
@@ -293,7 +294,13 @@ Langkah Kecil: ${reflectionResult.reflectiveInsights?.gentleNextStep || '-'}`;
             Memahami kesedihan sebagai respon alami pengalaman hidup, merawat rasa berat di tubuh dan pikiran, serta melatih penerimaan diri secara bertahap.
           </p>
 
-          <div className="pt-2 flex flex-wrap gap-2 text-xs text-stone-400">
+          <div className="pt-2 flex flex-wrap items-center gap-2 text-xs text-stone-400">
+            <VoiceGuideButton
+              text="Selamat datang di modul LEGA Sadness. Kesedihan adalah bukti bahwa Anda adalah manusia yang memiliki hati dan kepedulian mendalam. Berikan ruang bagi air mata atau rasa hampa Anda, rangkul diri Anda dengan kehangatan tanpa penghakiman."
+              title="Panduan LEGA Sadness"
+              subtitle="Kesadaran & Pemulihan Emosi Sedih"
+              variant="pill"
+            />
             <span className="bg-stone-800/80 px-2.5 py-1 rounded-md border border-stone-700/60 flex items-center gap-1.5">
               <Heart className="w-3.5 h-3.5 text-blue-400" /> Emosi Alami • Bukan Kelemahan
             </span>
