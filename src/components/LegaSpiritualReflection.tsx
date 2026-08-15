@@ -951,7 +951,7 @@ Doa Pribadi:
               <Volume2 className="w-5 h-5" /> 10 Audio Terpandu LEGA Spiritual Reflection
             </div>
             <span className="text-xs bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 px-3 py-1 rounded-full">
-              Gemini TTS Bahasa Indonesia
+              Audio Narasi Bahasa Indonesia
             </span>
           </div>
 

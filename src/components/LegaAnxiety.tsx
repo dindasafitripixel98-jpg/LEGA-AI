@@ -704,7 +704,7 @@ ${reflectionResult.lifestyleRecommendations?.join('\n• ') || '-'}`;
                 <div className="bg-stone-950/60 border border-stone-800 rounded-xl p-4 flex items-center justify-between">
                   <div className="space-y-1">
                     <span className="text-[11px] uppercase tracking-wider text-rose-400 font-semibold block">
-                      Audio Terpandu Gemini TTS
+                      Audio Narasi Terpandu
                     </span>
                     <p className="text-xs text-stone-200 font-bold">
                       Naskah Audio: "{reflectionResult.recommendedAudioTheme}"

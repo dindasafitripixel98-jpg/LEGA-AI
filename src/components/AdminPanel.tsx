@@ -331,7 +331,7 @@ export const AdminPanel: React.FC = () => {
                 { name: 'Database Cloud', status: 'HEALTHY' },
                 { name: 'API Proxy Middleware', status: 'HEALTHY' },
                 { name: 'Gemini 3.6 Flash API', status: 'HEALTHY' },
-                { name: 'Gemini TTS Engine', status: 'HEALTHY' },
+                { name: 'LEGA Voice Engine', status: 'HEALTHY' },
                 { name: 'Storage & Audio Cache', status: 'HEALTHY' },
                 { name: 'License Server Sync', status: 'HEALTHY' },
                 { name: 'Safety Audit Logger', status: 'HEALTHY' },

@@ -1,5 +1,60 @@
 import { generateLegaContextualChat } from './legaChatEngine';
 
+export async function reflectSelfDiscovery(dataPayload: {
+  items: any[];
+  wheelScores: Record<string, number>;
+  userProfile?: any;
+}) {
+  try {
+    const res = await fetch('/api/gemini/self-discovery-reflect', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dataPayload),
+    });
+    const data = await res.json();
+    if (res.ok && data.success && data.data) {
+      return data.data;
+    }
+    throw new Error(data.error || 'Gagal memproses refleksi diri.');
+  } catch (err: any) {
+    console.error('reflectSelfDiscovery fallback:', err);
+    return {
+      summary: 'Anda sedang berada dalam perjalanan indah mengenal diri dengan jujur dan terbuka. Setiap jawaban yang Anda tuliskan adalah cermin dari keberanian untuk hadir bagi diri sendiri.',
+      keyStrengths: [
+        'Keberanian untuk jujur melihat dinamika pikiran dan emosi',
+        'Kesadaran akan pentingnya menjaga keseimbangan hidup'
+      ],
+      growthAreas: [
+        'Memberi ruang istirahat tanpa rasa bersalah pada area yang sedang berenergi rendah'
+      ],
+      wheelAnalysis: 'Roda keseimbangan Anda menunjukkan area kekuatan yang dapat menjadi jangkar batin saat menghadapi bagian yang sedang membutuhkan pemulihan.',
+      mindBodyConnection: 'Saat pikiran merasa lebih didengar dan dipahami, ketegangan fisik di tubuh pun berangsur melunak.',
+      reflectiveInquiries: [
+        'Apa satu hal kecil yang paling Anda butuhkan dari diri Anda sendiri hari ini?',
+        'Bagaimana Anda bisa memperlakukan diri Anda seperti sahabat yang paling Anda sayangi?'
+      ],
+      actionAffirmation: 'Aku menerima perjalananku apa adanya, menghargai setiap langkah pertumbuhanku, dan mengizinkan diriku bertumbuh dengan ritme yang tenang.',
+      recommendedModules: [
+        {
+          moduleName: 'LEGA Pattern Awareness',
+          reason: 'Kenali pola berulang dalam respons emosi dan pikiran.',
+          targetModuleKey: 'pattern-awareness'
+        },
+        {
+          moduleName: 'LEGA Jurnal',
+          reason: 'Dokumentasikan wawasan batin Anda dalam catatan refleksi harian.',
+          targetModuleKey: 'journal'
+        },
+        {
+          moduleName: 'LEGA Breathing',
+          reason: 'Beri jeda napas yang menenangkan untuk merelaksasi sistem saraf.',
+          targetModuleKey: 'breathing'
+        }
+      ]
+    };
+  }
+}
+
 export async function sendChatMessage(messages: any[], userProfile: any) {
   try {
     const res = await fetch('/api/gemini/chat', {

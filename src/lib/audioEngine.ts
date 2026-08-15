@@ -7,8 +7,8 @@ export interface SoundscapeOptions {
   natureType?: NatureSoundType;
   natureTypes?: NatureSoundType[];
   ambientType?: AmbientMusicType;
-  natureVolume?: number; // 0.0 - 1.0 (recommended: 0.2 - 0.3)
-  musicVolume?: number; // 0.0 - 1.0 (recommended: 0.15 - 0.25)
+  natureVolume?: number; // 0.0 - 1.0 (recommended: 0.28 - 0.40, prioritize nature)
+  musicVolume?: number; // 0.0 - 1.0 (recommended: 0.10 - 0.16, very thin background)
   fadeInSeconds?: number;
   fadeOutSeconds?: number;
   includeSingingBowl?: boolean;
@@ -22,38 +22,45 @@ export interface SoundscapeOptions {
 export const LEGA_CALM_NATURE_CONFIG = {
   id: 'lega-calm-nature',
   title: 'LEGA CALM NATURE',
-  tagline: 'Temani dirimu berhenti sejenak, hadir saat ini, dan menikmati ketenangan.',
+  tagline: 'Temani dirimu berhenti sejenak, hadir saat ini, dan menikmati ketenangan di pangkuan alam.',
   category: 'Universal Relaxation Soundscape',
   atmospheres: [
-    { icon: '🌊', label: 'Air mengalir lembut', desc: 'Arus sungai pegunungan yang jernih dan mengalir stabil' },
-    { icon: '🐦', label: 'Burung yang natural dan jauh', desc: 'Kicau burung fajar yang lembut dan bergema di kejauhan' },
-    { icon: '🍃', label: 'Angin lembut di pepohonan', desc: 'Semilir hembusan angin sejuk menaungi dedaunan rimbun' },
-    { icon: '🎹', label: 'Musik ambient/piano yang sangat lembut', desc: 'Sentuhan tuts piano pentatonik 432Hz yang hangat dan menenangkan' }
+    { icon: '🌊', label: 'Air mengalir lembut', desc: 'Arus sungai pegunungan yang jernih, mengalir konstan, dan stabil menenangkan' },
+    { icon: '🌧️', label: 'Hujan ringan', desc: 'Rintik air hujan tenang dan sejuk di dedaunan tanpa petir' },
+    { icon: '🍃', label: 'Angin di pepohonan', desc: 'Semilir hembusan angin sejuk yang menggerakkan dedaunan rimbun perlahan' },
+    { icon: '🐦', label: 'Burung natural yang jauh', desc: 'Kicau burung alami fajar yang damai dan bergema lembut di kejauhan' },
+    { icon: '🌊', label: 'Ombak lembut', desc: 'Deburan riak ombak pantai yang lembut dan berirama menyelaraskan napas' },
+    { icon: '💧', label: 'Gemericik air', desc: 'Tetesan dan percikan air sejuk alami di atas bebatuan yang menyegarkan batin' },
+    { icon: '🌲', label: 'Suasana hutan yang nyaman', desc: 'Kanopi hutan alami yang hangat, teduh, menaungi, dan damai' },
+    { icon: '🌿', label: 'Suasana alam terbuka', desc: 'Lanskap padang rumput dan cakrawala alam luas yang hening dan lapang' }
   ],
   characteristics: [
     'Tenang',
-    'Lembut',
-    'Natural',
+    'Nyaman',
     'Hangat',
-    'Menenteramkan',
-    'Tidak ada suara mengejutkan',
-    'Tidak ada perubahan volume mendadak'
+    'Cerah',
+    'Natural',
+    'Menenangkan',
+    'Aman didengar',
+    'Tanpa suara mengejutkan',
+    'Tanpa lonjakan volume mendadak'
   ],
   purposes: [
-    'Kesadaran Diri',
-    'Relaksasi',
-    'Meditasi',
-    'Pernapasan',
-    'Refleksi',
-    'Ketenangan Pikiran'
+    'Kesadaran Diri (Self-Awareness)',
+    'Hadir Saat Ini (Present Moment)',
+    'Mengamati Napas & Tubuh',
+    'Relaksasi & Ketenangan Pikiran',
+    'Regulasi Emosi & Grounding',
+    'Refleksi Diri & Istirahat Berkualitas'
   ],
-  headsetAdvice: 'Gunakan headset atau earphone untuk pengalaman audio yang lebih optimal dan imersif.',
-  recommendedScript: 'Selamat datang di ruang tenang Anda. Ambil posisi yang nyaman dan biarkan tubuh Anda bersandar dengan rileks. Rasakan aliran udara sejuk masuk saat Anda menarik napas, dan lepaskan seluruh ketegangan saat Anda menghembuskannya perlahan. Dengarkan gemericik air yang mengalir lembut... desau angin yang menaungi pepohonan... dan kicau burung di kejauhan. Biarkan alunan piano lembut ini menemani Anda hadir seutuhnya di saat ini. Di sini, Anda aman, tenang, dan utuh.'
+  headsetAdvice: '🎧 Gunakan headset atau earphone untuk pengalaman audio yang lebih optimal dan imersif.',
+  recommendedScript: 'Selamat datang di ruang tenang Anda. Ambil posisi yang nyaman dan biarkan tubuh Anda bersandar dengan rileks. Rasakan aliran udara sejuk masuk saat Anda menarik napas, dan lepaskan seluruh ketegangan saat Anda menghembuskannya perlahan. Dengarkan gemericik air yang mengalir lembut... desau angin yang menaungi pepohonan... dan kicau burung di kejauhan. Biarkan alunan musik ringan dan hangat ini menjadi latar tipis yang menemani Anda hadir seutuhnya di saat ini. Di sini, Anda aman, tenang, dan utuh.'
 };
 
 export const NATURE_SOUND_DEFINITIONS: Record<NatureSoundType, {
   name: string;
   description: string;
+  icon: string;
   recommendedTheme: string;
   defaultNatureVolume: number;
   defaultMusicVolume: number;
@@ -61,92 +68,102 @@ export const NATURE_SOUND_DEFINITIONS: Record<NatureSoundType, {
   loopRecommendation: string;
 }> = {
   'aliran-sungai': {
-    name: 'Aliran Sungai Alami',
-    description: 'Gemericik arus air sungai pegunungan yang jernih dan mengalir konstan membawa keheningan.',
+    name: 'Air Mengalir Lembut',
+    description: 'Arus sungai pegunungan alami yang jernih, mengalir konstan, dan stabil membawa keheningan.',
+    icon: '🌊',
     recommendedTheme: 'Pelepasan Beban Pikiran & Ketenangan Mengalir',
-    defaultNatureVolume: 0.26,
-    defaultMusicVolume: 0.20,
+    defaultNatureVolume: 0.32,
+    defaultMusicVolume: 0.12,
     defaultAmbient: 'piano-lembut',
-    loopRecommendation: 'Seamless Organic Crossfade Loop (30 Detik)'
+    loopRecommendation: 'Seamless Organic Flow Loop (30 Detik)'
   },
-  'gemericik-air': {
-    name: 'Gemericik Air',
-    description: 'Tetesan dan percikan air lembut di atas bebatuan alami yang menyegarkan batin.',
-    recommendedTheme: 'Kehadiran Momen Ini & Kejernihan Jiwa',
-    defaultNatureVolume: 0.24,
-    defaultMusicVolume: 0.20,
+  'hujan-lembut': {
+    name: 'Hujan Ringan',
+    description: 'Rintik hujan lembut dan sejuk di atas dedaunan yang membasuh kecemasan dan mengantar istirahat damai.',
+    icon: '🌧️',
+    recommendedTheme: 'Kenyamanan Emosional & Pengantar Tidur Nyenyak',
+    defaultNatureVolume: 0.30,
+    defaultMusicVolume: 0.12,
     defaultAmbient: 'piano-lembut',
-    loopRecommendation: 'Granular Ripple Loop (25 Detik)'
-  },
-  'burung-pagi': {
-    name: 'Burung Pagi',
-    description: 'Kicauan burung fajar di taman yang tenang dengan embun dan semilir udara segar.',
-    recommendedTheme: 'Optimisme & Memulai Hari dengan Hati Lapang',
-    defaultNatureVolume: 0.22,
-    defaultMusicVolume: 0.18,
-    defaultAmbient: 'string-halus',
-    loopRecommendation: 'Randomized Melody Cycle (45 Detik)'
+    loopRecommendation: 'Continuous Gentle Rain Loop (30 Detik)'
   },
   'angin-pepohonan': {
     name: 'Angin di Pepohonan',
-    description: 'Semilir hembusan angin sejuk yang menggerakkan dedaunan rimbun dengan ritme lambat.',
-    recommendedTheme: 'Pelepasan Ketegangan Fisik & Pengheningan',
-    defaultNatureVolume: 0.25,
-    defaultMusicVolume: 0.20,
+    description: 'Semilir hembusan angin sejuk yang menggerakkan dedaunan rimbun dengan ritme lambat dan menaungi.',
+    icon: '🍃',
+    recommendedTheme: 'Pelepasan Ketegangan Fisik & Pengheningan Somatis',
+    defaultNatureVolume: 0.32,
+    defaultMusicVolume: 0.12,
     defaultAmbient: 'pad-sinematik',
     loopRecommendation: 'Atmospheric Breeze Cycle (30 Detik)'
   },
-  'ombak-pantai': {
-    name: 'Ombak Pantai',
-    description: 'Deburan ombak laut yang lembut dan berirama menyelaraskan napas dengan ritme alam.',
-    recommendedTheme: 'Relaksasi Mendalam & Penyelarasan Napas',
+  'burung-pagi': {
+    name: 'Burung Natural yang Jauh',
+    description: 'Kicau burung alami fajar di taman yang tenang dengan embun pagi dan semilir udara segar di kejauhan.',
+    icon: '🐦',
+    recommendedTheme: 'Optimisme Cerah & Memulai Hari dengan Hati Lapang',
     defaultNatureVolume: 0.28,
-    defaultMusicVolume: 0.18,
+    defaultMusicVolume: 0.12,
+    defaultAmbient: 'piano-lembut',
+    loopRecommendation: 'Randomized Natural Birdsong Cycle (45 Detik)'
+  },
+  'ombak-pantai': {
+    name: 'Ombak Lembut',
+    description: 'Deburan riak ombak laut yang lembut dan berirama menyelaraskan tarikan dan hembusan napas dengan ritme alam.',
+    icon: '🌊',
+    recommendedTheme: 'Relaksasi Mendalam & Penyelarasan Irama Napas',
+    defaultNatureVolume: 0.34,
+    defaultMusicVolume: 0.12,
     defaultAmbient: 'pad-sinematik',
-    loopRecommendation: 'Tidal Wave Dynamic Loop (20 Detik)'
+    loopRecommendation: 'Tidal Wave Dynamic Loop (24 Detik)'
+  },
+  'gemericik-air': {
+    name: 'Gemericik Air',
+    description: 'Tetesan dan percikan air sejuk lembut di atas bebatuan alami yang menyegarkan batin dan menjernihkan pikiran.',
+    icon: '💧',
+    recommendedTheme: 'Kehadiran Momen Ini & Kejernihan Jiwa',
+    defaultNatureVolume: 0.30,
+    defaultMusicVolume: 0.12,
+    defaultAmbient: 'piano-lembut',
+    loopRecommendation: 'Granular Ripple Loop (25 Detik)'
   },
   'hutan-alami': {
-    name: 'Hutan Alami',
-    description: 'Suasana kanopi hutan alami tropis yang damai, hangat, dan menaungi jiwa.',
+    name: 'Suasana Hutan yang Nyaman',
+    description: 'Suasana kanopi hutan alami yang damai, hangat, teduh, dan menaungi jiwa dengan keheningan alam.',
+    icon: '🌲',
     recommendedTheme: 'Grounding Batin & Rasa Terhubung dengan Alam',
-    defaultNatureVolume: 0.25,
-    defaultMusicVolume: 0.22,
+    defaultNatureVolume: 0.32,
+    defaultMusicVolume: 0.14,
     defaultAmbient: 'string-halus',
-    loopRecommendation: 'Deep Rainforest Continuous Loop (40 Detik)'
+    loopRecommendation: 'Deep Sanctuary Rainforest Loop (40 Detik)'
   },
-  'hujan-lembut': {
-    name: 'Hujan Lembut',
-    description: 'Rintik hujan tenang di atas dedaunan yang membasuh kecemasan dan mengantar istirahat.',
-    recommendedTheme: 'Kenyamanan Emosional & Pengantar Tidur Nyenyak',
-    defaultNatureVolume: 0.26,
-    defaultMusicVolume: 0.18,
-    defaultAmbient: 'piano-lembut',
-    loopRecommendation: 'Continuous White/Pink Rain Loop (30 Detik)'
+  'suasana-alam-tenang': {
+    name: 'Suasana Alam Terbuka',
+    description: 'Lanskap padang rumput dan cakrawala alam terbuka luas dengan semilir angin sepoi-sepoi yang menenteramkan.',
+    icon: '🌿',
+    recommendedTheme: 'Fokus Bekerja, Belajar & Meditasi Ruang Terbuka',
+    defaultNatureVolume: 0.30,
+    defaultMusicVolume: 0.12,
+    defaultAmbient: 'ambient-minimal',
+    loopRecommendation: 'Open Horizon Zen Loop (30 Detik)'
   },
   'suasana-malam': {
     name: 'Suasana Malam Tenang',
     description: 'Keheningan malam dengan desau angin malam lembut dan jangkrik halus menenangkan pikiran.',
+    icon: '🌙',
     recommendedTheme: 'Relaksasi Menjelang Tidur & Pengheningan Malam',
-    defaultNatureVolume: 0.22,
-    defaultMusicVolume: 0.18,
+    defaultNatureVolume: 0.28,
+    defaultMusicVolume: 0.12,
     defaultAmbient: 'piano-hangat',
     loopRecommendation: 'Nocturnal Calm Cycle (30 Detik)'
-  },
-  'suasana-alam-tenang': {
-    name: 'Suasana Alam Tenang',
-    description: 'Paduan alam hening dengan angin sepoi-sepoi dan gemerisik dedaunan minimal.',
-    recommendedTheme: 'Fokus Bekerja, Belajar & Meditasi Sadar',
-    defaultNatureVolume: 0.24,
-    defaultMusicVolume: 0.16,
-    defaultAmbient: 'ambient-minimal',
-    loopRecommendation: 'Zen Nature Loop (30 Detik)'
   },
   'fajar-tenang': {
     name: 'Fajar Menenteramkan',
     description: 'Kesejukan udara fajar dengan kicau burung lembut kejauhan dan kehangatan sinar mentari.',
+    icon: '🌅',
     recommendedTheme: 'Kesegaran Pagi & Menemukan Ruang Tenang Diri',
-    defaultNatureVolume: 0.24,
-    defaultMusicVolume: 0.20,
+    defaultNatureVolume: 0.30,
+    defaultMusicVolume: 0.12,
     defaultAmbient: 'piano-hangat',
     loopRecommendation: 'Dawn Horizon Cycle (35 Detik)'
   }
@@ -158,29 +175,29 @@ export const AMBIENT_MUSIC_DEFINITIONS: Record<AmbientMusicType, {
   character: string;
 }> = {
   'piano-lembut': {
-    name: 'Piano Lembut Akustik (432Hz)',
-    description: 'Sentuhan tuts piano hangat bernada pentatonik lembut yang menenangkan sistem saraf.',
-    character: 'Hangat, Jernih, Lembut & Menenteramkan'
+    name: 'Piano Ambient Ringan & Hangat (432Hz)',
+    description: 'Sentuhan tuts piano akustik sederhana bernada pentatonik cerah dan hangat yang menjadi latar tipis menenangkan.',
+    character: 'Ringan, Hangat, Cerah, Sederhana & Stabil'
   },
   'piano-hangat': {
-    name: 'Piano Ambient Hangat (432Hz)',
-    description: 'Progresi harmoni piano solfeggio lembut dengan suasana teduh dan menenteramkan batin.',
-    character: 'Hangat, Dalam, Teduh & Menghanyutkan'
+    name: 'Piano Teduh Hangat (432Hz)',
+    description: 'Progresi harmoni piano solfeggio lembut dengan suasana teduh, stabil, dan tidak mendominasi suara alam.',
+    character: 'Hangat, Sederhana, Teduh & Menenteramkan'
   },
   'pad-sinematik': {
-    name: 'Pad Sinematik Mengalun (432Hz)',
-    description: 'Lapisan suara pad analog yang mengambang perlahan memberi rasa aman dan ruang batin luas.',
-    character: 'Mendalam, Melayang, Luas & Memeluk'
+    name: 'Pad Ambient Mengalun Lembut (432Hz)',
+    description: 'Lapisan pad analog hangat mengambang tipis di latar belakang memberi rasa aman dan ruang batin lapang.',
+    character: 'Ringan, Melayang Tipis, Hangat & Nyaman'
   },
   'string-halus': {
-    name: 'String Halus Meditatif (528Hz)',
-    description: 'Gesekan dawai senar orkestra halus dengan resonansi panjang yang meredakan emosi.',
-    character: 'Elegan, Menghanyutkan, Teduh & Damai'
+    name: 'String Akustik Halus & Damai (528Hz)',
+    description: 'Gesekan dawai senar orkestra sangat lembut dengan resonansi panjang yang meredakan beban batin.',
+    character: 'Lembut, Stabil, Damai & Tidak Mencolok'
   },
   'ambient-minimal': {
-    name: 'Musik Ambient Minimal (432Hz)',
-    description: 'Dengung nada hening minimalis tanpa melodi mencolok untuk kejernihan konsentrasi dan istirahat.',
-    character: 'Minimalis, Hening, Ringan & Menyejukkan'
+    name: 'Musik Ambient Minimalis Hening',
+    description: 'Dengung nada hening minimalis tanpa melodi rumit untuk membiarkan suara alam dan narasi tetap menjadi pusat perhatian.',
+    character: 'Minimalis, Hening, Ringan, Jernih & Menyejukkan'
   }
 };
 
@@ -365,8 +382,8 @@ export async function generateRelaxationSoundscapeWav(
     : [options?.natureType || 'aliran-sungai'];
 
   const ambientType = options?.ambientType || 'piano-lembut';
-  const natureVol = options?.natureVolume ?? 0.25;
-  const musicVol = options?.musicVolume ?? 0.20;
+  const natureVol = options?.natureVolume ?? 0.32; // Primary nature element
+  const musicVol = options?.musicVolume ?? 0.12; // Very thin, non-dominating background
   const fadeIn = Math.min(options?.fadeInSeconds ?? 2.5, 4.0);
   const fadeOut = Math.min(options?.fadeOutSeconds ?? 3.0, 4.0);
   const withBowl = options?.includeSingingBowl !== false;
@@ -393,53 +410,54 @@ export async function generateRelaxationSoundscapeWav(
   const offlineCtx = new OfflineCtxClass(numChannels, length, sampleRate);
 
   // -------------------------------------------------------------
-  // 1. AMBIENT MUSIC SYNTHESIS (Piano, Cinematic Pad, Soft Strings, Warm Piano, Minimal Ambient)
+  // 1. AMBIENT MUSIC SYNTHESIS (Warm, Light, Bright, Simple, Gentle & Stable - Very Thin Background)
   // -------------------------------------------------------------
   if (ambientType === 'piano-lembut' || ambientType === 'piano-hangat') {
-    // Warm Pentatonic Piano chords at 432Hz tuning (C, D, E, G, A, C)
+    // Warm, bright, simple acoustic chords tuned to 432Hz (Cmaj9, Gmaj7, Fmaj7, D9)
     const chordNotes = ambientType === 'piano-hangat' ? [
-      [108, 162, 216, 288, 360],     // A2 - E3 - A3 - D4 - F#4 (Warm grounded)
+      [108, 162, 216, 288, 360],     // A2 - E3 - A3 - D4 - F#4 (Warm grounded & stable)
       [129.6, 194.4, 259.2, 324],    // F3 - C4 - F4 - A4
       [144, 216, 288, 360],          // D3 - F#3 - A3 - C#4
       [129.6, 216, 259.2, 388.8],    // C3 - E3 - G3 - C5
     ] : [
-      [129.6, 216, 259.2, 324],     // C3 - E3 - G3 - B3 / D4
-      [144, 216, 288, 360],         // D3 - F#3 - A3 - C#4
-      [108, 162, 216, 324],         // A2 - E3 - A3 - E4
-      [129.6, 194.4, 259.2, 388.8], // F3 - C4 - F4 - C5
+      [129.6, 194.4, 259.2, 324],    // C3 - G3 - C4 - E4 (Bright, simple, warm & peaceful)
+      [144, 216, 288, 360],          // D3 - A3 - D4 - F#4
+      [108, 162, 216, 324],          // A2 - E3 - A3 - C#4
+      [129.6, 194.4, 259.2, 388.8],  // F3 - C4 - F4 - G4
     ];
 
-    const chordInterval = ambientType === 'piano-hangat' ? 9 : 8; // Gentle chord pacing
+    const chordInterval = 8.5; // Very slow, stable pacing
     const numChords = Math.ceil(actualDuration / chordInterval);
 
     for (let c = 0; c < numChords; c++) {
-      const chordTime = c * chordInterval + 0.3;
+      const chordTime = c * chordInterval + 0.5;
       if (chordTime >= actualDuration - 1.5) break;
 
       const notes = chordNotes[c % chordNotes.length];
       notes.forEach((freq, nIdx) => {
-        const noteTime = chordTime + nIdx * 0.12;
+        const noteTime = chordTime + nIdx * 0.16;
         if (noteTime < actualDuration - 1.5) {
           const osc1 = offlineCtx.createOscillator();
           const osc2 = offlineCtx.createOscillator();
           const filter = offlineCtx.createBiquadFilter();
           const gain = offlineCtx.createGain();
 
+          // Soft sine fundamental
           osc1.type = 'sine';
           osc1.frequency.setValueAtTime(freq, noteTime);
 
-          // Piano overtone
+          // Gentle warm acoustic triangle overtone
           osc2.type = 'triangle';
           osc2.frequency.setValueAtTime(freq * 2.001, noteTime);
 
           filter.type = 'lowpass';
-          filter.frequency.setValueAtTime(ambientType === 'piano-hangat' ? 580 : 700, noteTime);
-          filter.frequency.exponentialRampToValueAtTime(120, Math.min(actualDuration, noteTime + 6.5));
+          filter.frequency.setValueAtTime(ambientType === 'piano-hangat' ? 520 : 620, noteTime);
+          filter.frequency.exponentialRampToValueAtTime(160, Math.min(actualDuration, noteTime + 6.0));
 
-          // Piano envelope (soft attack, organic decay)
-          const targetVol = musicVol * (0.09 / (nIdx + 1));
+          // Extremely soft, delicate envelope (very thin background level)
+          const targetVol = musicVol * (0.07 / (nIdx + 1));
           gain.gain.setValueAtTime(0.0001, noteTime);
-          gain.gain.linearRampToValueAtTime(targetVol, noteTime + 0.08);
+          gain.gain.linearRampToValueAtTime(targetVol, noteTime + 0.18);
           gain.gain.exponentialRampToValueAtTime(0.0001, Math.min(actualDuration, noteTime + 7.5));
 
           osc1.connect(filter);
@@ -455,8 +473,8 @@ export async function generateRelaxationSoundscapeWav(
       });
     }
   } else if (ambientType === 'pad-sinematik') {
-    // Lush Analog Warm Pad Drone (432Hz Solfeggio Harmonics)
-    const padFreqs = [108, 216, 324, 432, 648];
+    // Ultra-light, airy analog warm pad drone (432Hz Solfeggio Harmonics)
+    const padFreqs = [108, 216, 324, 432];
     padFreqs.forEach((freq, idx) => {
       const osc = offlineCtx.createOscillator();
       const filter = offlineCtx.createBiquadFilter();
@@ -464,12 +482,12 @@ export async function generateRelaxationSoundscapeWav(
 
       osc.type = idx % 2 === 0 ? 'sine' : 'triangle';
       osc.frequency.setValueAtTime(freq, 0);
-      osc.detune.setValueAtTime((idx % 2 === 0 ? 3 : -3), 0);
+      osc.detune.setValueAtTime((idx % 2 === 0 ? 2 : -2), 0);
 
       filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(450, 0);
+      filter.frequency.setValueAtTime(380, 0);
 
-      const baseVol = (musicVol * 0.08) / (idx + 1);
+      const baseVol = (musicVol * 0.06) / (idx + 1);
       gain.gain.setValueAtTime(0.0001, 0);
       gain.gain.linearRampToValueAtTime(baseVol, Math.min(fadeIn, actualDuration / 2));
       gain.gain.setValueAtTime(baseVol, Math.max(0, actualDuration - fadeOut));
@@ -483,7 +501,7 @@ export async function generateRelaxationSoundscapeWav(
       osc.stop(actualDuration);
     });
   } else if (ambientType === 'ambient-minimal') {
-    // Ultra-soft minimal sine harmonic drone (432Hz Pure Zen)
+    // Ultra-thin minimal pure sine harmonic drone (432Hz Pure Zen)
     const minFreqs = [108, 216, 432];
     minFreqs.forEach((freq, idx) => {
       const osc = offlineCtx.createOscillator();
@@ -494,9 +512,9 @@ export async function generateRelaxationSoundscapeWav(
       osc.frequency.setValueAtTime(freq, 0);
 
       filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(280, 0);
+      filter.frequency.setValueAtTime(260, 0);
 
-      const baseVol = (musicVol * 0.05) / (idx + 1);
+      const baseVol = (musicVol * 0.04) / (idx + 1);
       gain.gain.setValueAtTime(0.0001, 0);
       gain.gain.linearRampToValueAtTime(baseVol, fadeIn);
       gain.gain.setValueAtTime(baseVol, actualDuration - fadeOut);
@@ -510,8 +528,8 @@ export async function generateRelaxationSoundscapeWav(
       osc.stop(actualDuration);
     });
   } else {
-    // String Halus Meditatif (528Hz Solfeggio Warm Bowed String)
-    const stringFreqs = [132, 264, 396, 528];
+    // String Akustik Halus & Damai (528Hz Solfeggio)
+    const stringFreqs = [132, 264, 396];
     stringFreqs.forEach((freq, idx) => {
       const osc = offlineCtx.createOscillator();
       const gain = offlineCtx.createGain();
@@ -519,12 +537,12 @@ export async function generateRelaxationSoundscapeWav(
 
       osc.type = 'sawtooth';
       osc.frequency.setValueAtTime(freq, 0);
-      osc.detune.setValueAtTime(idx * 2, 0);
+      osc.detune.setValueAtTime(idx * 1.5, 0);
 
       filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(320, 0);
+      filter.frequency.setValueAtTime(280, 0);
 
-      const baseVol = (musicVol * 0.04) / (idx + 1);
+      const baseVol = (musicVol * 0.035) / (idx + 1);
       gain.gain.setValueAtTime(0.0001, 0);
       gain.gain.linearRampToValueAtTime(baseVol, fadeIn);
       gain.gain.setValueAtTime(baseVol, actualDuration - fadeOut);
@@ -540,13 +558,13 @@ export async function generateRelaxationSoundscapeWav(
   }
 
   // -------------------------------------------------------------
-  // 2. NATURE BACKSOUND SYNTHESIS (Supports Multi-Layer Textures: Sungai + Burung + Angin, etc.)
+  // 2. NATURE BACKSOUND SYNTHESIS (Primary Audio Element - 8 Atmospheres)
   // -------------------------------------------------------------
   const layerCount = Math.max(1, selectedNatureTypes.length);
   const layerGainScale = 1 / Math.sqrt(layerCount);
 
   for (const nType of selectedNatureTypes) {
-    const noiseBufferSize = sampleRate * 5;
+    const noiseBufferSize = sampleRate * 6;
     const noiseBuffer = offlineCtx.createBuffer(2, noiseBufferSize, sampleRate);
     for (let ch = 0; ch < 2; ch++) {
       const data = noiseBuffer.getChannelData(ch);
@@ -573,57 +591,65 @@ export async function generateRelaxationSoundscapeWav(
     const effectiveLayerVol = natureVol * layerGainScale;
 
     if (nType === 'aliran-sungai') {
+      // 🌊 Air mengalir lembut (smooth continuous flow of mountain spring water)
       natureFilter.type = 'bandpass';
-      natureFilter.frequency.setValueAtTime(650, 0);
-      natureFilter.Q.setValueAtTime(1.2, 0);
-      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.8, 0);
+      natureFilter.frequency.setValueAtTime(620, 0);
+      natureFilter.Q.setValueAtTime(1.1, 0);
+      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.9, 0);
+    } else if (nType === 'hujan-lembut') {
+      // 🌧️ Hujan ringan (soothing, gentle rain drops on leaves, zero harshness)
+      natureFilter.type = 'lowpass';
+      natureFilter.frequency.setValueAtTime(1100, 0);
+      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.85, 0);
     } else if (nType === 'gemericik-air') {
+      // 💧 Gemericik air (delicate watery ripples & crystalline droplet blips)
       natureFilter.type = 'bandpass';
-      natureFilter.frequency.setValueAtTime(1200, 0);
-      natureFilter.Q.setValueAtTime(2.5, 0);
-      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.6, 0);
+      natureFilter.frequency.setValueAtTime(1150, 0);
+      natureFilter.Q.setValueAtTime(2.2, 0);
+      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.7, 0);
 
-      const dropTimes = [3, 8, 14, 21, 29, 38, 48, 60, 75, 90, 105];
+      const dropTimes = [2.5, 6.5, 11, 16.5, 21.5, 27];
       dropTimes.forEach((dt) => {
         if (dt < actualDuration - 2) {
           const dropOsc = offlineCtx.createOscillator();
           const dropGain = offlineCtx.createGain();
           dropOsc.type = 'sine';
-          dropOsc.frequency.setValueAtTime(900 + Math.random() * 300, dt);
-          dropOsc.frequency.exponentialRampToValueAtTime(1800 + Math.random() * 400, dt + 0.08);
+          dropOsc.frequency.setValueAtTime(950 + Math.random() * 250, dt);
+          dropOsc.frequency.exponentialRampToValueAtTime(1700 + Math.random() * 300, dt + 0.07);
 
           dropGain.gain.setValueAtTime(0.0001, dt);
-          dropGain.gain.linearRampToValueAtTime(effectiveLayerVol * 0.25, dt + 0.02);
-          dropGain.gain.exponentialRampToValueAtTime(0.0001, dt + 0.15);
+          dropGain.gain.linearRampToValueAtTime(effectiveLayerVol * 0.22, dt + 0.02);
+          dropGain.gain.exponentialRampToValueAtTime(0.0001, dt + 0.14);
 
           dropOsc.connect(dropGain);
           dropGain.connect(offlineCtx.destination);
           dropOsc.start(dt);
-          dropOsc.stop(dt + 0.2);
+          dropOsc.stop(dt + 0.18);
         }
       });
     } else if (nType === 'burung-pagi') {
+      // 🐦 Burung natural yang jauh (peaceful, distant reverberant songs, safe and pleasant)
       natureFilter.type = 'lowpass';
-      natureFilter.frequency.setValueAtTime(400, 0);
-      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.3, 0);
+      natureFilter.frequency.setValueAtTime(450, 0);
+      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.35, 0);
 
-      const birdTimes = [2, 6, 12, 18, 24];
+      const birdTimes = [3, 9, 16, 22];
       birdTimes.forEach((bt) => {
         if (bt < actualDuration - 2) {
           const chirps = 3;
           for (let k = 0; k < chirps; k++) {
-            const chirpTime = bt + k * 0.18;
+            const chirpTime = bt + k * 0.19;
             const osc = offlineCtx.createOscillator();
             const chirpGain = offlineCtx.createGain();
 
             osc.type = 'sine';
-            const baseF = 2400 + Math.random() * 600;
+            const baseF = 2300 + Math.random() * 400;
             osc.frequency.setValueAtTime(baseF, chirpTime);
-            osc.frequency.linearRampToValueAtTime(baseF + 800, chirpTime + 0.05);
-            osc.frequency.linearRampToValueAtTime(baseF - 200, chirpTime + 0.12);
+            osc.frequency.linearRampToValueAtTime(baseF + 650, chirpTime + 0.05);
+            osc.frequency.linearRampToValueAtTime(baseF - 150, chirpTime + 0.13);
 
             chirpGain.gain.setValueAtTime(0.0001, chirpTime);
-            chirpGain.gain.linearRampToValueAtTime(effectiveLayerVol * 0.22, chirpTime + 0.03);
+            chirpGain.gain.linearRampToValueAtTime(effectiveLayerVol * 0.20, chirpTime + 0.03);
             chirpGain.gain.exponentialRampToValueAtTime(0.0001, chirpTime + 0.14);
 
             osc.connect(chirpGain);
@@ -634,37 +660,44 @@ export async function generateRelaxationSoundscapeWav(
         }
       });
     } else if (nType === 'angin-pepohonan') {
+      // 🍃 Angin di pepohonan (ultra-soft slow breeze through green canopy)
       natureFilter.type = 'lowpass';
-      natureFilter.frequency.setValueAtTime(300, 0);
-      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.85, 0);
+      natureFilter.frequency.setValueAtTime(320, 0);
+      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.9, 0);
     } else if (nType === 'ombak-pantai') {
+      // 🌊 Ombak lembut (rhythmic ocean tidal breath, slow in-out flow)
       natureFilter.type = 'lowpass';
-      natureFilter.frequency.setValueAtTime(450, 0);
-      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.8, 0);
+      natureFilter.frequency.setValueAtTime(420, 0);
+      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.88, 0);
     } else if (nType === 'hutan-alami') {
+      // 🌲 Suasana hutan yang nyaman (grounded, warm sanctuary woodland shelter)
       natureFilter.type = 'bandpass';
-      natureFilter.frequency.setValueAtTime(500, 0);
-      natureFilter.Q.setValueAtTime(0.8, 0);
-      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.7, 0);
+      natureFilter.frequency.setValueAtTime(480, 0);
+      natureFilter.Q.setValueAtTime(0.85, 0);
+      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.8, 0);
+    } else if (nType === 'suasana-alam-tenang') {
+      // 🌿 Suasana alam terbuka (wide airy horizon breeze, calm and open space)
+      natureFilter.type = 'lowpass';
+      natureFilter.frequency.setValueAtTime(360, 0);
+      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.75, 0);
     } else if (nType === 'suasana-malam') {
-      // Soft night breeze with subtle high-frequency nocturnal crickets
+      // 🌙 Suasana malam tenang (gentle nocturnal breeze & soft distant crickets)
       natureFilter.type = 'lowpass';
       natureFilter.frequency.setValueAtTime(260, 0);
-      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.5, 0);
+      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.6, 0);
 
-      // Night Crickets (gentle chirps around 4.5kHz)
-      const cricketTimes = [1.5, 5, 8.5, 12, 16.5, 20];
+      const cricketTimes = [1.5, 6, 11.5, 17, 22.5];
       cricketTimes.forEach((ct) => {
         if (ct < actualDuration - 2) {
-          for (let p = 0; p < 4; p++) {
+          for (let p = 0; p < 3; p++) {
             const pTime = ct + p * 0.09;
             const osc = offlineCtx.createOscillator();
             const cGain = offlineCtx.createGain();
             osc.type = 'sine';
-            osc.frequency.setValueAtTime(4400 + Math.random() * 200, pTime);
+            osc.frequency.setValueAtTime(4200 + Math.random() * 150, pTime);
 
             cGain.gain.setValueAtTime(0.0001, pTime);
-            cGain.gain.linearRampToValueAtTime(effectiveLayerVol * 0.08, pTime + 0.02);
+            cGain.gain.linearRampToValueAtTime(effectiveLayerVol * 0.06, pTime + 0.02);
             cGain.gain.exponentialRampToValueAtTime(0.0001, pTime + 0.06);
 
             osc.connect(cGain);
@@ -674,45 +707,10 @@ export async function generateRelaxationSoundscapeWav(
           }
         }
       });
-    } else if (nType === 'fajar-tenang') {
-      // Dawn freshness breeze + distant birds
-      natureFilter.type = 'bandpass';
-      natureFilter.frequency.setValueAtTime(550, 0);
-      natureFilter.Q.setValueAtTime(0.9, 0);
-      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.55, 0);
-
-      const dawnBirdTimes = [3, 9, 15, 21];
-      dawnBirdTimes.forEach((bt) => {
-        if (bt < actualDuration - 2) {
-          for (let k = 0; k < 2; k++) {
-            const chirpTime = bt + k * 0.22;
-            const osc = offlineCtx.createOscillator();
-            const chirpGain = offlineCtx.createGain();
-            osc.type = 'sine';
-            const baseF = 2600 + Math.random() * 400;
-            osc.frequency.setValueAtTime(baseF, chirpTime);
-            osc.frequency.linearRampToValueAtTime(baseF + 600, chirpTime + 0.06);
-            osc.frequency.linearRampToValueAtTime(baseF - 100, chirpTime + 0.14);
-
-            chirpGain.gain.setValueAtTime(0.0001, chirpTime);
-            chirpGain.gain.linearRampToValueAtTime(effectiveLayerVol * 0.15, chirpTime + 0.03);
-            chirpGain.gain.exponentialRampToValueAtTime(0.0001, chirpTime + 0.15);
-
-            osc.connect(chirpGain);
-            chirpGain.connect(offlineCtx.destination);
-            osc.start(chirpTime);
-            osc.stop(chirpTime + 0.16);
-          }
-        }
-      });
-    } else if (nType === 'suasana-alam-tenang') {
-      natureFilter.type = 'lowpass';
-      natureFilter.frequency.setValueAtTime(380, 0);
-      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.6, 0);
     } else {
       natureFilter.type = 'lowpass';
-      natureFilter.frequency.setValueAtTime(1400, 0);
-      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.75, 0);
+      natureFilter.frequency.setValueAtTime(500, 0);
+      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.7, 0);
     }
 
     noiseSource.connect(natureFilter);
@@ -723,10 +721,10 @@ export async function generateRelaxationSoundscapeWav(
   }
 
   // -------------------------------------------------------------
-  // 3. TIBETAN SINGING BOWL HARMONICS (528Hz Love & Miracle frequency)
+  // 3. TIBETAN SINGING BOWL (Subtle 528Hz Peace Resonance - Very Soft)
   // -------------------------------------------------------------
   if (withBowl) {
-    const bowlTimes = [1, 14, 26];
+    const bowlTimes = [1.2, 14.5];
     bowlTimes.forEach((t) => {
       if (t < actualDuration - 3) {
         const bowlOsc1 = offlineCtx.createOscillator();
@@ -736,20 +734,20 @@ export async function generateRelaxationSoundscapeWav(
         bowlOsc1.type = 'sine';
         bowlOsc1.frequency.setValueAtTime(528, t);
         bowlOsc2.type = 'sine';
-        bowlOsc2.frequency.setValueAtTime(528 * 2.76, t); // Overtone
+        bowlOsc2.frequency.setValueAtTime(528 * 2.76, t);
 
         bowlGain.gain.setValueAtTime(0.0001, t);
-        bowlGain.gain.linearRampToValueAtTime(0.08, t + 0.15);
-        bowlGain.gain.exponentialRampToValueAtTime(0.0001, Math.min(actualDuration, t + 8));
+        bowlGain.gain.linearRampToValueAtTime(0.04, t + 0.2);
+        bowlGain.gain.exponentialRampToValueAtTime(0.0001, Math.min(actualDuration, t + 7.5));
 
         bowlOsc1.connect(bowlGain);
         bowlOsc2.connect(bowlGain);
         bowlGain.connect(offlineCtx.destination);
 
         bowlOsc1.start(t);
-        bowlOsc1.stop(Math.min(actualDuration, t + 8.5));
+        bowlOsc1.stop(Math.min(actualDuration, t + 8));
         bowlOsc2.start(t);
-        bowlOsc2.stop(Math.min(actualDuration, t + 8.5));
+        bowlOsc2.stop(Math.min(actualDuration, t + 8));
       }
     });
   }
@@ -765,11 +763,11 @@ export async function generateRelaxationSoundscapeWav(
  * Synthesizes LEGA CALM NATURE (Universal Relaxation Audio)
  * Master multi-layer soundscape:
  * 1. 🌊 Air mengalir lembut (smooth continuous alpine waterflow)
- * 2. 🐦 Burung natural dan jauh (reverberant gentle distant birds)
- * 3. 🍃 Angin lembut di pepohonan (ultra-soft canopy breeze)
- * 4. 🎹 Musik ambient/piano yang sangat lembut (warm 432Hz pentatonic piano chords)
+ * 2. 🐦 Burung natural yang jauh (reverberant gentle distant birds)
+ * 3. 🍃 Angin di pepohonan (ultra-soft canopy breeze)
+ * 4. 🎹 Musik ambient/piano yang sangat lembut & tipis (warm 432Hz light piano chords)
  *
- * Characteristics: Tenang, Lembut, Natural, Hangat, Menenteramkan, Tanpa Suara Mengejutkan.
+ * Characteristics: Tenang, Nyaman, Hangat, Cerah, Natural, Menenangkan, Aman Didengar.
  */
 export async function generateLegaCalmNatureWav(
   durationSeconds = 24,
@@ -778,8 +776,8 @@ export async function generateLegaCalmNatureWav(
   return generateRelaxationSoundscapeWav(durationSeconds, {
     natureTypes: ['aliran-sungai', 'burung-pagi', 'angin-pepohonan'],
     ambientType: 'piano-lembut',
-    natureVolume: customVolumes?.natureVolume ?? 0.28,
-    musicVolume: customVolumes?.musicVolume ?? 0.22,
+    natureVolume: customVolumes?.natureVolume ?? 0.34, // Primary nature sound
+    musicVolume: customVolumes?.musicVolume ?? 0.12, // Very thin background layer
     fadeInSeconds: 4.0,
     fadeOutSeconds: 5.5,
     includeSingingBowl: true
@@ -843,11 +841,16 @@ function writeString(view: DataView, offset: number, string: string) {
  * Spoken Indonesian Speech Narration via Web Speech API with calm pacing
  */
 let cachedVoices: SpeechSynthesisVoice[] = [];
+let activeUtterance: SpeechSynthesisUtterance | null = null;
+let speechKeepAliveInterval: number | null = null;
 
 if (typeof window !== 'undefined' && window.speechSynthesis) {
   const updateVoices = () => {
     try {
-      cachedVoices = window.speechSynthesis.getVoices();
+      const v = window.speechSynthesis.getVoices();
+      if (v && v.length > 0) {
+        cachedVoices = v;
+      }
     } catch {
       // ignore
     }
@@ -860,12 +863,42 @@ if (typeof window !== 'undefined' && window.speechSynthesis) {
 
 export function getVoiceCharacter(nameOrKey?: string): VoiceCharacterProfile {
   if (!nameOrKey) return VOICE_CHARACTERS[0];
+  const q = nameOrKey.toLowerCase().trim();
   const found = VOICE_CHARACTERS.find(
-    (v) => v.name.toLowerCase() === nameOrKey.toLowerCase() ||
-           v.indonesianName.toLowerCase().includes(nameOrKey.toLowerCase()) ||
-           v.label.toLowerCase().includes(nameOrKey.toLowerCase())
+    (v) =>
+      v.name.toLowerCase() === q ||
+      v.indonesianName.toLowerCase().includes(q) ||
+      v.label.toLowerCase().includes(q) ||
+      q.includes(v.name.toLowerCase()) ||
+      (v.indonesianName.toLowerCase().split(' ')[0] && q.includes(v.indonesianName.toLowerCase().split(' ')[0]))
   );
   return found || VOICE_CHARACTERS[0];
+}
+
+function clearSpeechKeepAlive() {
+  if (speechKeepAliveInterval !== null) {
+    window.clearInterval(speechKeepAliveInterval);
+    speechKeepAliveInterval = null;
+  }
+}
+
+function startSpeechKeepAlive() {
+  clearSpeechKeepAlive();
+  if (typeof window === 'undefined' || !window.speechSynthesis) return;
+  
+  // Chrome bug fix: speech pauses after ~15s without resume ping
+  speechKeepAliveInterval = window.setInterval(() => {
+    if (!window.speechSynthesis.speaking) {
+      clearSpeechKeepAlive();
+      return;
+    }
+    if (window.speechSynthesis.paused) {
+      window.speechSynthesis.resume();
+    } else {
+      window.speechSynthesis.pause();
+      window.speechSynthesis.resume();
+    }
+  }, 9000);
 }
 
 export function speakIndonesianNarration(
@@ -887,6 +920,7 @@ export function speakIndonesianNarration(
   }
 
   try {
+    clearSpeechKeepAlive();
     window.speechSynthesis.cancel();
     if (window.speechSynthesis.paused) {
       window.speechSynthesis.resume();
@@ -910,10 +944,17 @@ export function speakIndonesianNarration(
   const utterance = new SpeechSynthesisUtterance(cleanText);
   utterance.rate = options?.rate ?? charProfile.rate ?? 0.80; // Pacing from character
   utterance.pitch = options?.pitch ?? charProfile.pitch ?? 1.0; // Pitch resonance from character
-  utterance.volume = options?.volume ?? 0.95;
+  utterance.volume = options?.volume !== undefined ? Math.max(0, Math.min(1, options.volume)) : 0.95;
   utterance.lang = 'id-ID';
 
-  const voices = cachedVoices.length > 0 ? cachedVoices : (window.speechSynthesis.getVoices() || []);
+  let voices = cachedVoices.length > 0 ? cachedVoices : (window.speechSynthesis.getVoices() || []);
+  if (voices.length === 0) {
+    try {
+      voices = window.speechSynthesis.getVoices() || [];
+    } catch {
+      // ignore
+    }
+  }
   
   // Try finding Indonesian voice matching gender preference if possible
   const idVoices = voices.filter((v) => 
@@ -930,31 +971,53 @@ export function speakIndonesianNarration(
         v.name.toLowerCase().includes('male') || 
         v.name.toLowerCase().includes('ardi') || 
         v.name.toLowerCase().includes('david') ||
-        v.name.toLowerCase().includes('pria')
+        v.name.toLowerCase().includes('pria') ||
+        v.name.toLowerCase().includes('bayu') ||
+        v.name.toLowerCase().includes('arga')
       ) || idVoices[0];
     } else {
       chosenVoice = idVoices.find(v => 
         v.name.toLowerCase().includes('female') || 
         v.name.toLowerCase().includes('gadis') || 
         v.name.toLowerCase().includes('wanita') ||
-        v.name.toLowerCase().includes('siti')
+        v.name.toLowerCase().includes('siti') ||
+        v.name.toLowerCase().includes('laras') ||
+        v.name.toLowerCase().includes('sinta')
       ) || idVoices[0];
     }
   } else {
-    // Multilingual fallback
-    chosenVoice = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('natural')) || voices[0];
+    // Multilingual natural fallback
+    chosenVoice = voices.find(v => v.lang.startsWith('en') && (v.name.toLowerCase().includes('natural') || v.name.toLowerCase().includes('online'))) || voices[0];
   }
 
   if (chosenVoice) {
     utterance.voice = chosenVoice;
   }
 
-  if (options?.onStart) utterance.onstart = options.onStart;
-  if (options?.onEnd) utterance.onend = options.onEnd;
-  if (options?.onError) utterance.onerror = options.onError;
+  utterance.onstart = () => {
+    startSpeechKeepAlive();
+    if (options?.onStart) options.onStart();
+  };
+
+  utterance.onend = () => {
+    clearSpeechKeepAlive();
+    activeUtterance = null;
+    if (options?.onEnd) options.onEnd();
+  };
+
+  utterance.onerror = (e) => {
+    clearSpeechKeepAlive();
+    activeUtterance = null;
+    console.warn('SpeechSynthesis utterance error:', e);
+    if (options?.onError) options.onError(e);
+  };
+
+  // Hold in module scope so browser GC does not destroy it during speech
+  activeUtterance = utterance;
 
   try {
     window.speechSynthesis.speak(utterance);
+    startSpeechKeepAlive();
   } catch (err) {
     console.warn('Failed to call speechSynthesis.speak:', err);
   }
@@ -966,12 +1029,21 @@ export function speakIndonesianNarration(
  */
 export function previewIndonesianVoiceCharacter(
   voiceName: string,
+  onStart?: () => void,
   onEnd?: () => void
 ): SpeechSynthesisUtterance | null {
   const profile = getVoiceCharacter(voiceName);
   return speakIndonesianNarration(profile.samplePhrase, {
     voiceCharacter: profile.name,
-    onEnd
+    rate: profile.rate,
+    pitch: profile.pitch,
+    onStart,
+    onEnd: () => {
+      if (onEnd) onEnd();
+    },
+    onError: () => {
+      if (onEnd) onEnd();
+    }
   });
 }
 

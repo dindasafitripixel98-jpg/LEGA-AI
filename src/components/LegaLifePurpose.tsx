@@ -883,7 +883,7 @@ Visi & Goals Translation:
               <Volume2 className="w-5 h-5" /> Audio Terpandu LEGA Life Purpose
             </div>
             <span className="text-xs bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 px-3 py-1 rounded-full">
-              Gemini TTS Audio
+              Audio Narasi Terpandu
             </span>
           </div>
 

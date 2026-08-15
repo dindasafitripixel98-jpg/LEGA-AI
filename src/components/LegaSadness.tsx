@@ -1023,7 +1023,7 @@ Langkah Kecil: ${reflectionResult.reflectiveInsights?.gentleNextStep || '-'}`;
                   <Volume2 className="w-5 h-5 text-blue-400" /> Audio Panduan LEGA Sadness
                 </h3>
                 <p className="text-xs text-stone-400 mt-1">
-                  Narasi audio dinamis Bahasa Indonesia ditenagai Gemini TTS untuk menemani kesedihan dan merawat batin.
+                  Narasi audio dinamis Bahasa Indonesia untuk menemani kesedihan dan merawat batin.
                 </p>
               </div>
             </div>

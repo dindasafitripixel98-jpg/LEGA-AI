@@ -99,7 +99,7 @@ export const GlobalVoiceBar: React.FC = () => {
                   {voiceState.currentTitle || 'Panduan Suara LEGA'}
                 </p>
                 <span className="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shrink-0">
-                  {voiceState.engine === 'gemini-tts' ? 'Gemini TTS' : 'Web Speech'}
+                  {voiceState.engine === 'gemini-tts' ? 'Audio Narasi' : 'Web Speech'}
                 </span>
               </div>
               <p className="text-[11px] text-stone-400 truncate">

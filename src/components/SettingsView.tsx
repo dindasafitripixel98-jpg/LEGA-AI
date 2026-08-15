@@ -236,7 +236,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onOpenPwaModal }) =>
             </span>
           </div>
           <div className="p-3 bg-stone-950 rounded-xl border border-stone-800 text-xs text-stone-300 flex items-center justify-between">
-            <span>Model Suara TTS: Gemini 3.1 Flash TTS</span>
+            <span>Model Suara Narasi: Engine Suara LEGA</span>
             <span className="text-emerald-400 font-semibold flex items-center gap-1">
               <Check className="w-3.5 h-3.5" /> Terkoneksi
             </span>

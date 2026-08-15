@@ -1023,7 +1023,7 @@ VERSION 1.0
 ========================================================
 DESKRIPSI & PRINSIP UTAMA
 ========================================================
-Modul ini menghasilkan audio panduan yang dipersonalisasi menggunakan Gemini TTS Bahasa Indonesia.
+Modul ini menghasilkan audio panduan yang dipersonalisasi menggunakan narasi suara audio Bahasa Indonesia.
 Audio dibuat secara dinamis berdasarkan kondisi, tujuan, preferensi, dan perkembangan pengguna.
 Audio bertujuan membantu pengguna melakukan latihan kesadaran, refleksi, relaksasi, dan pengelolaan emosi.
 
@@ -1056,7 +1056,7 @@ FORMAT JSON OUTPUT:
   "durationMinutes": 5,
   "description": "Deskripsi singkat mengenai audio ini...",
   "script": "Naskah narasi audio lengkap dengan jeda [jeda 3 detik], pembukaan, panduan, refleksi, dan penutup...",
-  "ttsPrompt": "Prompt TTS bersih yang siap dibacakan Gemini TTS...",
+  "ttsPrompt": "Prompt audio bersih yang siap dibacakan narasi suara...",
   "voiceRecommended": "Kore" | "Zephyr" | "Puck" | "Fenrir" | "Charon",
   "reflectiveQuestions": [
     "Pertanyaan refleksi 1?",
@@ -2713,10 +2713,10 @@ const LEGA_TTS_SCRIPT_INSTRUCTION = `
 ========================================================
 IDENTITAS MODUL: LEGA TTS Script - VERSION 2.0 (MASTER PROMPT 25)
 ========================================================
-Nama Modul: LEGA TTS Script
+Nama Modul: LEGA Audio Voice Script
 Kategori: AI Audio Script Generation
-Engine: Gemini TTS
-Fungsi: Mengubah konteks, emosi, tujuan latihan, dan hasil refleksi pengguna menjadi naskah audio panduan yang natural, tenang, personal, dan siap diproses oleh Gemini TTS.
+Engine: LEGA Voice Engine
+Fungsi: Mengubah konteks, emosi, tujuan latihan, dan hasil refleksi pengguna menjadi naskah audio panduan yang natural, tenang, personal, dan siap diproses narasi suara.
 
 ========================================================
 TUJUAN UTAMA & ATURAN PRIVASI
@@ -2789,7 +2789,7 @@ FORMAT OUTPUT JSON
   "pace": "Slow",
   "emotion": "Gentle, reassuring",
   "script": "Naskah audio lengkap dengan marker internal [PAUSE_SHORT], [PAUSE_MEDIUM], [PAUSE_LONG]...",
-  "cleanScriptForTTS": "Naskah bersih tanpa tag marker [PAUSE_...] yang siap dibacakan oleh Gemini TTS secara mulus...",
+  "cleanScriptForTTS": "Naskah bersih tanpa tag marker [PAUSE_...] yang siap dibacakan oleh narasi suara secara mulus...",
   "reflectionPoints": [
     "Pertanyaan / Poin refleksi 1...",
     "Pertanyaan / Poin refleksi 2..."
@@ -3800,6 +3800,84 @@ Hasilkan analisis JSON valid sesuai instruksi LEGA PATTERN AWARENESS tanpa mengh
     res.json({ success: true, data });
   } catch (error: any) {
     console.warn('Handled gracefully in /api/gemini/pattern-awareness:', error?.message || error);
+    res.json({ success: true, data: null });
+  }
+});
+
+// 8b. Gemini Self Discovery Reflection & Wheel of Life Insight
+app.post('/api/gemini/self-discovery-reflect', async (req, res) => {
+  try {
+    const { items, wheelScores, userProfile } = req.body;
+    const prompt = `
+Anda adalah LEGA AI Self-Awareness Companion untuk modul Mengenal Diri (Self Discovery).
+Tugas Anda adalah membaca jawaban refleksi diri dan skor roda keseimbangan hidup pengguna, lalu memberikan sintesis wawasan batin yang mendalam, hangat, penuh welas asih (self-compassion), dan non-judgmental.
+
+DATA PENGGUNA:
+Nama: ${userProfile?.name || 'Sahabat LEGA'}
+Roda Keseimbangan (1-10): ${JSON.stringify(wheelScores || {})}
+Jawaban Refleksi Pertanyaan:
+${(items || []).map((it: any) => `- [${it.title || it.category}]: Pertanyaan: "${it.question}" -> Jawaban Pengguna: "${it.userAnswer || 'Belum diisi'}"`).join('\n')}
+
+Berikan respons JSON terstruktur dengan format:
+{
+  "summary": "Ringkasan potret kesadaran diri saat ini dalam 2-3 kalimat hangat dan apresiatif",
+  "keyStrengths": ["Kekuatan atau nilai inti 1", "Kekuatan atau nilai inti 2"],
+  "growthAreas": ["Area batin yang membutuhkan lebih banyak kelembutan dan perhatian"],
+  "wheelAnalysis": "Analisis singkat tentang pola roda keseimbangan hidup yang terisi",
+  "mindBodyConnection": "Kaitan antara pola pikir yang disadari dengan rasa tenang di tubuh",
+  "reflectiveInquiries": [
+    "Pertanyaan refleksi lanjutan 1",
+    "Pertanyaan refleksi lanjutan 2"
+  ],
+  "actionAffirmation": "Satu kalimat afirmasi sadar dan penuh penerimaan diri",
+  "recommendedModules": [
+    { "moduleName": "LEGA Pattern Awareness", "reason": "Alasan rekomendasi", "targetModuleKey": "pattern-awareness" },
+    { "moduleName": "LEGA Gratitude", "reason": "Alasan rekomendasi", "targetModuleKey": "gratitude" }
+  ]
+}
+`;
+
+    const systemInstruction = `Anda adalah asisten refleksi diri LEGA (Lega Digital 99). Pendekatan: Mindfulness, welas asih diri (self-compassion), eksplorasi nilai hidup, tanpa menggurui atau menghakimi. Output HANYA JSON.`;
+
+    const fallbackData = {
+      summary: 'Anda sedang berada dalam perjalanan indah mengenal diri dengan jujur dan terbuka. Setiap jawaban yang Anda tuliskan adalah cermin dari keberanian untuk hadir bagi diri sendiri.',
+      keyStrengths: [
+        'Keberanian untuk jujur melihat dinamika pikiran dan emosi',
+        'Kesadaran akan pentingnya menjaga keseimbangan hidup'
+      ],
+      growthAreas: [
+        'Memberi ruang istirahat tanpa rasa bersalah pada area yang sedang berenergi rendah'
+      ],
+      wheelAnalysis: 'Roda keseimbangan Anda menunjukkan area kekuatan yang dapat menjadi jangkar batin saat menghadapi bagian yang sedang membutuhkan pemulihan.',
+      mindBodyConnection: 'Saat pikiran merasa lebih didengar dan dipahami, ketegangan fisik di tubuh pun berangsur melunak.',
+      reflectiveInquiries: [
+        'Apa satu hal kecil yang paling Anda butuhkan dari diri Anda sendiri hari ini?',
+        'Bagaimana Anda bisa memperlakukan diri Anda seperti sahabat yang paling Anda sayangi?'
+      ],
+      actionAffirmation: 'Aku menerima perjalananku apa adanya, menghargai setiap langkah pertumbuhanku, dan mengizinkan diriku bertumbuh dengan ritme yang tenang.',
+      recommendedModules: [
+        {
+          moduleName: 'LEGA Pattern Awareness',
+          reason: 'Kenali pola berulang dalam respons emosi dan pikiran.',
+          targetModuleKey: 'pattern-awareness'
+        },
+        {
+          moduleName: 'LEGA Jurnal',
+          reason: 'Dokumentasikan wawasan batin Anda dalam catatan refleksi harian.',
+          targetModuleKey: 'journal'
+        },
+        {
+          moduleName: 'LEGA Breathing',
+          reason: 'Beri jeda napas yang menenangkan untuk merelaksasi sistem saraf.',
+          targetModuleKey: 'breathing'
+        }
+      ]
+    };
+
+    const data = await safeGenerateGeminiJSON(prompt, systemInstruction, 0.4, fallbackData);
+    res.json({ success: true, data });
+  } catch (error: any) {
+    console.warn('Handled gracefully in /api/gemini/self-discovery-reflect:', error?.message || error);
     res.json({ success: true, data: null });
   }
 });

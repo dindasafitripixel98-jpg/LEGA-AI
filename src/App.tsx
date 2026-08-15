@@ -134,7 +134,13 @@ export default function App() {
           />
         );
       case 'self-discovery':
-        return <SelfDiscovery />;
+        return (
+          <SelfDiscovery
+            onSelectModule={(mod) => setCurrentModule(mod as ModuleType)}
+            onAddJournal={handleAddJournal}
+            userProfile={userProfile}
+          />
+        );
       case 'pattern-awareness':
         return (
           <LegaPatternAwareness

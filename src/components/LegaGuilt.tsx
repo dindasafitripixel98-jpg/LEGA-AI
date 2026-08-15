@@ -778,7 +778,7 @@ ${reflectionResult.selfCompassionMessage || '-'}`;
           <div className="bg-stone-900 border border-stone-800 rounded-2xl p-6 md:p-8 space-y-6 shadow-lg">
             <div className="border-b border-stone-800 pb-4 flex items-center justify-between">
               <div className="flex items-center gap-2 text-indigo-400 font-bold text-lg">
-                <Volume2 className="w-5 h-5" /> Audio Panduan LEGA Guilt (Dinamis Gemini TTS)
+                <Volume2 className="w-5 h-5" /> Audio Panduan LEGA Guilt (Audio Narasi Terpadu)
               </div>
               <span className="text-xs text-stone-400">Suara Terpandu Bahasa Indonesia</span>
             </div>

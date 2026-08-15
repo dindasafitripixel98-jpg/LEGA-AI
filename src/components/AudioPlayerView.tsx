@@ -172,24 +172,24 @@ const CATEGORIES: AudioCategory[] = [
 ];
 
 const NATURE_OPTIONS: { id: NatureSoundType; name: string; icon: any; desc: string }[] = [
-  { id: 'aliran-sungai', name: 'Aliran Sungai Alami', icon: Droplets, desc: 'Gemericik arus air jernih pegunungan yang konstan' },
-  { id: 'gemericik-air', name: 'Gemericik Air', icon: Droplets, desc: 'Tetesan air sejuk lembut di atas bebatuan' },
-  { id: 'burung-pagi', name: 'Burung Pagi', icon: Bird, desc: 'Kicau burung fajar alami di kejauhan' },
-  { id: 'angin-pepohonan', name: 'Angin di Pepohonan', icon: Wind, desc: 'Semilir hembusan angin lembut mengayun dedaunan' },
-  { id: 'ombak-pantai', name: 'Ombak Pantai', icon: Waves, desc: 'Deburan ombak laut tenang menenangkan napas' },
-  { id: 'hutan-alami', name: 'Hutan Alami', icon: Trees, desc: 'Kanopi hutan tropis rimbun, teduh, dan luas' },
-  { id: 'hujan-lembut', name: 'Hujan Lembut', icon: CloudRain, desc: 'Rintik hujan tenang pengantar istirahat damai' },
-  { id: 'suasana-malam', name: 'Suasana Malam Tenang', icon: Moon, desc: 'Udara malam sejuk dengan jangkrik hening halus' },
-  { id: 'suasana-alam-tenang', name: 'Suasana Alam Tenang', icon: Trees, desc: 'Lanskap alam hening minimalis' },
-  { id: 'fajar-tenang', name: 'Fajar Menenteramkan', icon: Sunrise, desc: 'Kesegaran hembusan fajar dan kicauan burung pagi' }
+  { id: 'aliran-sungai', name: 'Air Mengalir Lembut', icon: Droplets, desc: 'Arus air sungai pegunungan jernih yang mengalir stabil & menenangkan' },
+  { id: 'hujan-lembut', name: 'Hujan Ringan', icon: CloudRain, desc: 'Rintik air hujan tenang dan sejuk di dedaunan tanpa petir' },
+  { id: 'angin-pepohonan', name: 'Angin di Pepohonan', icon: Wind, desc: 'Semilir hembusan angin sejuk yang menggerakkan dedaunan rimbun perlahan' },
+  { id: 'burung-pagi', name: 'Burung Natural yang Jauh', icon: Bird, desc: 'Kicau burung alami fajar yang damai dan bergema lembut di kejauhan' },
+  { id: 'ombak-pantai', name: 'Ombak Lembut', icon: Waves, desc: 'Deburan riak ombak pantai yang lembut dan berirama menyelaraskan napas' },
+  { id: 'gemericik-air', name: 'Gemericik Air', icon: Droplets, desc: 'Tetesan dan percikan air sejuk alami di atas bebatuan yang menyegarkan batin' },
+  { id: 'hutan-alami', name: 'Suasana Hutan yang Nyaman', icon: Trees, desc: 'Kanopi hutan alami yang hangat, teduh, menaungi, dan damai' },
+  { id: 'suasana-alam-tenang', name: 'Suasana Alam Terbuka', icon: Trees, desc: 'Lanskap padang rumput dan cakrawala alam luas yang hening dan lapang' },
+  { id: 'suasana-malam', name: 'Suasana Malam Tenang', icon: Moon, desc: 'Udara malam sejuk dengan jangkrik hening halus menenangkan pikiran' },
+  { id: 'fajar-tenang', name: 'Fajar Menenteramkan', icon: Sunrise, desc: 'Kesegaran hembusan fajar dan kicauan burung pagi menyambut hari' }
 ];
 
 const AMBIENT_OPTIONS: { id: AmbientMusicType; name: string; desc: string }[] = [
-  { id: 'piano-lembut', name: 'Piano Lembut Akustik (432Hz)', desc: 'Tuts piano nada pentatonik hangat & menenteramkan' },
-  { id: 'piano-hangat', name: 'Piano Ambient Hangat (432Hz)', desc: 'Alunan piano bernuansa hangat, luas, dan menenangkan' },
-  { id: 'ambient-minimal', name: 'Musik Ambient Minimalis', desc: 'Resonansi nada ambient halus & sangat hening' },
-  { id: 'pad-sinematik', name: 'Pad Sinematik Mengalun (432Hz)', desc: 'Lapisan pad analog hangat & luas membalut batin' },
-  { id: 'string-halus', name: 'String Halus Meditatif (528Hz)', desc: 'Gesekan dawai orkestra lembut melarutkan ketegangan' }
+  { id: 'piano-lembut', name: 'Piano Ambient Ringan & Hangat (432Hz)', desc: 'Ringan, hangat, cerah, natural, sederhana, lembut & stabil (latar tipis)' },
+  { id: 'piano-hangat', name: 'Piano Teduh Hangat (432Hz)', desc: 'Harmoni piano bernuansa hangat, teduh, sederhana, dan stabil' },
+  { id: 'ambient-minimal', name: 'Musik Ambient Minimalis Hening', desc: 'Resonansi nada hening minimalis tanpa melodi rumit' },
+  { id: 'pad-sinematik', name: 'Pad Ambient Mengalun Lembut (432Hz)', desc: 'Lapisan pad analog hangat mengambang tipis di latar belakang' },
+  { id: 'string-halus', name: 'String Akustik Halus & Damai (528Hz)', desc: 'Gesekan dawai orkestra sangat lembut melarutkan beban batin' }
 ];
 
 const DURATIONS = [1, 3, 5, 10, 15, 20, 30, 45, 60];
@@ -230,25 +230,25 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
     category: 'Universal Relaxation',
     subcategory: 'Kesadaran Diri & Ketenangan Pikiran',
     duration: '15 Menit / Loop Latar',
-    desc: 'Audio relaksasi universal LEGA: Paduan air mengalir lembut, kicau burung natural & jauh, semilir angin pepohonan, serta piano ambient 432Hz hangat menenteramkan tanpa suara mengejutkan.',
+    desc: 'Audio relaksasi universal LEGA: Paduan air mengalir lembut, kicau burung natural & jauh, semilir angin pepohonan, serta piano ambient 432Hz hangat yang menjadi latar tipis menenangkan tanpa suara mengejutkan.',
     purposes: ['semua', 'latihan-lega', 'istirahat-meditasi', 'menenangkan-pikiran', 'bekerja-belajar', 'menjelang-tidur'],
     purposeLabels: ['Latihan LEGA', 'Menenangkan Pikiran', 'Semua Kebutuhan'],
-    tagline: 'Temani dirimu berhenti sejenak, hadir saat ini, dan menikmati ketenangan.',
-    sampleScript: 'Selamat datang di ruang tenang Anda. Ambil posisi yang nyaman dan biarkan tubuh Anda bersandar dengan rileks. Rasakan aliran udara sejuk masuk saat Anda menarik napas, dan lepaskan seluruh ketegangan saat Anda menghembuskannya perlahan. [Jeda 4 detik] Dengarkan gemericik air yang mengalir lembut... desau angin yang menaungi pepohonan... dan kicau burung di kejauhan. Biarkan alunan piano lembut ini menemani Anda hadir seutuhnya di saat ini. Di sini, Anda aman, tenang, dan utuh.',
+    tagline: 'Temani dirimu berhenti sejenak, hadir saat ini, dan menikmati ketenangan di pangkuan alam.',
+    sampleScript: 'Selamat datang di ruang tenang Anda. Ambil posisi yang nyaman dan biarkan tubuh Anda bersandar dengan rileks. Rasakan aliran udara sejuk masuk saat Anda menarik napas, dan lepaskan seluruh ketegangan saat Anda menghembuskannya perlahan. [Jeda 4 detik] Dengarkan gemericik air yang mengalir lembut... desau angin yang menaungi pepohonan... dan kicau burung di kejauhan. Biarkan alunan musik ringan dan hangat ini menemani Anda hadir seutuhnya di saat ini. Di sini, Anda aman, tenang, dan utuh.',
     natureTypes: ['aliran-sungai', 'burung-pagi', 'angin-pepohonan'],
     ambientMusic: 'piano-lembut',
-    narrationVolume: 85,
+    narrationVolume: 90,
     natureVolume: 65,
-    musicVolume: 45,
+    musicVolume: 15,
     metadata: buildAudioRelaxationMetadata(
       'LEGA CALM NATURE - Universal Relaxation',
       'aliran-sungai',
       'piano-lembut',
       {
         natureSoundTypes: ['aliran-sungai', 'burung-pagi', 'angin-pepohonan'],
-        narrationVolume: 85,
+        narrationVolume: 90,
         natureVolume: 65,
-        musicVolume: 45,
+        musicVolume: 15,
         fadeInSeconds: 4.0,
         fadeOutSeconds: 5.5
       }
@@ -258,240 +258,288 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
     id: 'track-1-air-sungai',
     trackNumber: 1,
     title: '1. LEGA — Ketenangan Air Sungai',
-    subtitle: 'Air Sungai Lembut + Burung Natural + Musik Ambient',
+    subtitle: 'Air Mengalir Lembut + Burung Natural Jauh + Musik Latar Tipis',
     category: 'LEGA Calm',
     subcategory: 'Ketenangan Aliran Air & Fajar',
     duration: '15 Menit',
-    desc: 'Suara air sungai lembut pegunungan dipadukan dengan kicauan burung natural di kejauhan serta musik ambient menyejukkan.',
+    desc: 'Suara air mengalir lembut pegunungan dipadukan dengan kicauan burung natural di kejauhan serta musik ambient hangat sebagai latar tipis.',
     purposes: ['semua', 'latihan-lega', 'menenangkan-pikiran', 'istirahat-meditasi'],
     purposeLabels: ['Latihan LEGA', 'Menenangkan Pikiran', 'Istirahat'],
     sampleScript: 'Dengarkan aliran air sungai yang mengalir jernih dan tenang di hadapan Anda. Seperti arus air yang senantiasa bergerak melepaskan bebannya, izinkan setiap helaan napas Anda melepaskan kepenatan hari ini. [Jeda 4 detik] Burung-burung di kejauhan menyapa dengan lembut. Anda hadir sepenuhnya di sini.',
     natureTypes: ['aliran-sungai', 'burung-pagi'],
     ambientMusic: 'piano-lembut',
-    narrationVolume: 80,
-    natureVolume: 60,
-    musicVolume: 40,
+    narrationVolume: 90,
+    natureVolume: 65,
+    musicVolume: 15,
     metadata: buildAudioRelaxationMetadata(
       'Ketenangan Air Sungai & Burung Alami',
       'aliran-sungai',
       'piano-lembut',
-      { natureSoundTypes: ['aliran-sungai', 'burung-pagi'], narrationVolume: 80, natureVolume: 60, musicVolume: 40 }
+      { natureSoundTypes: ['aliran-sungai', 'burung-pagi'], narrationVolume: 90, natureVolume: 65, musicVolume: 15 }
     )
   },
   {
     id: 'track-2-hujan',
     trackNumber: 2,
     title: '2. LEGA — Ketenangan Hujan',
-    subtitle: 'Suara Hujan Lembut + Musik Piano Tenang',
+    subtitle: 'Hujan Ringan + Musik Piano Tenang Latar Tipis',
     category: 'LEGA Calm',
     subcategory: 'Pembersihan Pikiran & Relaksasi Tidur',
     duration: '15 Menit',
-    desc: 'Suara hujan lembut membasahi bumi dipadukan dengan alunan tuts piano akustik yang tenang, hangat, dan menidurkan.',
+    desc: 'Suara rintik hujan ringan sejuk membasahi bumi dipadukan dengan alunan tuts piano akustik yang tenang, hangat, dan menidurkan.',
     purposes: ['semua', 'menjelang-tidur', 'istirahat-meditasi', 'menenangkan-pikiran'],
     purposeLabels: ['Menjelang Tidur', 'Istirahat', 'Menenangkan Pikiran'],
     sampleScript: 'Rintik hujan turun dengan lembut di luar jendela... Setiap tetesnya menyejukkan dan membasuh rasa lelah di kepala serta pundak Anda. [Jeda 4 detik] Dengarkan nada piano yang mengalir perlahan, menuntun tubuh Anda beristirahat dalam kenyamanan seutuhnya.',
     natureTypes: ['hujan-lembut'],
     ambientMusic: 'piano-lembut',
-    narrationVolume: 80,
-    natureVolume: 60,
-    musicVolume: 40,
+    narrationVolume: 90,
+    natureVolume: 65,
+    musicVolume: 15,
     metadata: buildAudioRelaxationMetadata(
       'Ketenangan Hujan & Piano Menidurkan',
       'hujan-lembut',
       'piano-lembut',
-      { natureSoundTypes: ['hujan-lembut'], narrationVolume: 80, natureVolume: 60, musicVolume: 40 }
+      { natureSoundTypes: ['hujan-lembut'], narrationVolume: 90, natureVolume: 65, musicVolume: 15 }
     )
   },
   {
     id: 'track-3-hutan',
     trackNumber: 3,
     title: '3. LEGA — Ketenangan Hutan',
-    subtitle: 'Suasana Hutan + Angin Pepohonan + Burung Jauh',
+    subtitle: 'Suasana Hutan Nyaman + Angin Pepohonan + Burung Jauh',
     category: 'LEGA Presence',
     subcategory: 'Keheningan Kanopi Tropis',
     duration: '15 Menit',
-    desc: 'Suasana hutan alami yang rimbun dengan semilir angin di pucuk pepohonan, burung di kejauhan, dan dawai string halus meditatif.',
+    desc: 'Suasana kanopi hutan alami yang hangat dan teduh dengan semilir angin di pucuk pepohonan, burung di kejauhan, dan dawai string halus meditatif tipis.',
     purposes: ['semua', 'latihan-lega', 'bekerja-belajar', 'istirahat-meditasi'],
     purposeLabels: ['Latihan LEGA', 'Fokus Bekerja/Belajar', 'Meditasi'],
     sampleScript: 'Masuki keteduhan hutan yang luas dan hijau. Tarik napas dalam... rasakan aroma kesegaran daun-daun basah dan semilir angin yang mengayun ranting pohon. [Jeda 4 detik] Anda aman di bawah naungan alam semesta.',
     natureTypes: ['hutan-alami', 'angin-pepohonan', 'burung-pagi'],
     ambientMusic: 'string-halus',
-    narrationVolume: 80,
-    natureVolume: 60,
-    musicVolume: 40,
+    narrationVolume: 90,
+    natureVolume: 65,
+    musicVolume: 15,
     metadata: buildAudioRelaxationMetadata(
       'Ketenangan Hutan & Semilir Angin',
       'hutan-alami',
       'string-halus',
-      { natureSoundTypes: ['hutan-alami', 'angin-pepohonan', 'burung-pagi'], narrationVolume: 80, natureVolume: 60, musicVolume: 40 }
+      { natureSoundTypes: ['hutan-alami', 'angin-pepohonan', 'burung-pagi'], narrationVolume: 90, natureVolume: 65, musicVolume: 15 }
     )
   },
   {
     id: 'track-4-ombak',
     trackNumber: 4,
     title: '4. LEGA — Ketenangan Ombak',
-    subtitle: 'Suara Ombak Lembut + Angin Pantai + Musik Ambient',
+    subtitle: 'Ombak Lembut + Angin Pantai + Pad Mengalun Tipis',
     category: 'LEGA Release',
     subcategory: 'Ritme Napas & Deburan Tenang',
     duration: '15 Menit',
-    desc: 'Suara deburan ombak laut yang lembut dan berirama teratur, berpadu dengan hembusan angin pantai dan pad sinematik hangat.',
+    desc: 'Suara deburan ombak laut yang lembut dan berirama teratur, berpadu dengan hembusan angin pantai dan pad hangat mengalun tipis.',
     purposes: ['semua', 'latihan-lega', 'menenangkan-pikiran', 'istirahat-meditasi'],
     purposeLabels: ['Latihan LEGA', 'Pelepasan Emosi', 'Ketenangan'],
     sampleScript: 'Samakan ritme napas Anda dengan deburan ombak di pantai. Tarik napas saat ombak mendekat ke tepian... hembuskan napas saat ombak kembali perlahan ke laut lepas. [Jeda 4 detik] Lepaskan apa pun yang tak lagi perlu Anda genggam.',
     natureTypes: ['ombak-pantai', 'angin-pepohonan'],
     ambientMusic: 'pad-sinematik',
-    narrationVolume: 80,
-    natureVolume: 60,
-    musicVolume: 40,
+    narrationVolume: 90,
+    natureVolume: 65,
+    musicVolume: 15,
     metadata: buildAudioRelaxationMetadata(
       'Ketenangan Ombak & Pad Sinematik',
       'ombak-pantai',
       'pad-sinematik',
-      { natureSoundTypes: ['ombak-pantai', 'angin-pepohonan'], narrationVolume: 80, natureVolume: 60, musicVolume: 40 }
+      { natureSoundTypes: ['ombak-pantai', 'angin-pepohonan'], narrationVolume: 90, natureVolume: 65, musicVolume: 15 }
     )
   },
   {
     id: 'track-5-angin',
     trackNumber: 5,
     title: '5. LEGA — Semilir Angin',
-    subtitle: 'Angin Lembut + Suara Pepohonan + Musik Ambient',
+    subtitle: 'Angin di Pepohonan + Suasana Dedaunan + Pad Hangat Tipis',
     category: 'LEGA Calm',
     subcategory: 'Kelembutan Angin & Kelegaan Dada',
     duration: '15 Menit',
-    desc: 'Hembusan angin lembut yang membelai dedaunan rimbun, ditemani pad sinematik hangat frekuensi 432Hz yang menenangkan batin.',
+    desc: 'Hembusan semilir angin lembut yang membelai dedaunan rimbun, ditemani pad hangat frekuensi 432Hz yang sangat tipis menenangkan batin.',
     purposes: ['semua', 'bekerja-belajar', 'menenangkan-pikiran', 'istirahat-meditasi'],
     purposeLabels: ['Bekerja & Belajar', 'Menenangkan Pikiran', 'Relaksasi'],
     sampleScript: 'Rasakan kelembutan angin yang menyentuh kulit Anda. Angin ini hadir tanpa menuntut, hanya mengalir bebas dan menyejukkan. [Jeda 3 detik] Biarkan pikiran Anda menjadi seringan hembusan angin ini.',
     natureTypes: ['angin-pepohonan'],
     ambientMusic: 'pad-sinematik',
-    narrationVolume: 80,
-    natureVolume: 60,
-    musicVolume: 40,
+    narrationVolume: 90,
+    natureVolume: 65,
+    musicVolume: 15,
     metadata: buildAudioRelaxationMetadata(
       'Semilir Angin Pepohonan & Keheningan',
       'angin-pepohonan',
       'pad-sinematik',
-      { natureSoundTypes: ['angin-pepohonan'], narrationVolume: 80, natureVolume: 60, musicVolume: 40 }
+      { natureSoundTypes: ['angin-pepohonan'], narrationVolume: 90, natureVolume: 65, musicVolume: 15 }
     )
   },
   {
     id: 'track-6-gemericik',
     trackNumber: 6,
     title: '6. LEGA — Gemericik Air',
-    subtitle: 'Gemericik Air + Musik Ambient Sangat Lembut',
+    subtitle: 'Gemericik Air Bebatuan + Musik Ambient Latar Tipis',
     category: 'LEGA Presence',
     subcategory: 'Fokus & Kejernihan Pikiran',
     duration: '15 Menit',
-    desc: 'Tetesan dan gemericik air sejuk di atas bebatuan alami, dipadukan alunan nada piano ambient yang sangat lembut dan hening.',
+    desc: 'Tetesan dan gemericik air sejuk di atas bebatuan alami, dipadukan alunan nada piano ambient yang sangat lembut dan hening sebagai latar tipis.',
     purposes: ['semua', 'bekerja-belajar', 'latihan-lega', 'menenangkan-pikiran'],
     purposeLabels: ['Belajar & Kerja', 'Latihan LEGA', 'Kejernihan'],
     sampleScript: 'Fokuskan perhatian Anda pada suara gemericik air yang jernih. Seperti tetes demi tetes yang menghidupkan kesegaran, setiap momen saat ini adalah peluang untuk kembali jernih dan tenang.',
     natureTypes: ['gemericik-air'],
     ambientMusic: 'piano-lembut',
-    narrationVolume: 80,
-    natureVolume: 60,
-    musicVolume: 40,
+    narrationVolume: 90,
+    natureVolume: 65,
+    musicVolume: 15,
     metadata: buildAudioRelaxationMetadata(
       'Gemericik Air Sejuk & Piano Hening',
       'gemericik-air',
       'piano-lembut',
-      { natureSoundTypes: ['gemericik-air'], narrationVolume: 80, natureVolume: 60, musicVolume: 40 }
+      { natureSoundTypes: ['gemericik-air'], narrationVolume: 90, natureVolume: 65, musicVolume: 15 }
     )
   },
   {
     id: 'track-7-alam-tenang',
     trackNumber: 7,
-    title: '7. LEGA — Suasana Alam Tenang',
-    subtitle: 'Suara Alam Lembut + Musik Ambient Minimal',
+    title: '7. LEGA — Suasana Alam Terbuka',
+    subtitle: 'Suasana Alam Terbuka + Musik Ambient Minimal Hening',
     category: 'LEGA Reflection',
     subcategory: 'Keheningan Ruang Batin',
     duration: '15 Menit',
-    desc: 'Lanskap suara alam terbuka yang sejuk dan luas dengan musik ambient minimalis, memberikan ruang lapang bagi pikiran Anda.',
+    desc: 'Lanskap suara alam terbuka yang sejuk dan luas dengan musik ambient minimalis hening, memberikan ruang lapang bagi pikiran Anda.',
     purposes: ['semua', 'istirahat-meditasi', 'bekerja-belajar', 'menenangkan-pikiran'],
     purposeLabels: ['Istirahat & Meditasi', 'Bekerja', 'Refleksi Diri'],
-    sampleScript: 'Berhentilah sejenak dari segala kesibukan. Di ruang alam yang tenang ini, tidak ada yang perlu Anda buktikan, tidak ada yang perlu dikejar. Cukup ada di sini, menikmati keheningan.',
+    sampleScript: 'Berhentilah sejenak dari segala kesibukan. Di ruang alam terbuka yang tenang ini, tidak ada yang perlu Anda buktikan, tidak ada yang perlu dikejar. Cukup ada di sini, menikmati keheningan.',
     natureTypes: ['suasana-alam-tenang'],
     ambientMusic: 'ambient-minimal',
-    narrationVolume: 80,
-    natureVolume: 60,
-    musicVolume: 40,
+    narrationVolume: 90,
+    natureVolume: 65,
+    musicVolume: 15,
     metadata: buildAudioRelaxationMetadata(
-      'Suasana Alam Tenang & Ambient Minimal',
+      'Suasana Alam Terbuka & Ambient Minimal',
       'suasana-alam-tenang',
       'ambient-minimal',
-      { natureSoundTypes: ['suasana-alam-tenang'], narrationVolume: 80, natureVolume: 60, musicVolume: 40 }
+      { natureSoundTypes: ['suasana-alam-tenang'], narrationVolume: 90, natureVolume: 65, musicVolume: 15 }
     )
   },
   {
     id: 'track-8-piano',
     trackNumber: 8,
     title: '8. LEGA — Piano Menenangkan',
-    subtitle: 'Piano Ambient Lembut dengan Suasana Hangat',
+    subtitle: 'Piano Ambient Ringan & Hangat dengan Angin Dedaunan',
     category: 'LEGA Calm',
     subcategory: 'Harmoni Hangat 432Hz',
     duration: '15 Menit',
-    desc: 'Komposisi piano ambient bernuansa hangat dan lembut, dirancang untuk merelakskan sistem saraf dan mengendurkan ketegangan mental.',
+    desc: 'Komposisi piano ambient bernuansa ringan, hangat, cerah, dan lembut, dirancang untuk merelakskan sistem saraf dan mengendurkan ketegangan mental.',
     purposes: ['semua', 'menenangkan-pikiran', 'istirahat-meditasi', 'menjelang-tidur', 'bekerja-belajar'],
     purposeLabels: ['Menenangkan Pikiran', 'Istirahat', 'Menjelang Tidur'],
     sampleScript: 'Biarkan alunan melodi piano yang hangat ini menyelimuti hati Anda. Rasakan otot-otot wajah, bahu, dan punggung Anda yang perlahan melemas dan rileks seutuhnya.',
     natureTypes: ['angin-pepohonan'],
     ambientMusic: 'piano-hangat',
-    narrationVolume: 80,
-    natureVolume: 50,
-    musicVolume: 50,
+    narrationVolume: 90,
+    natureVolume: 60,
+    musicVolume: 20,
     metadata: buildAudioRelaxationMetadata(
       'Piano Menenangkan & Resonansi Hangat',
       'angin-pepohonan',
       'piano-hangat',
-      { natureSoundTypes: ['angin-pepohonan'], narrationVolume: 80, natureVolume: 50, musicVolume: 50 }
+      { natureSoundTypes: ['angin-pepohonan'], narrationVolume: 90, natureVolume: 60, musicVolume: 20 }
     )
   },
   {
     id: 'track-9-malam',
     trackNumber: 9,
     title: '9. LEGA — Suasana Malam Tenang',
-    subtitle: 'Suara Malam Lembut + Jangkrik Halus + Musik Ambient Pelan',
+    subtitle: 'Suara Malam Lembut + Jangkrik Halus + Musik Latar Tipis',
     category: 'LEGA Calm',
     subcategory: 'Istirahat Malam & Tidur Nyenyak',
     duration: '15 Menit',
-    desc: 'Suasana malam yang sunyi dan damai, semilir angin malam dengan desau jangkrik halus dan alunan piano pelan yang menghantarkan tidur lelap.',
+    desc: 'Suasana malam yang sunyi dan damai, semilir angin malam dengan desau jangkrik halus dan alunan piano pelan tipis yang menghantarkan tidur lelap.',
     purposes: ['semua', 'menjelang-tidur', 'istirahat-meditasi', 'menenangkan-pikiran'],
     purposeLabels: ['Menjelang Tidur', 'Istirahat Malam', 'Ketenangan'],
     sampleScript: 'Malam telah tiba untuk memeluk istirahat Anda. Tarik napas lembut... lepaskan semua beban hari ini. Biarkan ketenangan malam dan jangkrik halus mengantar Anda menuju tidur yang lelap dan damai.',
     natureTypes: ['suasana-malam'],
     ambientMusic: 'piano-hangat',
-    narrationVolume: 80,
-    natureVolume: 60,
-    musicVolume: 40,
+    narrationVolume: 90,
+    natureVolume: 65,
+    musicVolume: 15,
     metadata: buildAudioRelaxationMetadata(
       'Suasana Malam Tenang & Jangkrik Halus',
       'suasana-malam',
       'piano-hangat',
-      { natureSoundTypes: ['suasana-malam'], narrationVolume: 80, natureVolume: 60, musicVolume: 40 }
+      { natureSoundTypes: ['suasana-malam'], narrationVolume: 90, natureVolume: 65, musicVolume: 15 }
     )
   },
   {
     id: 'track-10-fajar',
     trackNumber: 10,
     title: '10. LEGA — Fajar Menenteramkan',
-    subtitle: 'Suara Fajar + Burung Pagi + Musik Ambient Hangat',
+    subtitle: 'Suara Fajar + Burung Pagi Jauh + Musik Latar Tipis',
     category: 'LEGA Growth',
     subcategory: 'Kesegaran Fajar & Semangat Baru',
     duration: '15 Menit',
-    desc: 'Kesejukan udara fajar yang menyejukkan batin, kicauan burung pagi menyambut hari, dipadukan alunan musik piano ambient hangat yang membangkitkan rasa syukur.',
+    desc: 'Kesejukan udara fajar yang menyejukkan batin, kicauan burung pagi menyambut hari di kejauhan, dipadukan alunan musik piano ambient hangat tipis yang membangkitkan rasa syukur.',
     purposes: ['semua', 'latihan-lega', 'bekerja-belajar', 'menenangkan-pikiran', 'istirahat-meditasi'],
     purposeLabels: ['Latihan LEGA', 'Memulai Hari', 'Bekerja & Belajar'],
     sampleScript: 'Selamat menyambut fajar yang damai. Udara fajar ini murni dan penuh harapan baru. Tarik napas dalam... serap energi positif dan biarkan hari ini Anda jalani dengan kebaikan serta ketenangan.',
     natureTypes: ['fajar-tenang', 'burung-pagi'],
     ambientMusic: 'piano-hangat',
-    narrationVolume: 80,
-    natureVolume: 60,
-    musicVolume: 40,
+    narrationVolume: 90,
+    natureVolume: 65,
+    musicVolume: 15,
     metadata: buildAudioRelaxationMetadata(
       'Fajar Menenteramkan & Kicau Burung Pagi',
       'fajar-tenang',
       'piano-hangat',
-      { natureSoundTypes: ['fajar-tenang', 'burung-pagi'], narrationVolume: 80, natureVolume: 60, musicVolume: 40 }
+      { natureSoundTypes: ['fajar-tenang', 'burung-pagi'], narrationVolume: 90, natureVolume: 65, musicVolume: 15 }
+    )
+  },
+  {
+    id: 'track-11-burung-jauh',
+    trackNumber: 11,
+    title: '11. LEGA — Kicau Burung di Kejauhan',
+    subtitle: 'Burung Natural Jauh + Angin Dedaunan + Latar Tipis',
+    category: 'LEGA Presence',
+    subcategory: 'Kejernihan & Kicau Alami',
+    duration: '15 Menit',
+    desc: 'Kicauan burung alami di kejauhan dengan semilir angin sepoi di dedaunan dan alunan piano lembut sebagai latar tipis.',
+    purposes: ['semua', 'latihan-lega', 'bekerja-belajar', 'menenangkan-pikiran', 'istirahat-meditasi'],
+    purposeLabels: ['Latihan LEGA', 'Kejernihan Pikiran', 'Relaksasi'],
+    sampleScript: 'Dengarkan suara burung di kejauhan yang bernyanyi bebas... Mereka mengingatkan kita bahwa alam senantiasa hadir menemani. Tarik napas lembut... lepaskan ketegangan di area dada dan pundak Anda.',
+    natureTypes: ['burung-pagi', 'angin-pepohonan'],
+    ambientMusic: 'piano-lembut',
+    narrationVolume: 90,
+    natureVolume: 65,
+    musicVolume: 15,
+    metadata: buildAudioRelaxationMetadata(
+      'Kicau Burung Natural di Kejauhan',
+      'burung-pagi',
+      'piano-lembut',
+      { natureSoundTypes: ['burung-pagi', 'angin-pepohonan'], narrationVolume: 90, natureVolume: 65, musicVolume: 15 }
+    )
+  },
+  {
+    id: 'track-12-hening-meditasi',
+    trackNumber: 12,
+    title: '12. LEGA — Hening Meditasi & Napas Sadar',
+    subtitle: 'Angin Tenang + Alam Terbuka + Pad 432Hz Melayang Tipis',
+    category: 'LEGA Presence',
+    subcategory: 'Pengheningan & Kesadaran Napas',
+    duration: '15 Menit',
+    desc: 'Suasana hening alam terbuka berpadu pad ambient hangat melayang tipis, menuntun pengamatan napas sadar tanpa distraksi.',
+    purposes: ['semua', 'latihan-lega', 'istirahat-meditasi', 'menenangkan-pikiran'],
+    purposeLabels: ['Meditasi Mendalam', 'Pengamatan Napas', 'Hening'],
+    sampleScript: 'Masuki keheningan batin yang utuh. Sadari tarikan dan hembusan napas yang mengalir lembut tanpa perlu diubah. Di dalam keheningan ini, Anda menemukan ruang aman untuk kembali pulih.',
+    natureTypes: ['angin-pepohonan', 'suasana-alam-tenang'],
+    ambientMusic: 'pad-sinematik',
+    narrationVolume: 90,
+    natureVolume: 65,
+    musicVolume: 15,
+    metadata: buildAudioRelaxationMetadata(
+      'Hening Meditasi & Napas Sadar',
+      'angin-pepohonan',
+      'pad-sinematik',
+      { natureSoundTypes: ['angin-pepohonan', 'suasana-alam-tenang'], narrationVolume: 90, natureVolume: 65, musicVolume: 15 }
     )
   }
 ];
@@ -528,19 +576,19 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
   ]);
   const [natureSound, setNatureSound] = useState<NatureSoundType>('burung-pagi');
   const [ambientMusic, setAmbientMusic] = useState<AmbientMusicType>('piano-lembut');
-  const [narrationVolumePct, setNarrationVolumePct] = useState<number>(80); // 80% (████████░░)
-  const [natureVolumePct, setNatureVolumePct] = useState<number>(60); // 60% (██████░░░░)
-  const [musicVolumePct, setMusicVolumePct] = useState<number>(40); // 40% (████░░░░░░)
+  const [narrationVolumePct, setNarrationVolumePct] = useState<number>(90); // 90% (█████████░)
+  const [natureVolumePct, setNatureVolumePct] = useState<number>(65); // 65% (███████░░░) - Elemen Utama
+  const [musicVolumePct, setMusicVolumePct] = useState<number>(15); // 15% (██░░░░░░░░) - Latar Sangat Tipis
   const [fadeInSec, setFadeInSec] = useState<number>(3.5);
   const [fadeOutSec, setFadeOutSec] = useState<number>(5.0);
 
   // Active Session Metadata
   const [activeMetadata, setActiveMetadata] = useState<AudioRelaxationMetadata>(() =>
-    buildAudioRelaxationMetadata('Hutan Pagi & Fajar Menenangkan', 'burung-pagi', 'piano-lembut', {
+    buildAudioRelaxationMetadata('LEGA CALM NATURE - Universal Relaxation', 'aliran-sungai', 'piano-lembut', {
       natureSoundTypes: ['aliran-sungai', 'burung-pagi', 'angin-pepohonan'],
-      narrationVolume: 80,
-      natureVolume: 60,
-      musicVolume: 40
+      narrationVolume: 90,
+      natureVolume: 65,
+      musicVolume: 15
     })
   );
 
@@ -568,6 +616,7 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
   const [totalDuration, setTotalDuration] = useState<number>(900); // 15 mins
   const [copiedScript, setCopiedScript] = useState<boolean>(false);
   const [previewingSound, setPreviewingSound] = useState<string | null>(null);
+  const [previewingVoiceName, setPreviewingVoiceName] = useState<string | null>(null);
   const [showMetadataDrawer, setShowMetadataDrawer] = useState<boolean>(true);
 
   // Audio Engine & Playback Options
@@ -693,6 +742,26 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
     }
   };
 
+  // Preview Indonesian Voice Character Sample
+  const handlePreviewVoice = (vName: string) => {
+    if (previewingVoiceName === vName) {
+      stopIndonesianNarration();
+      setPreviewingVoiceName(null);
+      return;
+    }
+    stopIndonesianNarration();
+    if (voiceAudioRef.current) voiceAudioRef.current.pause();
+    setPreviewingVoiceName(vName);
+    setVoiceName(vName);
+    setStoredVoiceName(vName);
+
+    previewIndonesianVoiceCharacter(
+      vName,
+      () => setPreviewingVoiceName(vName),
+      () => setPreviewingVoiceName(null)
+    );
+  };
+
   // Test Tibetan Bell Chime
   const handleTestAudioChime = () => {
     playCalmMeditationChime('bowl', 0.25);
@@ -702,10 +771,13 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
   const startPlaybackForMode = async (
     mode: 'gemini_tts' | 'web_speech' | 'ambient_music',
     scriptText?: string,
-    geminiAudioUrl?: string | null
+    geminiAudioUrl?: string | null,
+    selectedVoice?: string
   ) => {
     const textToSpeak = scriptText || generatedScriptData?.cleanScriptForTTS || generatedScriptData?.script || PRESET_LIBRARY[0].sampleScript;
     const targetUrl = geminiAudioUrl !== undefined ? geminiAudioUrl : audioUrl;
+    const currentVoice = selectedVoice || voiceName;
+    const charProfile = getVoiceCharacter(currentVoice);
 
     // Ensure soundscape is ready and playing
     await prepareSoundscapeAudio();
@@ -721,19 +793,21 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
       if (voiceAudioRef.current) voiceAudioRef.current.pause();
       setIsPlaying(true);
     } else if (mode === 'web_speech') {
-      // Indonesian Speech + Soundscape
+      // Indonesian Speech with Vocal Character + Soundscape
       if (voiceAudioRef.current) voiceAudioRef.current.pause();
       stopIndonesianNarration();
 
       speakIndonesianNarration(textToSpeak, {
-        rate: speechSpeed === 'perlahan' ? 0.78 : speechSpeed === 'santai' ? 0.85 : 0.92,
-        pitch: 0.95,
+        voiceCharacter: currentVoice,
+        voiceName: currentVoice,
+        rate: speechSpeed === 'perlahan' ? (charProfile.rate ? charProfile.rate * 0.96 : 0.78) : speechSpeed === 'santai' ? (charProfile.rate ?? 0.84) : 0.90,
+        pitch: charProfile.pitch ?? 1.0,
         volume: isMuted ? 0 : (narrationVolumePct / 100) * masterVolume,
         onEnd: () => {
           // Keep gentle soundscape playing in background or let user pause
         },
-        onError: () => {
-          // Web speech error fallback
+        onError: (e) => {
+          console.warn('Narration playback fallback event:', e);
         }
       });
       setIsPlaying(true);
@@ -746,19 +820,23 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
         voiceAudioRef.current.play()
           .then(() => setIsPlaying(true))
           .catch(() => {
-            // Fallback to Web Speech + Soundscape
+            // Fallback to Web Speech with Character + Soundscape
             speakIndonesianNarration(textToSpeak, {
-              rate: 0.80,
-              pitch: 0.95,
+              voiceCharacter: currentVoice,
+              voiceName: currentVoice,
+              rate: charProfile.rate ?? 0.80,
+              pitch: charProfile.pitch ?? 1.0,
               volume: isMuted ? 0 : (narrationVolumePct / 100) * masterVolume
             });
             setIsPlaying(true);
           });
       } else {
-        // Fallback to Web Speech + Soundscape
+        // Fallback to Web Speech with Character + Soundscape
         speakIndonesianNarration(textToSpeak, {
-          rate: 0.80,
-          pitch: 0.95,
+          voiceCharacter: currentVoice,
+          voiceName: currentVoice,
+          rate: charProfile.rate ?? 0.80,
+          pitch: charProfile.pitch ?? 1.0,
           volume: isMuted ? 0 : (narrationVolumePct / 100) * masterVolume
         });
         setIsPlaying(true);
@@ -894,7 +972,7 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
       let url: string | null = null;
       if (playbackSource === 'gemini_tts') {
         try {
-          const rawAudio = await generateGeminiTts(preset.sampleScript, 'Kore');
+          const rawAudio = await generateGeminiTts(preset.sampleScript, voiceName as any);
           if (rawAudio) {
             if (rawAudio.startsWith('data:audio/') || rawAudio.startsWith('blob:') || rawAudio.startsWith('http')) {
               url = rawAudio;
@@ -908,10 +986,10 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
       }
 
       setAudioUrl(url);
-      await startPlaybackForMode(playbackSource, preset.sampleScript, url);
+      await startPlaybackForMode(playbackSource, preset.sampleScript, url, voiceName);
     } catch (err) {
       console.error('Preset play error:', err);
-      await startPlaybackForMode('web_speech', preset.sampleScript);
+      await startPlaybackForMode('web_speech', preset.sampleScript, null, voiceName);
     } finally {
       setIsGenerating(false);
     }
@@ -1479,7 +1557,7 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
               {/* Narration Vol */}
               <div className="space-y-1">
                 <div className="flex justify-between text-[11px]">
-                  <span className="text-stone-300 font-medium">Vol Narasi (Utama):</span>
+                  <span className="text-stone-300 font-medium">Vol Narasi (Hangat & Jelas):</span>
                   <span className="font-bold text-sky-400">{narrationVolumePct}%</span>
                 </div>
                 <div className="text-[10px] font-mono text-sky-400 tracking-wider">
@@ -1503,7 +1581,7 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
               {/* Nature Vol */}
               <div className="space-y-1">
                 <div className="flex justify-between text-[11px]">
-                  <span className="text-stone-300 font-medium">Vol Suara Alam:</span>
+                  <span className="text-stone-300 font-medium">Vol Suara Alam (Elemen Utama):</span>
                   <span className="font-bold text-emerald-400">{natureVolumePct}%</span>
                 </div>
                 <div className="text-[10px] font-mono text-emerald-400 tracking-wider">
@@ -1528,7 +1606,7 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
               {/* Ambient Music Vol */}
               <div className="space-y-1">
                 <div className="flex justify-between text-[11px]">
-                  <span className="text-stone-300 font-medium">Vol Musik Ambient:</span>
+                  <span className="text-stone-300 font-medium">Vol Musik (Latar Tipis):</span>
                   <span className="font-bold text-indigo-400">{musicVolumePct}%</span>
                 </div>
                 <div className="text-[10px] font-mono text-indigo-400 tracking-wider">
@@ -1565,8 +1643,95 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
             </div>
           </div>
 
-          {/* 6. Duration, Voice & Goal */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {/* 4. Karakter Vokal Narasi Indonesia (6 Karakter Suara) */}
+          <div className="space-y-2.5 pt-2 border-t border-stone-800">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold text-stone-300 flex items-center gap-1.5">
+                <Mic className="w-3.5 h-3.5 text-sky-400" /> 4. Karakter Vokal Narasi Indonesia:
+              </label>
+              <span className="text-[10px] text-sky-400 font-mono">
+                {VOICES.find(v => v.name === voiceName)?.indonesianName || 'Laras (Feminin Lembut)'}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {VOICES.map((v) => {
+                const isSelected = voiceName === v.name;
+                const isVoicePreviewing = previewingVoiceName === v.name;
+                const isFemale = v.gender === 'female';
+
+                return (
+                  <div
+                    key={v.name}
+                    onClick={() => {
+                      setVoiceName(v.name);
+                      setStoredVoiceName(v.name);
+                    }}
+                    className={`p-3 rounded-2xl border cursor-pointer transition flex flex-col justify-between gap-2 relative ${
+                      isSelected
+                        ? 'bg-sky-950/70 border-sky-500 text-stone-100 ring-1 ring-sky-500 shadow-md'
+                        : 'bg-stone-950 border-stone-800 text-stone-400 hover:border-stone-700'
+                    }`}
+                  >
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between gap-1.5">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className={`w-2 h-2 rounded-full shrink-0 ${isFemale ? 'bg-rose-400' : 'bg-sky-400'}`} />
+                          <span className="text-xs font-bold text-stone-200 truncate">
+                            {v.indonesianName}
+                          </span>
+                        </div>
+                        <span className={`text-[9px] px-1.5 py-0.5 rounded font-mono shrink-0 ${
+                          isFemale ? 'bg-rose-950/80 text-rose-300 border border-rose-800/60' : 'bg-sky-950/80 text-sky-300 border border-sky-800/60'
+                        }`}>
+                          {v.name}
+                        </span>
+                      </div>
+
+                      <div className="text-[10px] text-stone-400 leading-snug line-clamp-2">
+                        {v.description}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-1 border-t border-stone-800/60 gap-2">
+                      <span className="text-[9px] text-stone-500 truncate">
+                        {v.tone}
+                      </span>
+
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handlePreviewVoice(v.name);
+                        }}
+                        className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold transition flex items-center gap-1 shrink-0 ${
+                          isVoicePreviewing
+                            ? 'bg-sky-500 text-stone-950 font-bold animate-pulse'
+                            : 'bg-stone-900 text-sky-300 hover:bg-stone-800 border border-stone-800'
+                        }`}
+                        title="Dengarkan sampel suara karakter ini"
+                      >
+                        {isVoicePreviewing ? (
+                          <>
+                            <span className="inline-block w-1.5 h-1.5 rounded-full bg-stone-950 animate-ping"></span>
+                            <span>Berbicara...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Play className="w-2.5 h-2.5 fill-sky-300" />
+                            <span>Uji Suara</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 5. Duration & Emotion Settings */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-stone-800">
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-stone-300 flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5 text-sky-400" /> Durasi Sesi:
@@ -1589,37 +1754,6 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-stone-300 flex items-center gap-1.5">
-                <Mic className="w-3.5 h-3.5 text-sky-400" /> Karakter Vokal Narasi:
-              </label>
-              <select
-                value={voiceName}
-                onChange={(e) => setVoiceName(e.target.value)}
-                className="w-full bg-stone-950 border border-stone-800 rounded-xl p-2 text-xs text-stone-100 outline-none focus:border-sky-500"
-              >
-                {VOICES.map((v, idx) => (
-                  <option key={idx} value={v.name}>{v.label}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Emotion & Goal Inputs */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-stone-300">Kondisi Emosi Saat Ini:</label>
-              <select
-                value={emotionState}
-                onChange={(e) => setEmotionState(e.target.value)}
-                className="w-full bg-stone-950 border border-stone-800 rounded-xl p-2 text-xs text-stone-100 outline-none focus:border-sky-500"
-              >
-                {EMOTIONS.map((emo, idx) => (
-                  <option key={idx} value={emo}>{emo}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="space-y-1.5">
               <label className="text-xs font-semibold text-stone-300">Kecepatan Narasi (Bahasa Indonesia):</label>
               <div className="flex gap-1.5">
                 {(['perlahan', 'santai', 'normal'] as const).map((spd) => (
@@ -1639,16 +1773,31 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
             </div>
           </div>
 
-          {/* Custom Goal */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-stone-300">Tujuan Personal Sesi:</label>
-            <input
-              type="text"
-              value={customGoal}
-              onChange={(e) => setCustomGoal(e.target.value)}
-              placeholder="Contoh: Menenangkan dada yang sesak dan membantu tidur tenang"
-              className="w-full bg-stone-950 border border-stone-800 rounded-xl p-2.5 text-xs text-stone-100 outline-none focus:border-sky-500"
-            />
+          {/* Emotion & Goal Inputs */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-stone-300">Kondisi Emosi Saat Ini:</label>
+              <select
+                value={emotionState}
+                onChange={(e) => setEmotionState(e.target.value)}
+                className="w-full bg-stone-950 border border-stone-800 rounded-xl p-2 text-xs text-stone-100 outline-none focus:border-sky-500"
+              >
+                {EMOTIONS.map((emo, idx) => (
+                  <option key={idx} value={emo}>{emo}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-stone-300">Tujuan Personal Sesi:</label>
+              <input
+                type="text"
+                value={customGoal}
+                onChange={(e) => setCustomGoal(e.target.value)}
+                placeholder="Contoh: Menenangkan dada yang sesak dan membantu tidur tenang"
+                className="w-full bg-stone-950 border border-stone-800 rounded-xl p-2 text-xs text-stone-100 outline-none focus:border-sky-500"
+              />
+            </div>
           </div>
 
           {/* Generate Button */}
@@ -1717,10 +1866,10 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
                       ? 'bg-sky-950 border border-sky-500 text-sky-200 font-bold shadow-sm'
                       : 'bg-stone-900 border border-stone-800/80 text-stone-400 hover:text-stone-300 hover:border-stone-700'
                   }`}
-                  title="Vokal AI Gemini + Suara Alam & Musik"
+                  title="Vokal Audio Narasi Alami + Suara Alam & Musik"
                 >
-                  <span className="truncate">Gemini TTS</span>
-                  <span className="text-[8px] opacity-75 font-normal truncate">AI Voice</span>
+                  <span className="truncate">Audio Narasi</span>
+                  <span className="text-[8px] opacity-75 font-normal truncate">Vokal Alami</span>
                 </button>
                 <button
                   onClick={() => handleSelectPlaybackSource('web_speech')}

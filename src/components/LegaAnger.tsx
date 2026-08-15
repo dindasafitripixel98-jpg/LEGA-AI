@@ -1104,7 +1104,7 @@ ${reflectionResult.reflectiveInsights?.wiseResponse || desiredWiseResponse || '-
                 <Volume2 className="w-6 h-6" /> Audio Relaksasi & Panduan LEGA Anger
               </div>
               <span className="text-xs bg-rose-500/10 text-rose-300 border border-rose-500/30 px-3 py-1 rounded-full">
-                Gemini TTS Bahasa Indonesia
+                Audio Narasi Bahasa Indonesia
               </span>
             </div>
             <p className="text-xs md:text-sm text-stone-300 leading-relaxed">
