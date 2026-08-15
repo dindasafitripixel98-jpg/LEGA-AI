@@ -55,7 +55,7 @@ export const AICoach: React.FC<AICoachProps> = ({
     {
       id: 'welcome',
       sender: 'ai',
-      text: `Halo ${userProfile.name}, selamat datang di ruang aman LEGA AI. Saya hadir untuk mendampingi Anda mendengarkan apa pun yang sedang dirasakan saat ini secara jujur, tenang, dan tanpa penghakiman. Apa emosi atau pengalaman yang sedang Anda alami saat ini?`,
+      text: `Selamat datang di LEGA SHAQILA DIGITAL 99.\n\nLEGA adalah singkatan dari:\n\nL — Lepaskan\nE — Eksplorasi\nG — Gali\nA — Amati\n\nDi sini Anda dapat berhenti sejenak, mengenali apa yang sedang Anda rasakan, mengamatinya tanpa menghakimi, menggali pemahaman, dan belajar dari pengalaman.\n\nApa yang sedang Anda rasakan sekarang?`,
       timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
       stage: 1,
       structuredOutput: {
@@ -63,7 +63,7 @@ export const AICoach: React.FC<AICoachProps> = ({
           'Bagaimana sensasi napas dan kenyamanan tubuh Anda saat ini?',
           'Apa satu hal utama yang sedang paling Anda rasakan?',
         ],
-        summaryInsight: 'Mulai dengan menyadari kehadiran dan emosi saat ini dengan penuh kelembutan.',
+        summaryInsight: 'Lepaskan • Eksplorasi • Gali • Amati — Hadir dan amati apa yang ada saat ini dengan penuh kelembutan.',
       },
     },
   ]);

@@ -203,6 +203,41 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   return (
     <div className="p-4 md:p-6 space-y-6 max-w-6xl mx-auto text-stone-100">
+      {/* 0. Official Welcome Message & Identity Banner */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-sky-950/80 via-stone-900 to-emerald-950/60 p-6 md:p-8 border border-sky-500/30 shadow-2xl space-y-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-0.5 rounded-lg bg-sky-500/20 text-sky-300 border border-sky-400/30 text-[10px] font-bold tracking-wider uppercase">
+                SHAQILA DIGITAL 99
+              </span>
+            </div>
+            <h2 className="text-xl md:text-2xl lg:text-3xl font-extrabold text-white tracking-tight leading-snug">
+              SELAMAT DATANG DI<br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-cyan-200 to-emerald-300">
+                &ldquo;LEGA&rdquo; SHAQILA DIGITAL 99
+              </span>
+            </h2>
+            <p className="text-xs md:text-sm font-semibold text-sky-200/90 tracking-wide">
+              Lepaskan • Eksplorasi • Gali • Amati
+            </p>
+            <p className="text-xs md:text-sm text-stone-300 max-w-2xl leading-relaxed">
+              Ruang untuk mengenal diri, menyadari apa yang sedang dirasakan, mengamati pengalaman dengan lebih sadar, dan belajar dari apa yang hadir.
+            </p>
+          </div>
+          <div className="shrink-0">
+            <button
+              onClick={() => onSelectModule('ai-coach')}
+              className="px-6 py-3.5 bg-gradient-to-r from-sky-400 via-cyan-400 to-emerald-400 hover:from-sky-300 hover:to-emerald-300 text-stone-950 font-extrabold text-xs md:text-sm rounded-2xl transition shadow-xl shadow-sky-950/60 active:scale-95 flex items-center gap-2"
+            >
+              <Sparkles className="w-4 h-4 text-stone-950" />
+              <span>MULAI PERJALANAN</span>
+              <ArrowRight className="w-4 h-4 text-stone-950" />
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* 1. Header & Time-Aware Greeting Banner */}
       <div className="relative overflow-hidden bg-gradient-to-r from-stone-900 via-stone-900 to-emerald-950/80 p-6 md:p-8 rounded-3xl border border-stone-800 shadow-xl space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -520,33 +555,55 @@ export const Dashboard: React.FC<DashboardProps> = ({
       {/* 6. Audio Recommendation & Streak Card */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Audio Card */}
-        <div className="p-5 rounded-2xl bg-stone-900 border border-stone-800 space-y-3 flex flex-col justify-between">
-          <div className="space-y-2">
+        <div className="p-5 rounded-2xl bg-stone-900 border border-emerald-800/40 hover:border-emerald-700/60 transition space-y-3 flex flex-col justify-between shadow-lg relative overflow-hidden">
+          <div className="space-y-2 relative z-10">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-400 bg-indigo-500/10 px-2.5 py-0.5 rounded-full border border-indigo-500/20 flex items-center gap-1">
-                <Volume2 className="w-3 h-3" /> Audio Refleksi LEGA
+              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-300 bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-600/40 flex items-center gap-1">
+                <Volume2 className="w-3 h-3 text-emerald-400" /> Audio Universal LEGA
               </span>
-              <span className="text-xs text-stone-400 font-medium">
-                {dashboardData?.recommendedAudio?.duration || '5 Menit'}
+              <span className="text-xs text-stone-400 font-mono font-medium">
+                15 Menit / Loop Latar
               </span>
             </div>
 
-            <h4 className="text-sm font-bold text-stone-100">
-              {dashboardData?.recommendedAudio?.title || 'Hadir Saat Ini — Panduan Relaksasi'}
-            </h4>
-            <p className="text-xs text-stone-400 leading-relaxed">
-              {dashboardData?.recommendedAudio?.purpose ||
-                'Suara panduan narasi lembut untuk mengalirkan ketenangan pada tubuh dan pikiran.'}
-            </p>
+            <div className="space-y-1">
+              <h4 className="text-sm md:text-base font-bold text-stone-100 flex items-center gap-1.5">
+                <span>🌿 LEGA CALM NATURE</span>
+              </h4>
+              <p className="text-xs text-emerald-200/90 italic font-serif leading-relaxed">
+                &ldquo;Temani dirimu berhenti sejenak, hadir saat ini, dan menikmati ketenangan.&rdquo;
+              </p>
+              <p className="text-[11px] text-stone-400 leading-relaxed">
+                Paduan harmonis 4 suasana alam: 🌊 Air mengalir lembut, 🐦 Burung yang natural dan jauh, 🍃 Angin lembut di pepohonan, serta 🎹 Piano ambient 432Hz yang hangat menenteramkan.
+              </p>
+            </div>
+
+            {/* Rekomendasi Headset */}
+            <div className="p-2.5 bg-sky-950/50 border border-sky-600/30 rounded-xl flex items-center gap-2 text-[11px] text-sky-200">
+              <span className="text-sm shrink-0">🎧</span>
+              <span className="leading-snug">
+                Gunakan headset atau earphone untuk pengalaman audio yang lebih optimal dan imersif.
+              </span>
+            </div>
           </div>
 
-          <button
-            onClick={handlePlayAudioRecommendation}
-            className="w-full py-2.5 bg-indigo-950/80 hover:bg-indigo-900 border border-indigo-700/60 text-indigo-200 font-semibold rounded-xl text-xs transition flex items-center justify-center gap-2"
-          >
-            <Play className={`w-4 h-4 text-indigo-400 ${isPlayingAudio ? 'animate-pulse' : ''}`} />
-            <span>{isPlayingAudio ? 'Mendengarkan Audio...' : 'Putar Audio Panduan'}</span>
-          </button>
+          <div className="grid grid-cols-2 gap-2 pt-1 relative z-10">
+            <button
+              onClick={handlePlayAudioRecommendation}
+              className="py-2.5 bg-emerald-600 hover:bg-emerald-500 text-stone-950 font-bold rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-md"
+            >
+              <Play className={`w-3.5 h-3.5 fill-stone-950 ${isPlayingAudio ? 'animate-pulse' : ''}`} />
+              <span>{isPlayingAudio ? 'Memutar...' : 'Putar Audio'}</span>
+            </button>
+
+            <button
+              onClick={() => onSelectModule('audio-ai')}
+              className="py-2.5 bg-stone-800 hover:bg-stone-700 text-stone-200 font-medium rounded-xl text-xs transition flex items-center justify-center gap-1"
+            >
+              <span>Buka Audio Studio</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
 
         {/* Progress & Streak Card */}
@@ -719,15 +776,21 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
       </div>
 
-      {/* 11. Developer Footer & Crisis Safety Disclaimer */}
-      <div className="space-y-2 text-center text-[11px] text-stone-500">
-        <p className="leading-relaxed">
-          LEGA Dashboard AI v3.0 Final &bull; Developer: <strong className="font-extrabold text-white tracking-wide">SHAQILA DIGITAL 99</strong> &bull; Ruang pribadi mandiri untuk hadir, menyadari, dan bertumbuh dengan tenang.
+      {/* 11. Official Footer */}
+      <footer className="pt-6 pb-4 border-t border-stone-800/80 space-y-2 text-center text-xs text-stone-400">
+        <p className="font-extrabold text-stone-100 tracking-wider text-sm">
+          LEGA SHAQILA DIGITAL 99
         </p>
-        <p className="text-[10px] text-stone-600">
-          LEGA Dashboard AI bukan pengganti layanan konseling medis atau diagnosis klinis. Dalam krisis emosional berat, harap hubungi profesional kesehatan terdekat.
+        <p className="text-xs font-semibold text-sky-400 tracking-wider">
+          Lepaskan • Eksplorasi • Gali • Amati
         </p>
-      </div>
+        <p className="text-[11px] text-stone-500 font-medium">
+          © SHAQILA DIGITAL 99
+        </p>
+        <p className="text-[10px] text-stone-600 max-w-xl mx-auto pt-1">
+          LEGA bukan pengganti layanan konseling medis atau diagnosis klinis. Dalam krisis emosional berat, hubungi Layanan Sehat Jiwa 119 ext 8.
+        </p>
+      </footer>
     </div>
   );
 };

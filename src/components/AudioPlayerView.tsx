@@ -46,6 +46,8 @@ import { generateAudioScript, generateGeminiTts } from '../lib/geminiApi';
 import {
   pcmToWavBlobUrl,
   generateRelaxationSoundscapeWav,
+  generateLegaCalmNatureWav,
+  LEGA_CALM_NATURE_CONFIG,
   speakIndonesianNarration,
   stopIndonesianNarration,
   playCalmMeditationChime,
@@ -189,6 +191,34 @@ const VOICES = [
 const EMOTIONS = ['Cemas', 'Marah', 'Sedih', 'Kecewa', 'Bersalah', 'Lelah', 'Netral'];
 
 const PRESET_LIBRARY = [
+  {
+    id: 'pres-lega-calm-nature',
+    title: '🌿 LEGA CALM NATURE',
+    category: 'Universal Relaxation',
+    subcategory: 'Kesadaran Diri & Ketenangan Pikiran',
+    duration: '15 Menit / Loop Latar',
+    desc: 'Audio relaksasi universal LEGA: Paduan air mengalir lembut, kicau burung natural & jauh, semilir angin pepohonan, serta piano ambient 432Hz yang hangat menenteramkan tanpa suara mengejutkan.',
+    tagline: 'Temani dirimu berhenti sejenak, hadir saat ini, dan menikmati ketenangan.',
+    sampleScript: 'Selamat datang di ruang tenang Anda. Ambil posisi yang nyaman dan biarkan tubuh Anda bersandar dengan rileks. Rasakan aliran udara sejuk masuk saat Anda menarik napas, dan lepaskan seluruh ketegangan saat Anda menghembuskannya perlahan. [Jeda 4 detik] Dengarkan gemericik air yang mengalir lembut... desau angin yang menaungi pepohonan... dan kicau burung di kejauhan. Biarkan alunan piano lembut ini menemani Anda hadir seutuhnya di saat ini. Di sini, Anda aman, tenang, dan utuh.',
+    natureTypes: ['aliran-sungai', 'burung-pagi', 'angin-pepohonan'] as NatureSoundType[],
+    ambientMusic: 'piano-lembut' as AmbientMusicType,
+    narrationVolume: 85,
+    natureVolume: 65,
+    musicVolume: 45,
+    metadata: buildAudioRelaxationMetadata(
+      'LEGA CALM NATURE - Universal Relaxation',
+      'aliran-sungai',
+      'piano-lembut',
+      {
+        natureSoundTypes: ['aliran-sungai', 'burung-pagi', 'angin-pepohonan'],
+        narrationVolume: 85,
+        natureVolume: 65,
+        musicVolume: 45,
+        fadeInSeconds: 4.0,
+        fadeOutSeconds: 5.5
+      }
+    )
+  },
   {
     id: 'pres-hutan-pagi',
     title: '🌊 Hutan Pagi',
@@ -699,9 +729,58 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
     }
   };
 
+  // Quick Action: Launch 🌿 LEGA CALM NATURE Universal Session
+  const handleStartLegaCalmNatureSession = async (pureAmbientOnly = false) => {
+    const calmNaturePreset = PRESET_LIBRARY[0];
+    if (pureAmbientOnly) {
+      setIsGenerating(true);
+      stopIndonesianNarration();
+      if (voiceAudioRef.current) voiceAudioRef.current.pause();
+      if (soundscapeAudioRef.current) soundscapeAudioRef.current.pause();
+      setIsPlaying(false);
+
+      setActiveMetadata(calmNaturePreset.metadata);
+      setSelectedNatureSounds(calmNaturePreset.natureTypes);
+      setNatureSound('aliran-sungai');
+      setAmbientMusic('piano-lembut');
+      setNarrationVolumePct(0);
+      setNatureVolumePct(calmNaturePreset.natureVolume);
+      setMusicVolumePct(calmNaturePreset.musicVolume);
+
+      setGeneratedScriptData({
+        title: 'LEGA CALM NATURE (Pure Soundscape)',
+        script: 'Audio relaksasi alami murni tanpa narasi suara untuk menemani meditasi, pernapasan, kesadaran diri, dan refleksi batin.',
+        cleanScriptForTTS: '',
+        userGoal: 'Universal Background Relaxation',
+        stage: 10,
+        voiceWarmthDescription: 'Suasana alami murni yang tenang dan menenteramkan.',
+        natureSoundRecommendation: 'Paduan Aliran Air, Burung Jauh, Angin Pepohonan, & Piano 432Hz',
+        ambientMusicRecommendation: 'Piano Lembut 432Hz',
+        ttsPrompt: '',
+        reflectiveQuestions: [
+          'Bagaimana ketenangan batin Anda saat mendengarkan aliran alam ini?',
+          'Rasakan setiap tarikan dan hembusan napas yang menyatu dengan desau angin dan gemericik air.'
+        ]
+      });
+
+      await prepareSoundscapeAudio(
+        calmNaturePreset.natureTypes,
+        'piano-lembut',
+        calmNaturePreset.natureVolume,
+        calmNaturePreset.musicVolume
+      );
+
+      setPlaybackSource('ambient_music');
+      await startPlaybackForMode('ambient_music');
+      setIsGenerating(false);
+    } else {
+      await handlePlayPreset(calmNaturePreset);
+    }
+  };
+
   // Quick Action: Launch 🌊 Hutan Pagi Session
   const handleStartHutanPagiSession = async () => {
-    const hutanPagiPreset = PRESET_LIBRARY[0];
+    const hutanPagiPreset = PRESET_LIBRARY.find((p) => p.id === 'pres-hutan-pagi') || PRESET_LIBRARY[1];
     await handlePlayPreset(hutanPagiPreset);
   };
 
@@ -858,6 +937,21 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
           </div>
         </div>
 
+        {/* Rekomendasi Penggunaan Headset / Earphone */}
+        <div className="p-4 bg-gradient-to-r from-sky-950/90 via-indigo-950/80 to-stone-950 border border-sky-500/40 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center gap-3.5 shadow-lg">
+          <div className="w-10 h-10 rounded-xl bg-sky-500/20 border border-sky-400/40 text-sky-300 flex items-center justify-center shrink-0 text-xl shadow-inner">
+            🎧
+          </div>
+          <div className="space-y-1 min-w-0 flex-1">
+            <p className="text-xs md:text-sm font-bold text-white flex items-center gap-2">
+              <span>Gunakan headset atau earphone untuk pengalaman LEGA yang lebih optimal.</span>
+            </p>
+            <p className="text-[11px] md:text-xs text-stone-300 leading-relaxed">
+              Gunakan headset atau earphone untuk pengalaman audio yang lebih optimal dan imersif. Headset membantu pengguna mendengar dengan lebih jelas suara panduan, musik ambient, aliran air, suara burung, angin, serta detail suara alam lainnya.
+            </p>
+          </div>
+        </div>
+
         {/* Acoustic Balance & Non-Medical Disclaimer */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
           <div className="p-3 bg-stone-950 border border-stone-800/80 rounded-2xl text-[11px] text-stone-300 space-y-1">
@@ -882,118 +976,124 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
         </div>
       </div>
 
-      {/* 🌊 Hutan Pagi Quick Action Hero Banner */}
-      <div className="bg-gradient-to-r from-emerald-950/80 via-stone-900 to-sky-950/80 border border-emerald-700/60 p-4 md:p-5 rounded-3xl space-y-3.5 shadow-xl">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">🌊</span>
-              <h3 className="text-lg md:text-xl font-bold text-emerald-100">Hutan Pagi</h3>
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-900/80 text-emerald-300 border border-emerald-700 font-mono">
-                Durasi: 15 menit
-              </span>
+      {/* 🌿 LEGA CALM NATURE - Universal Relaxation Audio Showcase */}
+      <div className="bg-gradient-to-r from-emerald-950/90 via-stone-900 to-sky-950/90 border-2 border-emerald-500/50 p-5 md:p-6 rounded-3xl space-y-4 shadow-2xl relative overflow-hidden">
+        {/* Decorative ambient glow */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-sky-500/10 rounded-full blur-3xl pointer-events-none -ml-20 -mb-20" />
+
+        <div className="relative z-10 space-y-3">
+          {/* Header Row & Title */}
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div className="space-y-1.5 max-w-3xl">
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <span className="text-2xl animate-pulse">🌿</span>
+                <h3 className="text-xl md:text-2xl font-extrabold text-white tracking-wide flex items-center gap-2">
+                  <span>LEGA CALM NATURE</span>
+                </h3>
+                <span className="px-3 py-0.5 rounded-full text-[11px] font-bold bg-emerald-900/90 text-emerald-300 border border-emerald-500/60 font-mono">
+                  Audio Relaksasi Universal
+                </span>
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-sky-950/80 text-sky-300 border border-sky-700/60">
+                  4 Lapisan Suara Alami Multi-Layer
+                </span>
+              </div>
+
+              {/* Tagline Audio */}
+              <p className="text-sm md:text-base font-serif italic text-emerald-200/95 leading-relaxed pt-0.5">
+                "{LEGA_CALM_NATURE_CONFIG.tagline}"
+              </p>
+
+              <p className="text-xs text-stone-300 leading-relaxed">
+                Satu audio relaksasi universal yang dirancang sebagai pendamping setia latihan kesadaran diri, meditasi, latihan pernapasan, refleksi batin, dan relaksasi mendalam di berbagai situasi.
+              </p>
             </div>
-            <p className="text-xs text-stone-300 leading-relaxed max-w-2xl">
-              Lanskap relaksasi fajar multi-layer: aliran sungai jernih, kicauan burung pagi, semilir angin pepohonan, serta alunan piano ambient lembut berfrekuensi 432Hz.
-            </p>
-          </div>
 
-          {/* Big Play Button */}
-          <button
-            onClick={handleStartHutanPagiSession}
-            disabled={isGenerating}
-            className="px-5 py-3.5 bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-stone-950 font-extrabold text-xs sm:text-sm rounded-2xl transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/80 shrink-0"
-          >
-            <Play className="w-4 h-4 fill-stone-950" />
-            <span>▶ Mulai Sesi Hutan Pagi</span>
-          </button>
-        </div>
-
-        {/* Backsound Checkboxes & Volume Meters */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-emerald-900/50 text-xs">
-          {/* Backsound Layers */}
-          <div className="bg-stone-950/80 p-3 rounded-2xl border border-emerald-900/40 space-y-2">
-            <div className="text-[11px] font-bold text-emerald-300 flex items-center gap-1.5">
-              <Layers className="w-3.5 h-3.5" /> Backsound Aktif:
-            </div>
-            <div className="grid grid-cols-2 gap-2">
+            {/* Quick Play CTA Buttons */}
+            <div className="flex flex-col sm:flex-row lg:flex-col gap-2.5 shrink-0">
               <button
-                type="button"
-                onClick={() => toggleNatureSound('aliran-sungai')}
-                className={`px-2.5 py-1.5 rounded-xl border text-left flex items-center gap-2 transition text-xs ${
-                  selectedNatureSounds.includes('aliran-sungai')
-                    ? 'bg-emerald-950 border-emerald-500 text-emerald-200 font-bold ring-1 ring-emerald-500/50'
-                    : 'bg-stone-900/80 border-stone-800 text-stone-400'
-                }`}
+                onClick={() => handleStartLegaCalmNatureSession(false)}
+                disabled={isGenerating}
+                className="px-5 py-3.5 bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-stone-950 font-extrabold text-xs sm:text-sm rounded-2xl transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/80"
               >
-                <CheckSquare className={`w-3.5 h-3.5 ${selectedNatureSounds.includes('aliran-sungai') ? 'text-emerald-400' : 'text-stone-600'}`} />
-                <span>Sungai</span>
+                <Play className="w-4 h-4 fill-stone-950" />
+                <span>▶ Putar LEGA CALM NATURE</span>
               </button>
 
               <button
-                type="button"
-                onClick={() => toggleNatureSound('burung-pagi')}
-                className={`px-2.5 py-1.5 rounded-xl border text-left flex items-center gap-2 transition text-xs ${
-                  selectedNatureSounds.includes('burung-pagi')
-                    ? 'bg-emerald-950 border-emerald-500 text-emerald-200 font-bold ring-1 ring-emerald-500/50'
-                    : 'bg-stone-900/80 border-stone-800 text-stone-400'
-                }`}
+                onClick={() => handleStartLegaCalmNatureSession(true)}
+                disabled={isGenerating}
+                className="px-4 py-2.5 bg-stone-950/90 hover:bg-stone-800 border border-emerald-600/50 hover:border-emerald-500 text-emerald-300 font-semibold text-xs rounded-xl transition flex items-center justify-center gap-1.5"
               >
-                <CheckSquare className={`w-3.5 h-3.5 ${selectedNatureSounds.includes('burung-pagi') ? 'text-emerald-400' : 'text-stone-600'}`} />
-                <span>Burung</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => toggleNatureSound('angin-pepohonan')}
-                className={`px-2.5 py-1.5 rounded-xl border text-left flex items-center gap-2 transition text-xs ${
-                  selectedNatureSounds.includes('angin-pepohonan')
-                    ? 'bg-emerald-950 border-emerald-500 text-emerald-200 font-bold ring-1 ring-emerald-500/50'
-                    : 'bg-stone-900/80 border-stone-800 text-stone-400'
-                }`}
-              >
-                <CheckSquare className={`w-3.5 h-3.5 ${selectedNatureSounds.includes('angin-pepohonan') ? 'text-emerald-400' : 'text-stone-600'}`} />
-                <span>Angin</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setAmbientMusic('piano-lembut');
-                  prepareSoundscapeAudio(selectedNatureSounds, 'piano-lembut', natureVolumePct, musicVolumePct);
-                }}
-                className={`px-2.5 py-1.5 rounded-xl border text-left flex items-center gap-2 transition text-xs ${
-                  ambientMusic === 'piano-lembut'
-                    ? 'bg-indigo-950 border-indigo-500 text-indigo-200 font-bold ring-1 ring-indigo-500/50'
-                    : 'bg-stone-900/80 border-stone-800 text-stone-400'
-                }`}
-              >
-                <CheckSquare className={`w-3.5 h-3.5 ${ambientMusic === 'piano-lembut' ? 'text-indigo-400' : 'text-stone-600'}`} />
-                <span>Piano Ambient</span>
+                <Volume2 className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Audio Latar Murni (Background)</span>
               </button>
             </div>
           </div>
 
-          {/* Volume Meter Bars */}
-          <div className="bg-stone-950/80 p-3 rounded-2xl border border-emerald-900/40 space-y-1.5 font-mono text-[11px]">
-            <div className="text-[11px] font-bold font-sans text-sky-300 flex items-center justify-between">
-              <span className="flex items-center gap-1.5"><SlidersHorizontal className="w-3.5 h-3.5" /> Kalibrasi Volume:</span>
-              <span className="text-[10px] text-stone-400 font-mono">Preset Hutan Pagi</span>
+          {/* 4 Suasana Alami Multi-Layer Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 pt-2">
+            {LEGA_CALM_NATURE_CONFIG.atmospheres.map((atm, i) => (
+              <div
+                key={i}
+                className="p-3 bg-stone-950/70 border border-emerald-900/50 hover:border-emerald-700/60 rounded-2xl space-y-1 transition backdrop-blur-sm"
+              >
+                <div className="flex items-center gap-2 text-xs font-bold text-emerald-300">
+                  <span className="text-base">{atm.icon}</span>
+                  <span>{atm.label}</span>
+                </div>
+                <p className="text-[11px] text-stone-400 leading-snug">
+                  {atm.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Karakteristik & Kegunaan Universal Pills */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+            {/* Karakteristik Suara */}
+            <div className="p-3 bg-stone-950/60 rounded-2xl border border-stone-800/80 space-y-1.5 text-xs">
+              <div className="text-[11px] font-bold text-stone-300 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span>Karakteristik Audio:</span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {LEGA_CALM_NATURE_CONFIG.characteristics.map((c, i) => (
+                  <span
+                    key={i}
+                    className="px-2 py-0.5 bg-stone-900 text-stone-300 rounded-lg text-[10px] border border-stone-800"
+                  >
+                    • {c}
+                  </span>
+                ))}
+              </div>
             </div>
 
-            <div className="flex items-center justify-between">
-              <span className="text-stone-300 font-sans">Volume Narasi</span>
-              <span className="text-sky-400 font-bold tracking-wider">{renderAsciiVolumeMeter(narrationVolumePct)} <span className="text-[10px] text-stone-300 font-sans ml-1">{narrationVolumePct}%</span></span>
+            {/* Kegunaan Universal */}
+            <div className="p-3 bg-stone-950/60 rounded-2xl border border-stone-800/80 space-y-1.5 text-xs">
+              <div className="text-[11px] font-bold text-stone-300 flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Pendamping Berbagai Latihan LEGA:</span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {LEGA_CALM_NATURE_CONFIG.purposes.map((p, i) => (
+                  <span
+                    key={i}
+                    className="px-2 py-0.5 bg-emerald-950/60 text-emerald-300 rounded-lg text-[10px] border border-emerald-800/60 font-medium"
+                  >
+                    ✓ {p}
+                  </span>
+                ))}
+              </div>
             </div>
+          </div>
 
-            <div className="flex items-center justify-between">
-              <span className="text-stone-300 font-sans">Volume Alam</span>
-              <span className="text-emerald-400 font-bold tracking-wider">{renderAsciiVolumeMeter(natureVolumePct)} <span className="text-[10px] text-stone-300 font-sans ml-1">{natureVolumePct}%</span></span>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-stone-300 font-sans">Volume Musik</span>
-              <span className="text-indigo-400 font-bold tracking-wider">{renderAsciiVolumeMeter(musicVolumePct)} <span className="text-[10px] text-stone-300 font-sans ml-1">{musicVolumePct}%</span></span>
+          {/* Rekomendasi Headset Banner */}
+          <div className="p-3 bg-sky-950/60 border border-sky-600/40 rounded-2xl flex items-center gap-3 text-xs text-sky-200">
+            <span className="text-lg shrink-0">🎧</span>
+            <div className="leading-relaxed">
+              <span className="font-semibold text-white">Rekomendasi Audio: </span>
+              {LEGA_CALM_NATURE_CONFIG.headsetAdvice}
             </div>
           </div>
         </div>
@@ -1549,6 +1649,14 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
                   onChange={(e) => handleMasterVolumeChange(parseFloat(e.target.value))}
                   className="w-full accent-sky-500 cursor-pointer"
                 />
+              </div>
+
+              {/* Headset Recommendation Pill */}
+              <div className="p-2.5 bg-sky-950/70 border border-sky-600/40 rounded-xl flex items-center gap-2 text-[11px] text-sky-200">
+                <span className="text-sm shrink-0">🎧</span>
+                <span className="leading-tight font-medium">
+                  Gunakan headset atau earphone untuk pengalaman LEGA yang lebih optimal.
+                </span>
               </div>
             </div>
           </div>

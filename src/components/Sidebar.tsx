@@ -121,16 +121,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const sidebarContent = (
     <div className="flex flex-col h-full bg-stone-900 text-stone-200 w-64 border-r border-stone-800 select-none">
       {/* Brand Header */}
-      <div className="p-5 border-b border-stone-800/80 flex items-center justify-between">
+      <div className="p-4 border-b border-stone-800/80 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 via-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-sky-900/50">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 via-blue-500 to-cyan-500 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-sky-900/50">
             L
           </div>
           <div>
-            <h1 className="font-bold text-stone-100 tracking-wide text-lg flex items-center gap-1.5">
-              LEGA <span className="text-[10px] px-1.5 py-0.5 rounded bg-sky-500/30 text-sky-200 border border-sky-400/30 font-semibold">v1.0</span>
+            <h1 className="font-bold text-stone-100 tracking-wide text-sm leading-tight flex items-center gap-1.5">
+              LEGA SHAQILA DIGITAL 99
             </h1>
-            <p className="text-[11px] font-bold text-white tracking-wide truncate">SHAQILA DIGITAL 99</p>
+            <p className="text-[10px] text-sky-400 font-medium tracking-tight">Lepaskan • Eksplorasi • Gali • Amati</p>
+            <p className="text-[9px] font-bold text-stone-400 tracking-wider uppercase">SHAQILA DIGITAL 99</p>
           </div>
         </div>
         <button
@@ -201,8 +202,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <PhoneCall className="w-3.5 h-3.5 text-rose-400" />
           <span>Bantuan Krisis 119</span>
         </button>
-        <p className="text-[10px] text-center text-stone-500">
-          Powered by Gemini 3.1 &amp; Gemini TTS
+        <p className="text-[10px] text-center text-stone-400 font-semibold">
+          LEGA SHAQILA DIGITAL 99
+        </p>
+        <p className="text-[9px] text-center text-stone-500">
+          Lepaskan • Eksplorasi • Gali • Amati &bull; © SHAQILA DIGITAL 99
         </p>
       </div>
     </div>

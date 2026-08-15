@@ -14,6 +14,43 @@ export interface SoundscapeOptions {
   includeSingingBowl?: boolean;
 }
 
+/**
+ * LEGA CALM NATURE - Official Universal Relaxation Audio Configuration
+ * Designed as a universal companion for self-awareness, relaxation, meditation,
+ * breathing, reflection, and peace of mind.
+ */
+export const LEGA_CALM_NATURE_CONFIG = {
+  id: 'lega-calm-nature',
+  title: 'LEGA CALM NATURE',
+  tagline: 'Temani dirimu berhenti sejenak, hadir saat ini, dan menikmati ketenangan.',
+  category: 'Universal Relaxation Soundscape',
+  atmospheres: [
+    { icon: '🌊', label: 'Air mengalir lembut', desc: 'Arus sungai pegunungan yang jernih dan mengalir stabil' },
+    { icon: '🐦', label: 'Burung yang natural dan jauh', desc: 'Kicau burung fajar yang lembut dan bergema di kejauhan' },
+    { icon: '🍃', label: 'Angin lembut di pepohonan', desc: 'Semilir hembusan angin sejuk menaungi dedaunan rimbun' },
+    { icon: '🎹', label: 'Musik ambient/piano yang sangat lembut', desc: 'Sentuhan tuts piano pentatonik 432Hz yang hangat dan menenangkan' }
+  ],
+  characteristics: [
+    'Tenang',
+    'Lembut',
+    'Natural',
+    'Hangat',
+    'Menenteramkan',
+    'Tidak ada suara mengejutkan',
+    'Tidak ada perubahan volume mendadak'
+  ],
+  purposes: [
+    'Kesadaran Diri',
+    'Relaksasi',
+    'Meditasi',
+    'Pernapasan',
+    'Refleksi',
+    'Ketenangan Pikiran'
+  ],
+  headsetAdvice: 'Gunakan headset atau earphone untuk pengalaman audio yang lebih optimal dan imersif.',
+  recommendedScript: 'Selamat datang di ruang tenang Anda. Ambil posisi yang nyaman dan biarkan tubuh Anda bersandar dengan rileks. Rasakan aliran udara sejuk masuk saat Anda menarik napas, dan lepaskan seluruh ketegangan saat Anda menghembuskannya perlahan. Dengarkan gemericik air yang mengalir lembut... desau angin yang menaungi pepohonan... dan kicau burung di kejauhan. Biarkan alunan piano lembut ini menemani Anda hadir seutuhnya di saat ini. Di sini, Anda aman, tenang, dan utuh.'
+};
+
 export const NATURE_SOUND_DEFINITIONS: Record<NatureSoundType, {
   name: string;
   description: string;
@@ -509,13 +546,35 @@ export async function generateRelaxationSoundscapeWav(
 }
 
 /**
+ * Synthesizes LEGA CALM NATURE (Universal Relaxation Audio)
+ * Master multi-layer soundscape:
+ * 1. 🌊 Air mengalir lembut (smooth continuous alpine waterflow)
+ * 2. 🐦 Burung natural dan jauh (reverberant gentle distant birds)
+ * 3. 🍃 Angin lembut di pepohonan (ultra-soft canopy breeze)
+ * 4. 🎹 Musik ambient/piano yang sangat lembut (warm 432Hz pentatonic piano chords)
+ *
+ * Characteristics: Tenang, Lembut, Natural, Hangat, Menenteramkan, Tanpa Suara Mengejutkan.
+ */
+export async function generateLegaCalmNatureWav(
+  durationSeconds = 24,
+  customVolumes?: { natureVolume?: number; musicVolume?: number }
+): Promise<string> {
+  return generateRelaxationSoundscapeWav(durationSeconds, {
+    natureTypes: ['aliran-sungai', 'burung-pagi', 'angin-pepohonan'],
+    ambientType: 'piano-lembut',
+    natureVolume: customVolumes?.natureVolume ?? 0.28,
+    musicVolume: customVolumes?.musicVolume ?? 0.22,
+    fadeInSeconds: 4.0,
+    fadeOutSeconds: 5.5,
+    includeSingingBowl: true
+  });
+}
+
+/**
  * Backward compatibility alias for generateMeditationAmbientWav
  */
 export async function generateMeditationAmbientWav(durationSeconds = 120): Promise<string> {
-  return generateRelaxationSoundscapeWav(durationSeconds, {
-    natureType: 'aliran-sungai',
-    ambientType: 'piano-lembut'
-  });
+  return generateLegaCalmNatureWav(durationSeconds);
 }
 
 /**

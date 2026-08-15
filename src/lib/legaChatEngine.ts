@@ -274,7 +274,89 @@ function detectUserEmotion(rawText: string): { matchedKey: string | null; isSing
 export function generateLegaContextualChat(messages: any[], userProfile: any): LegaChatResponse {
   const userName = userProfile?.name || 'Teman LEGA';
   const userMessages = messages ? messages.filter((m: any) => m.sender === 'user') : [];
-  const lastUserMsg = userMessages.length > 0 ? userMessages[userMessages.length - 1]?.text || '' : '';
+  const lastUserMsg = userMessages.length > 0 ? (userMessages[userMessages.length - 1]?.text || '').trim() : '';
+  const lowerMsg = lastUserMsg.toLowerCase();
+
+  // Handle Official Identity Questions
+  if (
+    lowerMsg.includes('ini aplikasi apa') ||
+    lowerMsg.includes('aplikasi apa ini') ||
+    lowerMsg.includes('tentang aplikasi ini') ||
+    lowerMsg === 'apa ini' ||
+    lowerMsg === 'aplikasi apa'
+  ) {
+    return {
+      replyText:
+        'Ini adalah LEGA SHAQILA DIGITAL 99, sebuah platform kesadaran diri yang membantu Anda mengenali emosi, mengamati pengalaman, melakukan refleksi, dan belajar mengenal diri dengan lebih sadar.',
+      identifiedEmotion: null,
+      reflectiveQuestions: [
+        'Apa yang membawa Anda ke ruang refleksi ini hari ini?',
+        'Bagian diri mana yang paling ingin Anda kenali lebih dalam?',
+      ],
+      suggestedExercise: {
+        type: 'grounding',
+        title: 'LEGA Presence: Mengenal Diri Saat Ini',
+        description: 'Ambil jeda sejenak, rasakan napas masuk dan keluar dengan perlahan.',
+      },
+      suggestedModuleKey: 'self-discovery',
+      suggestedModuleName: 'LEGA Self Discovery — Mengenal Diri',
+      summaryInsight: 'Mengenal diri berakar dari kerelaan untuk mengamati pengalaman tanpa penghakiman.',
+    };
+  }
+
+  if (
+    lowerMsg.includes('singkatan apa') ||
+    lowerMsg.includes('kepanjangan lega') ||
+    lowerMsg.includes('apa kepanjangan') ||
+    lowerMsg.includes('arti lega') ||
+    lowerMsg.includes('makna nama lega') ||
+    lowerMsg === 'singkatan lega' ||
+    lowerMsg === 'kepanjangan'
+  ) {
+    return {
+      replyText:
+        'LEGA adalah singkatan dari:\n\n• **L** — Lepaskan\n• **E** — Eksplorasi\n• **G** — Gali\n• **A** — Amati\n\nFilosofi ini mengajak Anda melepaskan ketegangan, mengeksplorasi emosi, menggali pemahaman batin, dan mengamati pengalaman secara sadar.',
+      identifiedEmotion: null,
+      reflectiveQuestions: [
+        'Dari keempat pilar (Lepaskan, Eksplorasi, Gali, Amati), pilar mana yang paling Anda butuhkan saat ini?',
+        'Apa yang sedang Anda rasakan sekarang?',
+      ],
+      suggestedExercise: {
+        type: 'breathing',
+        title: 'LEGA Presence: Sadari Napas Hadir Saat Ini',
+        description: 'Rasakan napas mengalir lembut sebagai jangkar kehadiran diri.',
+      },
+      suggestedModuleKey: 'mindfulness',
+      suggestedModuleName: 'LEGA Presence — Hadir Saat Ini',
+      summaryInsight: 'Lepaskan • Eksplorasi • Gali • Amati adalah kompas perjalanan kesadaran diri.',
+    };
+  }
+
+  if (
+    lowerMsg.includes('siapa yang membuat') ||
+    lowerMsg.includes('siapa pembuat') ||
+    lowerMsg.includes('siapa developer') ||
+    lowerMsg.includes('dibuat oleh') ||
+    lowerMsg.includes('pencipta lega') ||
+    lowerMsg.includes('shaqila digital')
+  ) {
+    return {
+      replyText: 'LEGA SHAQILA DIGITAL 99 dikembangkan oleh SHAQILA DIGITAL 99.',
+      identifiedEmotion: null,
+      reflectiveQuestions: [
+        'Apakah ada hal atau emosi tertentu yang ingin Anda ceritakan atau refleksikan hari ini?',
+        'Apa yang sedang Anda rasakan saat ini?',
+      ],
+      suggestedExercise: {
+        type: 'grounding',
+        title: 'LEGA Presence: Hadir Saat Ini',
+        description: 'Kembali rasakan tubuh dan napas Anda dengan nyaman.',
+      },
+      suggestedModuleKey: 'dashboard',
+      suggestedModuleName: 'LEGA Dashboard Utama',
+      summaryInsight: 'LEGA hadir untuk mendampingi perjalanan kesadaran diri Anda setiap hari.',
+    };
+  }
 
   const { matchedKey, isSingleWord } = detectUserEmotion(lastUserMsg);
 

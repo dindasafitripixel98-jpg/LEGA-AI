@@ -153,6 +153,10 @@ export const GlobalVoiceBar: React.FC = () => {
             <div className="max-h-32 overflow-y-auto p-2.5 rounded-xl bg-stone-950/80 border border-stone-800/80 text-xs text-stone-300 leading-relaxed custom-scrollbar">
               {voiceState.currentText}
             </div>
+            <div className="p-2 rounded-lg bg-sky-950/60 border border-sky-600/30 text-[10px] text-sky-200 flex items-center gap-1.5">
+              <span>🎧</span>
+              <span>Gunakan headset atau earphone untuk pengalaman LEGA yang lebih optimal.</span>
+            </div>
           </div>
         )}
       </div>

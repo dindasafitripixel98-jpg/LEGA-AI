@@ -57,8 +57,8 @@ export const Header: React.FC<HeaderProps> = ({
   const { isOnline, isInstalled } = usePwa();
 
   const currentInfo = MODULE_TITLES[currentModule] || {
-    title: 'LEGA AI',
-    subtitle: 'Platform Kesadaran Diri Indonesia',
+    title: 'LEGA SHAQILA DIGITAL 99',
+    subtitle: 'Lepaskan • Eksplorasi • Gali • Amati',
   };
 
   return (
