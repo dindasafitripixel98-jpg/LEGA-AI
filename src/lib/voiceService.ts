@@ -83,6 +83,103 @@ export function setStoredVoiceName(name: string) {
 }
 
 /**
+ * Previews a specific voice character with its sample phrase using Gemini Neural TTS audio.
+ * Works seamlessly on iOS, Android, Tablets, PC, Mac, Windows across all browsers.
+ */
+let previewAudioInstance: HTMLAudioElement | null = null;
+
+export async function previewVoiceCharacterAudio(
+  voiceName: string,
+  onStart?: () => void,
+  onEnd?: () => void,
+  onError?: (err: any) => void
+): Promise<void> {
+  // Stop existing preview
+  if (previewAudioInstance) {
+    previewAudioInstance.pause();
+    previewAudioInstance = null;
+  }
+  stopVoiceNarration();
+
+  const { getVoiceCharacter } = await import('./audioEngine');
+  const profile = getVoiceCharacter(voiceName);
+  const samplePhrase = profile.samplePhrase;
+  const trackId = `preview:${profile.geminiVoice}:${samplePhrase}`;
+
+  let audioUrl = audioCache.get(trackId);
+
+  if (!audioUrl) {
+    try {
+      const ttsResult = await generateGeminiTts(samplePhrase, profile.name);
+      if (ttsResult) {
+        audioUrl = ttsResult;
+        if (!audioUrl.startsWith('data:') && !audioUrl.startsWith('blob:') && !audioUrl.startsWith('http')) {
+          audioUrl = pcmToWavBlobUrl(audioUrl, 24000);
+        }
+        if (audioUrl) {
+          audioCache.set(trackId, audioUrl);
+        }
+      }
+    } catch (err) {
+      console.warn('Gemini TTS sample preview network notice:', err);
+    }
+  }
+
+  if (audioUrl) {
+    try {
+      const audio = new Audio(audioUrl);
+      previewAudioInstance = audio;
+      audio.volume = 0.95;
+
+      audio.onplay = () => {
+        if (onStart) onStart();
+      };
+      audio.onended = () => {
+        previewAudioInstance = null;
+        if (onEnd) onEnd();
+      };
+      audio.onerror = (e) => {
+        console.warn('Preview Audio error, fallback to web speech:', e);
+        previewAudioInstance = null;
+        // Fallback to speech synthesis
+        speakIndonesianNarration(samplePhrase, {
+          voiceCharacter: profile.name,
+          pitch: profile.pitch,
+          rate: profile.rate,
+          onStart,
+          onEnd,
+          onError
+        });
+      };
+
+      await audio.play();
+      return;
+    } catch (playErr) {
+      console.warn('Audio play error, fallback to web speech:', playErr);
+    }
+  }
+
+  // Fallback to Web Speech Synthesis
+  speakIndonesianNarration(samplePhrase, {
+    voiceCharacter: profile.name,
+    pitch: profile.pitch,
+    rate: profile.rate,
+    onStart,
+    onEnd,
+    onError
+  });
+}
+
+export function stopVoicePreview() {
+  if (previewAudioInstance) {
+    previewAudioInstance.pause();
+    previewAudioInstance.currentTime = 0;
+    previewAudioInstance = null;
+  }
+  stopIndonesianNarration();
+}
+
+/**
  * Play voice narration for any text.
  * Automatically tries Gemini 3.1 Flash Neural TTS first, then gracefully falls back to Indonesian Web Speech Synthesis.
  */

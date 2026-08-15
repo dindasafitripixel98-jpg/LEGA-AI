@@ -65,7 +65,12 @@ import {
   previewIndonesianVoiceCharacter,
   VoiceCharacterProfile
 } from '../lib/audioEngine';
-import { setStoredVoiceName } from '../lib/voiceService';
+import {
+  setStoredVoiceName,
+  getStoredVoiceName,
+  previewVoiceCharacterAudio,
+  stopVoicePreview
+} from '../lib/voiceService';
 
 interface AudioPlayerViewProps {
   onSelectModule?: (module: ModuleType | string) => void;
@@ -581,7 +586,7 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
   const [showMetadataDrawer, setShowMetadataDrawer] = useState<boolean>(true);
 
   // Audio Engine & Playback Options
-  const [playbackSource, setPlaybackSource] = useState<'gemini_tts' | 'web_speech' | 'ambient_music'>('web_speech');
+  const [playbackSource, setPlaybackSource] = useState<'gemini_tts' | 'web_speech' | 'ambient_music'>('gemini_tts');
 
   // Dedicated Audio Refs for Voice and Background Soundscape
   const voiceAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -703,22 +708,23 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
     }
   };
 
-  // Preview Indonesian Voice Character Sample
+  // Preview Indonesian Voice Character Sample (iOS, Android, Tablet, PC ready)
   const handlePreviewVoice = (vName: string) => {
     if (previewingVoiceName === vName) {
-      stopIndonesianNarration();
+      stopVoicePreview();
       setPreviewingVoiceName(null);
       return;
     }
-    stopIndonesianNarration();
+    stopVoicePreview();
     if (voiceAudioRef.current) voiceAudioRef.current.pause();
     setPreviewingVoiceName(vName);
     setVoiceName(vName);
     setStoredVoiceName(vName);
 
-    previewIndonesianVoiceCharacter(
+    previewVoiceCharacterAudio(
       vName,
       () => setPreviewingVoiceName(vName),
+      () => setPreviewingVoiceName(null),
       () => setPreviewingVoiceName(null)
     );
   };
@@ -736,7 +742,7 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
     selectedVoice?: string
   ) => {
     const textToSpeak = scriptText || generatedScriptData?.cleanScriptForTTS || generatedScriptData?.script || PRESET_LIBRARY[0].sampleScript;
-    const targetUrl = geminiAudioUrl !== undefined ? geminiAudioUrl : audioUrl;
+    let targetUrl = geminiAudioUrl !== undefined ? geminiAudioUrl : audioUrl;
     const currentVoice = selectedVoice || voiceName;
     const charProfile = getVoiceCharacter(currentVoice);
 
@@ -750,12 +756,14 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
 
     if (mode === 'ambient_music') {
       // Pure Soundscape - No speech
+      stopVoicePreview();
       stopIndonesianNarration();
       if (voiceAudioRef.current) voiceAudioRef.current.pause();
       setIsPlaying(true);
     } else if (mode === 'web_speech') {
       // Indonesian Speech with Vocal Character + Soundscape
       if (voiceAudioRef.current) voiceAudioRef.current.pause();
+      stopVoicePreview();
       stopIndonesianNarration();
 
       speakIndonesianNarration(textToSpeak, {
@@ -774,7 +782,24 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
       setIsPlaying(true);
     } else {
       // Gemini TTS Mode
+      stopVoicePreview();
       stopIndonesianNarration();
+
+      // If URL not yet generated, attempt fast generate
+      if (!targetUrl) {
+        try {
+          const rawAudio = await generateGeminiTts(textToSpeak, currentVoice as any);
+          if (rawAudio) {
+            targetUrl = (rawAudio.startsWith('data:') || rawAudio.startsWith('blob:') || rawAudio.startsWith('http'))
+              ? rawAudio
+              : pcmToWavBlobUrl(rawAudio, 24000);
+            setAudioUrl(targetUrl);
+          }
+        } catch (genErr) {
+          console.warn('Gemini TTS runtime fetch note:', genErr);
+        }
+      }
+
       if (targetUrl && voiceAudioRef.current) {
         voiceAudioRef.current.src = targetUrl;
         voiceAudioRef.current.volume = isMuted ? 0 : masterVolume * (narrationVolumePct / 100);

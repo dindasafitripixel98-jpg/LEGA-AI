@@ -3908,6 +3908,8 @@ function pcmToWavBuffer(pcmBuffer: Buffer, sampleRate = 24000, numChannels = 1, 
 }
 
 // 9. Gemini TTS Voice API (Text to Speech Audio - 6 Karakter Suara LEGA)
+const ttsServerCache = new Map<string, { audioBase64: string; audioDataUrl: string; voiceName: string; geminiVoice: string }>();
+
 const LEGA_VOICE_CONFIGS: Record<string, { geminiVoice: string; stylePrompt: string; voiceLabel: string }> = {
   'suara-tenang': {
     geminiVoice: 'Kore',
@@ -3945,22 +3947,22 @@ function resolveLegaVoiceConfig(rawName?: string) {
   if (!rawName) return LEGA_VOICE_CONFIGS['suara-tenang'];
   const q = rawName.toLowerCase().trim();
 
-  if (q.includes('tenang') || q.includes('kore') || q === '1') {
+  if (q.includes('tenang') || q.includes('kore') || q === '1' || q === 'suara-tenang') {
     return LEGA_VOICE_CONFIGS['suara-tenang'];
   }
-  if (q.includes('hangat') || q.includes('puck') || q === '2') {
+  if (q.includes('hangat') || q.includes('puck') || q === '2' || q === 'suara-hangat') {
     return LEGA_VOICE_CONFIGS['suara-hangat'];
   }
-  if (q.includes('lembut') || q.includes('aoede') || q === '3') {
+  if (q.includes('lembut') || q.includes('aoede') || q === '3' || q === 'suara-lembut') {
     return LEGA_VOICE_CONFIGS['suara-lembut'];
   }
-  if (q.includes('natural') || q.includes('zephyr') || q === '4') {
+  if (q.includes('natural') || q.includes('zephyr') || q === '4' || q === 'suara-natural') {
     return LEGA_VOICE_CONFIGS['suara-natural'];
   }
-  if (q.includes('jernih') || q.includes('leda') || q.includes('calliope') || q === '5') {
+  if (q.includes('jernih') || q.includes('leda') || q.includes('calliope') || q === '5' || q === 'suara-jernih') {
     return LEGA_VOICE_CONFIGS['suara-jernih'];
   }
-  if (q.includes('dalam') || q.includes('fenrir') || q.includes('charon') || q.includes('orus') || q === '6') {
+  if (q.includes('dalam') || q.includes('fenrir') || q.includes('charon') || q.includes('orus') || q === '6' || q === 'suara-dalam') {
     return LEGA_VOICE_CONFIGS['suara-dalam'];
   }
 
@@ -3986,6 +3988,22 @@ app.post('/api/gemini/tts', async (req, res) => {
       .trim();
 
     const promptText = cleanedText.length > 800 ? cleanedText.slice(0, 800) + '...' : cleanedText;
+    const cacheKey = `${voiceConfig.geminiVoice}:${promptText}`;
+
+    if (ttsServerCache.has(cacheKey)) {
+      const cached = ttsServerCache.get(cacheKey)!;
+      return res.json({
+        success: true,
+        audioBase64: cached.audioBase64,
+        audioDataUrl: cached.audioDataUrl,
+        voiceName: cached.voiceName,
+        geminiVoice: cached.geminiVoice,
+        format: 'wav',
+        sampleRate: 24000,
+        cached: true
+      });
+    }
+
     const ai = getGeminiClient();
 
     try {
@@ -4010,12 +4028,22 @@ app.post('/api/gemini/tts', async (req, res) => {
         const wavBase64 = wavBuffer.toString('base64');
         const audioDataUrl = `data:audio/wav;base64,${wavBase64}`;
 
-        return res.json({
-          success: true,
+        const resultObj = {
           audioBase64: wavBase64,
           audioDataUrl: audioDataUrl,
           voiceName: voiceConfig.voiceLabel,
-          geminiVoice: voiceConfig.geminiVoice,
+          geminiVoice: voiceConfig.geminiVoice
+        };
+
+        if (ttsServerCache.size > 150) {
+          const firstKey = ttsServerCache.keys().next().value;
+          if (firstKey) ttsServerCache.delete(firstKey);
+        }
+        ttsServerCache.set(cacheKey, resultObj);
+
+        return res.json({
+          success: true,
+          ...resultObj,
           format: 'wav',
           sampleRate: 24000
         });

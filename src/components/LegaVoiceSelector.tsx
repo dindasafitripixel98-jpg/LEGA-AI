@@ -13,15 +13,15 @@ import {
 import {
   VOICE_CHARACTERS,
   VoiceCharacterProfile,
-  previewIndonesianVoiceCharacter,
-  stopIndonesianNarration,
   getVoiceCharacter
 } from '../lib/audioEngine';
 import {
   getStoredVoiceName,
   setStoredVoiceName,
   subscribeVoiceState,
-  stopVoiceNarration
+  stopVoiceNarration,
+  previewVoiceCharacterAudio,
+  stopVoicePreview
 } from '../lib/voiceService';
 
 interface LegaVoiceSelectorProps {
@@ -69,20 +69,23 @@ export const LegaVoiceSelector: React.FC<LegaVoiceSelectorProps> = ({
     if (e) e.stopPropagation();
 
     if (previewingVoice === v.name) {
-      stopIndonesianNarration();
+      stopVoicePreview();
       stopVoiceNarration();
       setPreviewingVoice(null);
       return;
     }
 
-    stopIndonesianNarration();
+    stopVoicePreview();
     stopVoiceNarration();
     setPreviewingVoice(v.name);
 
-    previewIndonesianVoiceCharacter(
+    previewVoiceCharacterAudio(
       v.name,
       () => {
         setPreviewingVoice(v.name);
+      },
+      () => {
+        setPreviewingVoice(null);
       },
       () => {
         setPreviewingVoice(null);
