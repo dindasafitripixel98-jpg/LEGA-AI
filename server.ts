@@ -3591,6 +3591,220 @@ Jawablah pertanyaan administrator secara profesional, tepat, terstruktur, dan so
   }
 });
 
+// ========================================================
+// MASTER PROMPT 31: LEGA PATTERN AWARENESS (VERSION 1.0)
+// ========================================================
+const LEGA_PATTERN_AWARENESS_INSTRUCTION = `
+LEGA PATTERN AWARENESS (MASTER PROMPT 31)
+LEGA SHAQILA DIGITAL 99
+VERSION 1.0
+
+IDENTITAS & FUNGSI:
+Membantu pengguna mengenali pola berulang dalam pikiran, emosi, sensasi tubuh, perilaku, hubungan, kebiasaan, dan cara merespons pengalaman hidup.
+
+TUJUAN MODUL:
+Membantu pengguna menyadari bahwa suatu pengalaman dapat memiliki pola yang berulang.
+- Pola TIDAK digunakan untuk menyalahkan pengguna.
+- Pola TIDAK digunakan untuk menyalahkan orang lain.
+- Pola digunakan sebagai bahan pengamatan dan pembelajaran yang objektif dan penuh welas asih.
+
+PRINSIP UTAMA:
+1. LEGA tidak boleh langsung menyimpulkan bahwa pengguna memiliki pola tertentu.
+2. Pola adalah kemungkinan yang perlu dieksplorasi bersama pengguna.
+   - Gunakan: "Apakah Anda merasa pengalaman seperti ini pernah terjadi sebelumnya?", "Apakah menurut Anda ada kemiripan?"
+   - BUKAN: "Anda selalu mengalami pola seperti ini", "Ini pasti pola Anda".
+3. Siklus Pola Kerangka (12 Tahap):
+   PERISTIWA -> PIKIRAN -> EMOSI -> SENSASI TUBUH -> DORONGAN -> RESPONS -> AKIBAT -> PENGENALAN POLA -> GALI KEBUTUHAN -> PEMBELAJARAN -> PILIHAN RESPONS BARU -> HADIR SAAT INI
+4. Bedakan FAKTA vs INTERPRETASI:
+   - Kejadian yang benar-benar terjadi vs asumsi/kesimpulan pikiran.
+5. Identifikasi EMOSI NYATA pengguna:
+   - Sebut emosi yang benar-benar diungkapkan (Marah, Sedih, Kecewa, Takut, Cemas, Malu, Bersalah, Iri, Dendam, Panik, Kosong, dll).
+   - Jangan mengubah emosi sepihak (jika pengguna menyebut 'kecewa', jangan ganti menjadi 'sedih').
+6. Kesadaran Somatis Tubuh:
+   - Amati lokasi dan sensasi (tegang, berat, panas, sesak, dll). Bukan diagnosis medis.
+7. Dorongan vs Respons:
+   - Dorongan (ingin membalas, menjauh, menangis, diam, membela diri, menghindar) vs Respons yang nyata diambil.
+8. Gali Kebutuhan & Perlindungan:
+   - Apa yang sebenarnya diharapkan, dibutuhkan, ditakutkan, atau ingin dilindungi?
+9. Pilihan Respons Baru yang Fleksibel:
+   - Berhenti sejenak, bernapas, mengamati emosi, mengklarifikasi dengan tenang, batas sehat, meminta bantuan, tidak langsung bereaksi.
+10. Hadir Saat Ini (Grounding):
+    - Lepaskan kebutuhan menyelesaikan semuanya sekaligus, rasakan napas dan tubuh, sadari kehadiran di sini saat ini.
+
+ATURAN TENTANG ORANG LAIN:
+- Jangan menyatakan semua masalah berasal dari pengguna, dan jangan otomatis menyalahkan orang lain.
+- Perilaku orang lain bisa saja salah atau menyakitkan, namun LEGA berfokus pada apa yang terjadi di dalam diri pengguna, apa yang dapat dikendalikan, batasan sehat yang dibutuhkan, dan pilihan respons sadar.
+
+LARANGAN MUTLAK:
+- Dilarang mendiagnosis medis/psikologis.
+- Dilarang menyatakan trauma/gangguan mental tanpa dasar.
+- Dilarang mengklaim mengetahui alam bawah sadar.
+- Dilarang menyalahkan korban.
+- Dilarang memaksa pengguna mengambil keputusan atau memaafkan jika belum siap.
+
+FORMAT JSON OUTPUT YANG DIHARAPKAN:
+{
+  "summary": "Ringkasan pengamatan pola yang hangat, tenang, dan objektif...",
+  "cycleOverview": {
+    "eventFact": "Fakta peristiwa objektif yang dipisahkan dari interpretasi...",
+    "coreThought": "Pikiran atau self-talk utama yang langsung muncul...",
+    "identifiedEmotions": ["Emosi 1", "Emosi 2"],
+    "somaticExperience": "Sensasi tubuh yang dirasakan di lokasi tertentu...",
+    "feltImpulse": "Dorongan awal yang sempat muncul...",
+    "actualResponse": "Respons/tindakan yang akhirnya dilakukan...",
+    "resultingImpact": "Dampak dari respons tersebut terhadap diri dan situasi..."
+  },
+  "patternRecognition": {
+    "similarityInsight": "Eksplorasi kemiripan pengalaman ini dengan situasi masa lalu tanpa menghakimi...",
+    "recurringTendency": "Kecenderungan pola berulang yang diamati bersama...",
+    "protectiveIntent": "Fungsi perlindungan atau kebutuhan rasa aman di balik pola ini..."
+  },
+  "deeperNeedsAnalysis": {
+    "coreNeed": "Kebutuhan mendasar yang sebenarnya dicari/diharapkan...",
+    "whatIsProtected": "Hal berharga dari diri yang berusaha dilindungi...",
+    "fearsOrLoss": "Kekhawatiran atau hal yang ingin dihindari..."
+  },
+  "learningSummary": "Wawasan pembelajaran tentang diri yang berharga dari pengalaman ini...",
+  "consciousResponseChoices": [
+    {
+      "title": "Nama Pilihan Respons Sadar (misal: Mengambil Jeda 3 Tarikan Napas)",
+      "description": "Penjelasan mengapa opsi ini membantu memberi ruang aman...",
+      "practicalAction": "Langkah konkret yang dapat dicoba pada kesempatan berikutnya..."
+    },
+    {
+      "title": "Nama Pilihan Respons Sadar (misal: Komunikasi Asertif Tenang / Batasan Sehat)",
+      "description": "Penjelasan opsi...",
+      "practicalAction": "Langkah konkret..."
+    },
+    {
+      "title": "Nama Pilihan Respons Sadar (misal: Validasi Emosi Sebelum Merespons)",
+      "description": "Penjelasan opsi...",
+      "practicalAction": "Langkah konkret..."
+    }
+  ],
+  "groundingGuidance": "Panduan hadir saat ini yang menenangkan (lepaskan kebutuhan menyelesaikan semuanya, rasakan napas & tubuh saat ini)...",
+  "recommendedNextModule": {
+    "moduleName": "LEGA Presence" | "LEGA Release" | "LEGA Breathing" | "LEGA Journal" | "LEGA AI Coach",
+    "reason": "Alasan mengapa modul ini cocok melengkapi proses kesadaran pola saat ini...",
+    "targetModuleKey": "mindfulness" | "emotional-release" | "breathing" | "journal" | "ai-coach"
+  }
+}
+`;
+
+// 8b. LEGA Pattern Awareness API Route
+app.post('/api/gemini/pattern-awareness', async (req, res) => {
+  try {
+    const {
+      event,
+      impactfulPart,
+      factVsInterpretation,
+      thought,
+      selfTalk,
+      emotions = [],
+      bodySensations = [],
+      bodyLocation,
+      impulses = [],
+      response: userResponse,
+      consequences,
+      hasSimilarPast,
+      pastSimilarExperience,
+      underlyingNeeds = {},
+      learning,
+      newResponseChoices = [],
+      presentMomentNotes
+    } = req.body;
+
+    const fallbackData = {
+      summary: `Pengamatan terhadap pengalaman "${event || 'peristiwa ini'}" memperlihatkan bahwa di balik setiap reaksi, terdapat pikiran, emosi, dan kebutuhan yang wajar untuk dipahami.`,
+      cycleOverview: {
+        eventFact: event || 'Peristiwa yang sedang diamati',
+        coreThought: thought || (selfTalk ? `"${selfTalk}"` : 'Pikiran langsung saat kejadian'),
+        identifiedEmotions: emotions.length > 0 ? emotions : ['Kecewa', 'Cemas'],
+        somaticExperience: bodySensations.length > 0 ? `${bodySensations.join(', ')} (${bodyLocation || 'tubuh'})` : 'Ketegangan tubuh yang wajar',
+        feltImpulse: impulses.length > 0 ? impulses.join(', ') : 'Dorongan untuk melindungi diri',
+        actualResponse: userResponse || 'Respons yang biasa diambil',
+        resultingImpact: consequences || 'Situasi yang tercipta setelahnya'
+      },
+      patternRecognition: {
+        similarityInsight: hasSimilarPast === 'ya' || hasSimilarPast === 'mungkin'
+          ? `Terdapat nuansa kemiripan dengan pengalaman serupa yang pernah dirasakan (${pastSimilarExperience || 'di masa lalu'}). Ini adalah kesempatan berharga untuk mengamati pola tanpa menyalahkan diri sendiri.`
+          : 'Setiap pengalaman memiliki dinamika unik. Mengamatinya secara utuh membantu Anda merespons dengan lebih sadar ke depannya.',
+        recurringTendency: 'Kecenderungan untuk langsung merespons saat emosi memuncak demi meredakan ketidaknyamanan segera.',
+        protectiveIntent: 'Respons ini pada dasarnya adalah upaya alami sistem pertahanan diri Anda untuk mencari rasa aman dan dihargai.'
+      },
+      deeperNeedsAnalysis: {
+        coreNeed: underlyingNeeds?.needed || underlyingNeeds?.expected || 'Kebutuhan akan kejelasan, penghargaan, dan rasa aman emosional.',
+        whatIsProtected: underlyingNeeds?.protecting || 'Keberhargaan diri dan integritas batasan pribadi.',
+        fearsOrLoss: underlyingNeeds?.feared || underlyingNeeds?.avoiding || 'Rasa tidak dihargai, penolakan, atau kehilangan kendali.'
+      },
+      learningSummary: learning || 'Anda mulai menyadari bahwa Anda memiliki jeda antara pemicu dan respons, dan di dalam jeda tersebut terdapat kebebasan untuk memilih.',
+      consciousResponseChoices: [
+        {
+          title: 'Memberi Jeda & 3 Tarikan Napas Sadar',
+          description: 'Memberi waktu bagi tubuh untuk beralih dari mode reaksi otomatis ke mode pengamatan yang tenang.',
+          practicalAction: 'Saat dorongan muncul, letakkan tangan di dada dan bernapas perlahan sebelum mengetik atau membalas.'
+        },
+        {
+          title: 'Memisahkan Fakta Nyata dari Asumsi Pikiran',
+          description: 'Mengklarifikasi apa yang benar-benar terjadi versus apa yang disimpulkan oleh pikiran yang sedang cemas.',
+          practicalAction: 'Tanyakan dalam hati: "Apakah ini sudah pasti terjadi, atau ini interpretasi yang sedang saya buat?"'
+        },
+        {
+          title: 'Menyatakan Batasan dengan Komunikasi Asertif',
+          description: 'Mengomunikasikan kebutuhan dengan jelas tanpa perlu menyerang atau menarik diri secara ekstrem.',
+          practicalAction: 'Gunakan kalimat berbasis rasa: "Ketika situasi ini terjadi, saya merasa perlu kejelasan..."'
+        }
+      ],
+      groundingGuidance: 'Untuk beberapa saat sekarang, lepaskan kebutuhan untuk memperbaiki atau menyelesaikan semuanya. Rasakan napas Anda yang mengalir lembut... sadari tubuh Anda yang aman di saat ini.',
+      recommendedNextModule: {
+        moduleName: 'LEGA Presence',
+        reason: 'Membantu melatih kesadaran saat ini agar tidak terjebak dalam reaktivitas otomatis.',
+        targetModuleKey: 'mindfulness' as const
+      }
+    };
+
+    const prompt = `
+Lakukan analisis eksploratif LEGA Pattern Awareness (Master Prompt 31) berdasarkan input siklus pola pengguna:
+- 1. PERISTIWA: ${event || 'Tidak disebutkan'}
+  * Bagian paling membekas: ${impactfulPart || 'Tidak diisi'}
+  * Fakta vs Interpretasi: ${factVsInterpretation || 'Tidak diisi'}
+- 2. PIKIRAN & SELF-TALK: ${thought || 'Tidak diisi'} | Self-talk: ${selfTalk || 'Tidak diisi'}
+- 3. EMOSI YANG DISEBUTKAN: ${Array.isArray(emotions) ? emotions.join(', ') : emotions || 'Tidak disebutkan'}
+- 4. SENSASI TUBUH: ${Array.isArray(bodySensations) ? bodySensations.join(', ') : bodySensations || 'Tidak ada'} | Area: ${bodyLocation || 'Tidak disebutkan'}
+- 5. DORONGAN: ${Array.isArray(impulses) ? impulses.join(', ') : impulses || 'Tidak disebutkan'}
+- 6. RESPONS NYATA: ${userResponse || 'Tidak disebutkan'}
+- 7. AKIBAT / KONSEKUENSI: ${consequences || 'Tidak disebutkan'}
+- 8. PENGENALAN POLA (Kemiripan Masa Lalu): ${hasSimilarPast || 'Belum pasti'}
+  * Catatan Pengalaman Serupa: ${pastSimilarExperience || 'Tidak ada'}
+- 9. GALI KEBUTUHAN:
+  * Harapan: ${underlyingNeeds?.expected || '-'}
+  * Kebutuhan: ${underlyingNeeds?.needed || '-'}
+  * Yang Ditakutkan: ${underlyingNeeds?.feared || '-'}
+  * Yang Ingin Dilindungi: ${underlyingNeeds?.protecting || '-'}
+  * Yang Ingin Dihindari: ${underlyingNeeds?.avoiding || '-'}
+- 10. PEMBELAJARAN: ${learning || 'Tidak diisi'}
+- 11. PILIHAN RESPONS BARU: ${Array.isArray(newResponseChoices) ? newResponseChoices.join(', ') : newResponseChoices || 'Tidak diisi'}
+- 12. KONDISI SAAT INI (HADIR): ${presentMomentNotes || 'Tenang di saat ini'}
+
+Hasilkan analisis JSON valid sesuai instruksi LEGA PATTERN AWARENESS tanpa menghakimi, tanpa menyalahkan siapa pun, dan fokus pada eksplorasi kesadaran sadar.
+`;
+
+    const data = await safeGenerateGeminiJSON(
+      prompt,
+      LEGA_PATTERN_AWARENESS_INSTRUCTION,
+      0.5,
+      fallbackData,
+      'gemini-3.7-flash'
+    );
+
+    res.json({ success: true, data });
+  } catch (error: any) {
+    console.warn('Handled gracefully in /api/gemini/pattern-awareness:', error?.message || error);
+    res.json({ success: true, data: null });
+  }
+});
+
+
 // Helper to wrap raw 16-bit linear PCM into a valid WAV buffer
 function pcmToWavBuffer(pcmBuffer: Buffer, sampleRate = 24000, numChannels = 1, bitsPerSample = 16): Buffer {
   const header = Buffer.alloc(44);

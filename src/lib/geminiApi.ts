@@ -1739,5 +1739,74 @@ export async function askAdminAI(query: string, adminRole: string = 'SUPER ADMIN
   }
 }
 
+// ----------------------------------------------------
+// LEGA PATTERN AWARENESS (MASTER PROMPT 31)
+// ----------------------------------------------------
+export async function analyzePatternAwareness(patternData: any) {
+  try {
+    const res = await fetch('/api/gemini/pattern-awareness', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(patternData),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success || !data.data) {
+      throw new Error(data?.error || 'Gagal memproses analisis LEGA Pattern Awareness.');
+    }
+    return data.data;
+  } catch (err: any) {
+    console.warn('analyzePatternAwareness fallback used:', err?.message || err);
+    return {
+      summary: `Pengamatan terhadap pengalaman "${patternData.event || 'peristiwa ini'}" memperlihatkan bahwa di balik setiap respons yang muncul, terdapat pikiran, emosi, dan kebutuhan mendasar yang sedang berusaha dilindungi.`,
+      cycleOverview: {
+        eventFact: patternData.event || 'Peristiwa yang sedang diamati',
+        coreThought: patternData.thought || (patternData.selfTalk ? `"${patternData.selfTalk}"` : 'Pikiran langsung saat kejadian'),
+        identifiedEmotions: patternData.emotions?.length > 0 ? patternData.emotions : ['Kecewa', 'Cemas'],
+        somaticExperience: patternData.bodySensations?.length > 0 ? `${patternData.bodySensations.join(', ')} (${patternData.bodyLocation || 'tubuh'})` : 'Ketegangan tubuh yang wajar',
+        feltImpulse: patternData.impulses?.length > 0 ? patternData.impulses.join(', ') : 'Dorongan untuk melindungi diri',
+        actualResponse: patternData.response || 'Respons yang biasa diambil',
+        resultingImpact: patternData.consequences || 'Situasi yang tercipta setelahnya'
+      },
+      patternRecognition: {
+        similarityInsight: patternData.hasSimilarPast === 'ya' || patternData.hasSimilarPast === 'mungkin'
+          ? `Terdapat kemiripan dengan pengalaman sebelumnya (${patternData.pastSimilarExperience || 'di masa lalu'}). Ini adalah bahan pengamatan yang sangat berharga tanpa menyalahkan siapa pun.`
+          : 'Setiap pengalaman memiliki keunikannya. Mengamatinya secara utuh membantu Anda merespons dengan lebih sadar ke depannya.',
+        recurringTendency: 'Kecenderungan untuk segera bertindak ketika ketidaknyamanan emosional mencapai puncak.',
+        protectiveIntent: 'Respons ini merupakan mekanisme alami tubuh dan batin Anda untuk mencari rasa aman, dihargai, dan terlindungi.'
+      },
+      deeperNeedsAnalysis: {
+        coreNeed: patternData.underlyingNeeds?.needed || patternData.underlyingNeeds?.expected || 'Kebutuhan akan rasa aman emosional, penghargaan, dan kepastian.',
+        whatIsProtected: patternData.underlyingNeeds?.protecting || 'Keberhargaan diri dan ruang kenyamanan batin.',
+        fearsOrLoss: patternData.underlyingNeeds?.feared || patternData.underlyingNeeds?.avoiding || 'Rasa tidak dihargai, penolakan, atau kekecewaan berulang.'
+      },
+      learningSummary: patternData.learning || 'Anda menyadari bahwa antara peristiwa dan respons selalu ada jeda kesadaran, di mana Anda memiliki kebebasan untuk memilih langkah yang lebih tenang.',
+      consciousResponseChoices: [
+        {
+          title: 'Memberi Jeda & Bernapas Perlahan (Pause & Breathe)',
+          description: 'Memberi jeda 30-60 detik sebelum merespons agar sistem saraf kembali tenang dari reaksi impulsif.',
+          practicalAction: 'Saat dorongan muncul, letakkan tangan di dada, ambil 3 tarikan napas panjang, lalu amati apa yang dirasakan.'
+        },
+        {
+          title: 'Memisahkan Fakta Nyata dari Asumsi Pikiran',
+          description: 'Mengklarifikasi fakta kejadian nyata dari interpretasi atau prasangka yang diciptakan oleh pikiran.',
+          practicalAction: 'Katakan dalam hati: "Faktanya adalah X, sedangkan pikiran saya saat ini mengartikannya sebagai Y."'
+        },
+        {
+          title: 'Menyatakan Batasan & Komunikasi Tenang',
+          description: 'Mengomunikasikan kebutuhan dengan jelas dan tegas tanpa harus menyerang atau menjauh secara ekstrem.',
+          practicalAction: 'Sampaikan dengan tenang: "Saya membutuhkan waktu untuk memproses hal ini sebelum kita mendiskusikannya kembali."'
+        }
+      ],
+      groundingGuidance: 'Untuk beberapa saat sekarang, lepaskan kebutuhan untuk menyelesaikan semuanya sekaligus. Rasakan napas Anda yang mengalir lembut... sadari bahwa saat ini Anda berada di sini dengan aman dan utuh.',
+      recommendedNextModule: {
+        moduleName: 'LEGA Presence',
+        reason: 'Membantu melatih kehadiran sadar di saat ini agar tidak terpicu reaksi otomatis.',
+        targetModuleKey: 'mindfulness'
+      }
+    };
+  }
+}
+
+
 
 

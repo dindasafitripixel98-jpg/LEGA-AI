@@ -122,6 +122,33 @@ export const NATURE_SOUND_DEFINITIONS: Record<NatureSoundType, {
     defaultMusicVolume: 0.18,
     defaultAmbient: 'piano-lembut',
     loopRecommendation: 'Continuous White/Pink Rain Loop (30 Detik)'
+  },
+  'suasana-malam': {
+    name: 'Suasana Malam Tenang',
+    description: 'Keheningan malam dengan desau angin malam lembut dan jangkrik halus menenangkan pikiran.',
+    recommendedTheme: 'Relaksasi Menjelang Tidur & Pengheningan Malam',
+    defaultNatureVolume: 0.22,
+    defaultMusicVolume: 0.18,
+    defaultAmbient: 'piano-hangat',
+    loopRecommendation: 'Nocturnal Calm Cycle (30 Detik)'
+  },
+  'suasana-alam-tenang': {
+    name: 'Suasana Alam Tenang',
+    description: 'Paduan alam hening dengan angin sepoi-sepoi dan gemerisik dedaunan minimal.',
+    recommendedTheme: 'Fokus Bekerja, Belajar & Meditasi Sadar',
+    defaultNatureVolume: 0.24,
+    defaultMusicVolume: 0.16,
+    defaultAmbient: 'ambient-minimal',
+    loopRecommendation: 'Zen Nature Loop (30 Detik)'
+  },
+  'fajar-tenang': {
+    name: 'Fajar Menenteramkan',
+    description: 'Kesejukan udara fajar dengan kicau burung lembut kejauhan dan kehangatan sinar mentari.',
+    recommendedTheme: 'Kesegaran Pagi & Menemukan Ruang Tenang Diri',
+    defaultNatureVolume: 0.24,
+    defaultMusicVolume: 0.20,
+    defaultAmbient: 'piano-hangat',
+    loopRecommendation: 'Dawn Horizon Cycle (35 Detik)'
   }
 };
 
@@ -135,6 +162,11 @@ export const AMBIENT_MUSIC_DEFINITIONS: Record<AmbientMusicType, {
     description: 'Sentuhan tuts piano hangat bernada pentatonik lembut yang menenangkan sistem saraf.',
     character: 'Hangat, Jernih, Lembut & Menenteramkan'
   },
+  'piano-hangat': {
+    name: 'Piano Ambient Hangat (432Hz)',
+    description: 'Progresi harmoni piano solfeggio lembut dengan suasana teduh dan menenteramkan batin.',
+    character: 'Hangat, Dalam, Teduh & Menghanyutkan'
+  },
   'pad-sinematik': {
     name: 'Pad Sinematik Mengalun (432Hz)',
     description: 'Lapisan suara pad analog yang mengambang perlahan memberi rasa aman dan ruang batin luas.',
@@ -144,8 +176,97 @@ export const AMBIENT_MUSIC_DEFINITIONS: Record<AmbientMusicType, {
     name: 'String Halus Meditatif (528Hz)',
     description: 'Gesekan dawai senar orkestra halus dengan resonansi panjang yang meredakan emosi.',
     character: 'Elegan, Menghanyutkan, Teduh & Damai'
+  },
+  'ambient-minimal': {
+    name: 'Musik Ambient Minimal (432Hz)',
+    description: 'Dengung nada hening minimalis tanpa melodi mencolok untuk kejernihan konsentrasi dan istirahat.',
+    character: 'Minimalis, Hening, Ringan & Menyejukkan'
   }
 };
+
+/**
+ * Indonesian Vocal Character Profiles
+ */
+export interface VoiceCharacterProfile {
+  name: string; // Internal key (e.g. Kore, Zephyr, Puck, Fenrir, Charon, Aoede)
+  indonesianName: string;
+  label: string;
+  gender: 'female' | 'male';
+  tone: string;
+  pitch: number;
+  rate: number;
+  description: string;
+  samplePhrase: string;
+}
+
+export const VOICE_CHARACTERS: VoiceCharacterProfile[] = [
+  {
+    name: 'Kore',
+    indonesianName: 'Laras (Feminin Lembut)',
+    label: 'Kore — Laras (Lembut, Tenang & Hangat)',
+    gender: 'female',
+    tone: 'Feminin Lembut & Mengayomi',
+    pitch: 1.05,
+    rate: 0.80,
+    description: 'Artikulasi lembut menyejukkan batin, cocok untuk meditasi, kesadaran diri, dan refleksi mendalam.',
+    samplePhrase: 'Selamat datang. Ambil napas lembut... izinkan tubuh dan pikiran Anda beristirahat dalam ketenangan.'
+  },
+  {
+    name: 'Zephyr',
+    indonesianName: 'Bayu (Maskulin Hangat)',
+    label: 'Zephyr — Bayu (Hangat, Bersahabat & Jernih)',
+    gender: 'male',
+    tone: 'Maskulin Hangat & Bersahabat',
+    pitch: 0.88,
+    rate: 0.84,
+    description: 'Vokal maskulin yang bersahabat dan tenang, seperti sahabat setia yang mendengarkan tanpa menghakimi.',
+    samplePhrase: 'Mari berhenti sejenak. Sadari apa yang sedang Anda rasakan saat ini dengan jujur dan lapang dada.'
+  },
+  {
+    name: 'Puck',
+    indonesianName: 'Damai (Ramah & Santai)',
+    label: 'Puck — Damai (Ramah, Rileks & Mengalir)',
+    gender: 'female',
+    tone: 'Ramah, Mengalir & Meringankan',
+    pitch: 1.12,
+    rate: 0.85,
+    description: 'Nada ramah dan santai yang membantu melepaskan overthinking dan meredakan ketegangan harian.',
+    samplePhrase: 'Tarik napas sejenak. Anda tidak perlu menyelesaikan semuanya sekaligus saat ini. Hadirlah di sini.'
+  },
+  {
+    name: 'Fenrir',
+    indonesianName: 'Arga (Grounded & Dalam)',
+    label: 'Fenrir — Arga (Suara Dalam, Mantap & Grounded)',
+    gender: 'male',
+    tone: 'Maskulin Dalam & Berjangkar',
+    pitch: 0.72,
+    rate: 0.76,
+    description: 'Resonansi vokal dalam dan stabil yang sangat efektif untuk meredakan kepanikan dan kecemasan tinggi.',
+    samplePhrase: 'Rasakan pijakan kaki Anda di bumi. Napas Anda aman. Saat ini Anda berada dalam ruang yang terlindungi.'
+  },
+  {
+    name: 'Charon',
+    indonesianName: 'Sinta (Bisikan Hening Pengantar Tidur)',
+    label: 'Charon — Sinta (Hening Khusus Menjelang Tidur)',
+    gender: 'female',
+    tone: 'Lembut Hening & Meditatif',
+    pitch: 0.82,
+    rate: 0.72,
+    description: 'Tempo sangat lambat dan bisikan damai yang menuntun otot tubuh menuju tidur lelap yang berkualitas.',
+    samplePhrase: 'Hari ini telah selesai. Lepaskan semua beban pikiran... pejamkan mata Anda dan beristirahatlah dengan damai.'
+  },
+  {
+    name: 'Aoede',
+    indonesianName: 'Nirmala (Welas Asih & Teduh)',
+    label: 'Aoede — Nirmala (Penuh Welas Asih & Menyejukkan)',
+    gender: 'female',
+    tone: 'Welas Asih & Penuh Penerimaan',
+    pitch: 0.98,
+    rate: 0.78,
+    description: 'Vokal penuh kehangatan welas asih, cocok untuk latihan memaafkan diri, rasa syukur, dan inner child.',
+    samplePhrase: 'Terima kasih telah bertahan sejauh ini. Berikan pelukan hangat dan penerimaan tulus bagi diri Anda hari ini.'
+  }
+];
 
 /**
  * Builds standard relaxation metadata based on category / selected sounds
@@ -272,18 +393,23 @@ export async function generateRelaxationSoundscapeWav(
   const offlineCtx = new OfflineCtxClass(numChannels, length, sampleRate);
 
   // -------------------------------------------------------------
-  // 1. AMBIENT MUSIC SYNTHESIS (Piano, Cinematic Pad, or Soft Strings)
+  // 1. AMBIENT MUSIC SYNTHESIS (Piano, Cinematic Pad, Soft Strings, Warm Piano, Minimal Ambient)
   // -------------------------------------------------------------
-  if (ambientType === 'piano-lembut') {
+  if (ambientType === 'piano-lembut' || ambientType === 'piano-hangat') {
     // Warm Pentatonic Piano chords at 432Hz tuning (C, D, E, G, A, C)
-    const chordNotes = [
+    const chordNotes = ambientType === 'piano-hangat' ? [
+      [108, 162, 216, 288, 360],     // A2 - E3 - A3 - D4 - F#4 (Warm grounded)
+      [129.6, 194.4, 259.2, 324],    // F3 - C4 - F4 - A4
+      [144, 216, 288, 360],          // D3 - F#3 - A3 - C#4
+      [129.6, 216, 259.2, 388.8],    // C3 - E3 - G3 - C5
+    ] : [
       [129.6, 216, 259.2, 324],     // C3 - E3 - G3 - B3 / D4
       [144, 216, 288, 360],         // D3 - F#3 - A3 - C#4
       [108, 162, 216, 324],         // A2 - E3 - A3 - E4
       [129.6, 194.4, 259.2, 388.8], // F3 - C4 - F4 - C5
     ];
 
-    const chordInterval = 8; // Gentle chord every 8 seconds
+    const chordInterval = ambientType === 'piano-hangat' ? 9 : 8; // Gentle chord pacing
     const numChords = Math.ceil(actualDuration / chordInterval);
 
     for (let c = 0; c < numChords; c++) {
@@ -307,8 +433,8 @@ export async function generateRelaxationSoundscapeWav(
           osc2.frequency.setValueAtTime(freq * 2.001, noteTime);
 
           filter.type = 'lowpass';
-          filter.frequency.setValueAtTime(700, noteTime);
-          filter.frequency.exponentialRampToValueAtTime(140, Math.min(actualDuration, noteTime + 6));
+          filter.frequency.setValueAtTime(ambientType === 'piano-hangat' ? 580 : 700, noteTime);
+          filter.frequency.exponentialRampToValueAtTime(120, Math.min(actualDuration, noteTime + 6.5));
 
           // Piano envelope (soft attack, organic decay)
           const targetVol = musicVol * (0.09 / (nIdx + 1));
@@ -347,6 +473,33 @@ export async function generateRelaxationSoundscapeWav(
       gain.gain.setValueAtTime(0.0001, 0);
       gain.gain.linearRampToValueAtTime(baseVol, Math.min(fadeIn, actualDuration / 2));
       gain.gain.setValueAtTime(baseVol, Math.max(0, actualDuration - fadeOut));
+      gain.gain.linearRampToValueAtTime(0.0001, actualDuration);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(offlineCtx.destination);
+
+      osc.start(0);
+      osc.stop(actualDuration);
+    });
+  } else if (ambientType === 'ambient-minimal') {
+    // Ultra-soft minimal sine harmonic drone (432Hz Pure Zen)
+    const minFreqs = [108, 216, 432];
+    minFreqs.forEach((freq, idx) => {
+      const osc = offlineCtx.createOscillator();
+      const gain = offlineCtx.createGain();
+      const filter = offlineCtx.createBiquadFilter();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, 0);
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(280, 0);
+
+      const baseVol = (musicVol * 0.05) / (idx + 1);
+      gain.gain.setValueAtTime(0.0001, 0);
+      gain.gain.linearRampToValueAtTime(baseVol, fadeIn);
+      gain.gain.setValueAtTime(baseVol, actualDuration - fadeOut);
       gain.gain.linearRampToValueAtTime(0.0001, actualDuration);
 
       osc.connect(filter);
@@ -493,6 +646,69 @@ export async function generateRelaxationSoundscapeWav(
       natureFilter.frequency.setValueAtTime(500, 0);
       natureFilter.Q.setValueAtTime(0.8, 0);
       natureGain.gain.setValueAtTime(effectiveLayerVol * 0.7, 0);
+    } else if (nType === 'suasana-malam') {
+      // Soft night breeze with subtle high-frequency nocturnal crickets
+      natureFilter.type = 'lowpass';
+      natureFilter.frequency.setValueAtTime(260, 0);
+      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.5, 0);
+
+      // Night Crickets (gentle chirps around 4.5kHz)
+      const cricketTimes = [1.5, 5, 8.5, 12, 16.5, 20];
+      cricketTimes.forEach((ct) => {
+        if (ct < actualDuration - 2) {
+          for (let p = 0; p < 4; p++) {
+            const pTime = ct + p * 0.09;
+            const osc = offlineCtx.createOscillator();
+            const cGain = offlineCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(4400 + Math.random() * 200, pTime);
+
+            cGain.gain.setValueAtTime(0.0001, pTime);
+            cGain.gain.linearRampToValueAtTime(effectiveLayerVol * 0.08, pTime + 0.02);
+            cGain.gain.exponentialRampToValueAtTime(0.0001, pTime + 0.06);
+
+            osc.connect(cGain);
+            cGain.connect(offlineCtx.destination);
+            osc.start(pTime);
+            osc.stop(pTime + 0.07);
+          }
+        }
+      });
+    } else if (nType === 'fajar-tenang') {
+      // Dawn freshness breeze + distant birds
+      natureFilter.type = 'bandpass';
+      natureFilter.frequency.setValueAtTime(550, 0);
+      natureFilter.Q.setValueAtTime(0.9, 0);
+      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.55, 0);
+
+      const dawnBirdTimes = [3, 9, 15, 21];
+      dawnBirdTimes.forEach((bt) => {
+        if (bt < actualDuration - 2) {
+          for (let k = 0; k < 2; k++) {
+            const chirpTime = bt + k * 0.22;
+            const osc = offlineCtx.createOscillator();
+            const chirpGain = offlineCtx.createGain();
+            osc.type = 'sine';
+            const baseF = 2600 + Math.random() * 400;
+            osc.frequency.setValueAtTime(baseF, chirpTime);
+            osc.frequency.linearRampToValueAtTime(baseF + 600, chirpTime + 0.06);
+            osc.frequency.linearRampToValueAtTime(baseF - 100, chirpTime + 0.14);
+
+            chirpGain.gain.setValueAtTime(0.0001, chirpTime);
+            chirpGain.gain.linearRampToValueAtTime(effectiveLayerVol * 0.15, chirpTime + 0.03);
+            chirpGain.gain.exponentialRampToValueAtTime(0.0001, chirpTime + 0.15);
+
+            osc.connect(chirpGain);
+            chirpGain.connect(offlineCtx.destination);
+            osc.start(chirpTime);
+            osc.stop(chirpTime + 0.16);
+          }
+        }
+      });
+    } else if (nType === 'suasana-alam-tenang') {
+      natureFilter.type = 'lowpass';
+      natureFilter.frequency.setValueAtTime(380, 0);
+      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.6, 0);
     } else {
       natureFilter.type = 'lowpass';
       natureFilter.frequency.setValueAtTime(1400, 0);
@@ -642,9 +858,21 @@ if (typeof window !== 'undefined' && window.speechSynthesis) {
   }
 }
 
+export function getVoiceCharacter(nameOrKey?: string): VoiceCharacterProfile {
+  if (!nameOrKey) return VOICE_CHARACTERS[0];
+  const found = VOICE_CHARACTERS.find(
+    (v) => v.name.toLowerCase() === nameOrKey.toLowerCase() ||
+           v.indonesianName.toLowerCase().includes(nameOrKey.toLowerCase()) ||
+           v.label.toLowerCase().includes(nameOrKey.toLowerCase())
+  );
+  return found || VOICE_CHARACTERS[0];
+}
+
 export function speakIndonesianNarration(
   text: string,
   options?: {
+    voiceName?: string;
+    voiceCharacter?: string;
     rate?: number;
     pitch?: number;
     volume?: number;
@@ -677,16 +905,48 @@ export function speakIndonesianNarration(
 
   if (!cleanText) return null;
 
+  const charProfile = getVoiceCharacter(options?.voiceCharacter || options?.voiceName);
+
   const utterance = new SpeechSynthesisUtterance(cleanText);
-  utterance.rate = options?.rate ?? 0.82; // Warm, peaceful, slower tempo
-  utterance.pitch = options?.pitch ?? 0.95; // Warm soothing pitch
+  utterance.rate = options?.rate ?? charProfile.rate ?? 0.80; // Pacing from character
+  utterance.pitch = options?.pitch ?? charProfile.pitch ?? 1.0; // Pitch resonance from character
   utterance.volume = options?.volume ?? 0.95;
   utterance.lang = 'id-ID';
 
   const voices = cachedVoices.length > 0 ? cachedVoices : (window.speechSynthesis.getVoices() || []);
-  const idVoice = voices.find((v) => v.lang.startsWith('id') || v.lang.includes('ID') || v.name.toLowerCase().includes('indonesia'));
-  if (idVoice) {
-    utterance.voice = idVoice;
+  
+  // Try finding Indonesian voice matching gender preference if possible
+  const idVoices = voices.filter((v) => 
+    v.lang.startsWith('id') || 
+    v.lang.includes('ID') || 
+    v.name.toLowerCase().includes('indonesia') ||
+    v.lang.startsWith('in')
+  );
+
+  let chosenVoice: SpeechSynthesisVoice | undefined;
+  if (idVoices.length > 0) {
+    if (charProfile.gender === 'male') {
+      chosenVoice = idVoices.find(v => 
+        v.name.toLowerCase().includes('male') || 
+        v.name.toLowerCase().includes('ardi') || 
+        v.name.toLowerCase().includes('david') ||
+        v.name.toLowerCase().includes('pria')
+      ) || idVoices[0];
+    } else {
+      chosenVoice = idVoices.find(v => 
+        v.name.toLowerCase().includes('female') || 
+        v.name.toLowerCase().includes('gadis') || 
+        v.name.toLowerCase().includes('wanita') ||
+        v.name.toLowerCase().includes('siti')
+      ) || idVoices[0];
+    }
+  } else {
+    // Multilingual fallback
+    chosenVoice = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('natural')) || voices[0];
+  }
+
+  if (chosenVoice) {
+    utterance.voice = chosenVoice;
   }
 
   if (options?.onStart) utterance.onstart = options.onStart;
@@ -699,6 +959,20 @@ export function speakIndonesianNarration(
     console.warn('Failed to call speechSynthesis.speak:', err);
   }
   return utterance;
+}
+
+/**
+ * Previews a chosen Indonesian voice character with its custom sample phrase
+ */
+export function previewIndonesianVoiceCharacter(
+  voiceName: string,
+  onEnd?: () => void
+): SpeechSynthesisUtterance | null {
+  const profile = getVoiceCharacter(voiceName);
+  return speakIndonesianNarration(profile.samplePhrase, {
+    voiceCharacter: profile.name,
+    onEnd
+  });
 }
 
 /**

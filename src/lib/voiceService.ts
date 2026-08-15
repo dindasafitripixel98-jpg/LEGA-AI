@@ -260,8 +260,10 @@ function playWebSpeechFallback(
   }, 500);
 
   currentUtterance = speakIndonesianNarration(text, {
-    rate: options?.rate ?? 0.88,
-    pitch: options?.pitch ?? 0.95,
+    voiceName,
+    voiceCharacter: voiceName,
+    rate: options?.rate,
+    pitch: options?.pitch,
     volume: options?.volume ?? 0.95,
     onStart: () => {
       state.isPlaying = true;

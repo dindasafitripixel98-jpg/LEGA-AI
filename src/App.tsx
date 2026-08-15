@@ -17,6 +17,7 @@ import { Dashboard } from './components/Dashboard';
 import { AICoach } from './components/AICoach';
 import { EmotionAnalysis } from './components/EmotionAnalysis';
 import { SelfDiscovery } from './components/SelfDiscovery';
+import { LegaPatternAwareness } from './components/LegaPatternAwareness';
 import { MindfulnessExercises } from './components/MindfulnessExercises';
 import { LegaGratitude } from './components/LegaGratitude';
 import { LegaForgiveness } from './components/LegaForgiveness';
@@ -134,6 +135,14 @@ export default function App() {
         );
       case 'self-discovery':
         return <SelfDiscovery />;
+      case 'pattern-awareness':
+        return (
+          <LegaPatternAwareness
+            onSelectModule={(mod) => setCurrentModule(mod as ModuleType)}
+            onAddJournal={handleAddJournal}
+            onOpenCrisis={() => setIsCrisisOpen(true)}
+          />
+        );
       case 'mindfulness':
         return (
           <MindfulnessExercises

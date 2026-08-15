@@ -31,7 +31,8 @@ import {
   AlertTriangle,
   Moon,
   Smartphone,
-  Download
+  Download,
+  GitFork
 } from 'lucide-react';
 import { ModuleType } from '../types';
 
@@ -72,6 +73,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       title: 'REFLEKSI & AI',
       items: [
         { id: 'self-discovery', label: 'Mengenal Diri', icon: Compass },
+        { id: 'pattern-awareness', label: 'LEGA Pattern', icon: GitFork, badge: 'Pola' },
         { id: 'gratitude', label: 'LEGA Gratitude', icon: Sun, badge: 'Syukur' },
         { id: 'forgiveness', label: 'LEGA Forgiveness', icon: HeartHandshake, badge: 'Memaafkan' },
         { id: 'inner-child', label: 'LEGA Inner Child', icon: Baby, badge: 'Inner Child' },

@@ -5,6 +5,7 @@ import {
   Play,
   Pause,
   Square,
+  Volume1,
   Volume2,
   VolumeX,
   RotateCcw,
@@ -39,7 +40,10 @@ import {
   Disc,
   Info,
   SlidersHorizontal,
-  CheckSquare
+  CheckSquare,
+  Moon,
+  Sunrise,
+  Filter
 } from 'lucide-react';
 import { ModuleType, NatureSoundType, AmbientMusicType, AudioRelaxationMetadata } from '../types';
 import { generateAudioScript, generateGeminiTts } from '../lib/geminiApi';
@@ -53,8 +57,13 @@ import {
   playCalmMeditationChime,
   NATURE_SOUND_DEFINITIONS,
   AMBIENT_MUSIC_DEFINITIONS,
-  buildAudioRelaxationMetadata
+  buildAudioRelaxationMetadata,
+  VOICE_CHARACTERS,
+  getVoiceCharacter,
+  previewIndonesianVoiceCharacter,
+  VoiceCharacterProfile
 } from '../lib/audioEngine';
+import { setStoredVoiceName } from '../lib/voiceService';
 
 interface AudioPlayerViewProps {
   onSelectModule?: (module: ModuleType | string) => void;
@@ -163,45 +172,71 @@ const CATEGORIES: AudioCategory[] = [
 ];
 
 const NATURE_OPTIONS: { id: NatureSoundType; name: string; icon: any; desc: string }[] = [
-  { id: 'aliran-sungai', name: 'Aliran Sungai Alami', icon: Droplets, desc: 'Gemericik arus air jernih mengalir konstan' },
-  { id: 'gemericik-air', name: 'Gemericik Air', icon: Droplets, desc: 'Tetesan air sejuk di atas bebatuan' },
-  { id: 'burung-pagi', name: 'Burung Pagi', icon: Bird, desc: 'Kicau burung fajar menyapa udara segar' },
-  { id: 'angin-pepohonan', name: 'Angin di Pepohonan', icon: Wind, desc: 'Semilir hembusan angin mengayun dedaunan' },
-  { id: 'ombak-pantai', name: 'Ombak Pantai', icon: Waves, desc: 'Deburan ombak laut menenangkan ritme napas' },
-  { id: 'hutan-alami', name: 'Hutan Alami', icon: Trees, desc: 'Kanopi hutan tropis rimbun dan teduh' },
-  { id: 'hujan-lembut', name: 'Hujan Lembut', icon: CloudRain, desc: 'Rintik hujan tenang pengantar tidur nyenyak' }
+  { id: 'aliran-sungai', name: 'Aliran Sungai Alami', icon: Droplets, desc: 'Gemericik arus air jernih pegunungan yang konstan' },
+  { id: 'gemericik-air', name: 'Gemericik Air', icon: Droplets, desc: 'Tetesan air sejuk lembut di atas bebatuan' },
+  { id: 'burung-pagi', name: 'Burung Pagi', icon: Bird, desc: 'Kicau burung fajar alami di kejauhan' },
+  { id: 'angin-pepohonan', name: 'Angin di Pepohonan', icon: Wind, desc: 'Semilir hembusan angin lembut mengayun dedaunan' },
+  { id: 'ombak-pantai', name: 'Ombak Pantai', icon: Waves, desc: 'Deburan ombak laut tenang menenangkan napas' },
+  { id: 'hutan-alami', name: 'Hutan Alami', icon: Trees, desc: 'Kanopi hutan tropis rimbun, teduh, dan luas' },
+  { id: 'hujan-lembut', name: 'Hujan Lembut', icon: CloudRain, desc: 'Rintik hujan tenang pengantar istirahat damai' },
+  { id: 'suasana-malam', name: 'Suasana Malam Tenang', icon: Moon, desc: 'Udara malam sejuk dengan jangkrik hening halus' },
+  { id: 'suasana-alam-tenang', name: 'Suasana Alam Tenang', icon: Trees, desc: 'Lanskap alam hening minimalis' },
+  { id: 'fajar-tenang', name: 'Fajar Menenteramkan', icon: Sunrise, desc: 'Kesegaran hembusan fajar dan kicauan burung pagi' }
 ];
 
 const AMBIENT_OPTIONS: { id: AmbientMusicType; name: string; desc: string }[] = [
-  { id: 'piano-lembut', name: 'Piano Lembut Akustik (432Hz)', desc: 'Tuts piano hangat nada pentatonik' },
-  { id: 'pad-sinematik', name: 'Pad Sinematik Mengalun (432Hz)', desc: 'Lapisan pad analog hangat & luas' },
-  { id: 'string-halus', name: 'String Halus Meditatif (528Hz)', desc: 'Gesekan dawai orkestra lembut melarutkan stres' }
+  { id: 'piano-lembut', name: 'Piano Lembut Akustik (432Hz)', desc: 'Tuts piano nada pentatonik hangat & menenteramkan' },
+  { id: 'piano-hangat', name: 'Piano Ambient Hangat (432Hz)', desc: 'Alunan piano bernuansa hangat, luas, dan menenangkan' },
+  { id: 'ambient-minimal', name: 'Musik Ambient Minimalis', desc: 'Resonansi nada ambient halus & sangat hening' },
+  { id: 'pad-sinematik', name: 'Pad Sinematik Mengalun (432Hz)', desc: 'Lapisan pad analog hangat & luas membalut batin' },
+  { id: 'string-halus', name: 'String Halus Meditatif (528Hz)', desc: 'Gesekan dawai orkestra lembut melarutkan ketegangan' }
 ];
 
 const DURATIONS = [1, 3, 5, 10, 15, 20, 30, 45, 60];
 
-const VOICES = [
-  { name: 'Kore', label: 'Kore (Lembut, Tenang & Hangat)', tone: 'Feminin Soft' },
-  { name: 'Zephyr', label: 'Zephyr (Hangat, Bersahabat & Jernih)', tone: 'Masculine Warm' },
-  { name: 'Puck', label: 'Puck (Ramah & Menentramkan Batin)', tone: 'Gentle Friend' },
-  { name: 'Fenrir', label: 'Fenrir (Suara Dalam, Mantap & Grounded)', tone: 'Deep Grounded' },
-  { name: 'Charon', label: 'Charon (Soothing Khusus Pengantar Tidur)', tone: 'Quiet Night' }
-];
+const VOICES = VOICE_CHARACTERS;
 
 const EMOTIONS = ['Cemas', 'Marah', 'Sedih', 'Kecewa', 'Bersalah', 'Lelah', 'Netral'];
 
-const PRESET_LIBRARY = [
+export type AudioPurposeTag = 'semua' | 'latihan-lega' | 'bekerja-belajar' | 'istirahat-meditasi' | 'menjelang-tidur' | 'menenangkan-pikiran';
+
+export interface AudioLibraryTrack {
+  id: string;
+  trackNumber: number;
+  title: string;
+  subtitle: string;
+  category: string;
+  subcategory: string;
+  duration: string;
+  desc: string;
+  purposes: AudioPurposeTag[];
+  purposeLabels: string[];
+  tagline?: string;
+  sampleScript: string;
+  natureTypes: NatureSoundType[];
+  ambientMusic: AmbientMusicType;
+  narrationVolume: number;
+  natureVolume: number;
+  musicVolume: number;
+  metadata: AudioRelaxationMetadata;
+}
+
+const PRESET_LIBRARY: AudioLibraryTrack[] = [
   {
-    id: 'pres-lega-calm-nature',
-    title: '🌿 LEGA CALM NATURE',
+    id: 'track-calm-nature',
+    trackNumber: 0,
+    title: '🌿 LEGA CALM NATURE (Universal)',
+    subtitle: 'Universal Relaxation & Grounding',
     category: 'Universal Relaxation',
     subcategory: 'Kesadaran Diri & Ketenangan Pikiran',
     duration: '15 Menit / Loop Latar',
-    desc: 'Audio relaksasi universal LEGA: Paduan air mengalir lembut, kicau burung natural & jauh, semilir angin pepohonan, serta piano ambient 432Hz yang hangat menenteramkan tanpa suara mengejutkan.',
+    desc: 'Audio relaksasi universal LEGA: Paduan air mengalir lembut, kicau burung natural & jauh, semilir angin pepohonan, serta piano ambient 432Hz hangat menenteramkan tanpa suara mengejutkan.',
+    purposes: ['semua', 'latihan-lega', 'istirahat-meditasi', 'menenangkan-pikiran', 'bekerja-belajar', 'menjelang-tidur'],
+    purposeLabels: ['Latihan LEGA', 'Menenangkan Pikiran', 'Semua Kebutuhan'],
     tagline: 'Temani dirimu berhenti sejenak, hadir saat ini, dan menikmati ketenangan.',
     sampleScript: 'Selamat datang di ruang tenang Anda. Ambil posisi yang nyaman dan biarkan tubuh Anda bersandar dengan rileks. Rasakan aliran udara sejuk masuk saat Anda menarik napas, dan lepaskan seluruh ketegangan saat Anda menghembuskannya perlahan. [Jeda 4 detik] Dengarkan gemericik air yang mengalir lembut... desau angin yang menaungi pepohonan... dan kicau burung di kejauhan. Biarkan alunan piano lembut ini menemani Anda hadir seutuhnya di saat ini. Di sini, Anda aman, tenang, dan utuh.',
-    natureTypes: ['aliran-sungai', 'burung-pagi', 'angin-pepohonan'] as NatureSoundType[],
-    ambientMusic: 'piano-lembut' as AmbientMusicType,
+    natureTypes: ['aliran-sungai', 'burung-pagi', 'angin-pepohonan'],
+    ambientMusic: 'piano-lembut',
     narrationVolume: 85,
     natureVolume: 65,
     musicVolume: 45,
@@ -220,90 +255,243 @@ const PRESET_LIBRARY = [
     )
   },
   {
-    id: 'pres-hutan-pagi',
-    title: '🌊 Hutan Pagi',
+    id: 'track-1-air-sungai',
+    trackNumber: 1,
+    title: '1. LEGA — Ketenangan Air Sungai',
+    subtitle: 'Air Sungai Lembut + Burung Natural + Musik Ambient',
     category: 'LEGA Calm',
-    subcategory: 'Keseimbangan Jiwa & Kesegaran Fajar',
+    subcategory: 'Ketenangan Aliran Air & Fajar',
     duration: '15 Menit',
-    desc: 'Lanskap audio multi-layer fajar yang kaya memadukan aliran sungai jernih, kicau burung pagi, semilir angin pepohonan, serta alunan piano akustik lembut 432Hz.',
-    sampleScript: 'Selamat pagi. Ambil napas panjang yang sejuk dan biarkan dada Anda mengembang dengan tenang. Dengarkan suara aliran air sungai pegunungan yang jernih, kicauan burung fajar di kejauhan, serta semilir angin lembut yang membelai dedaunan rimbun. [Jeda 4 detik] Biarkan alunan piano ini menuntun detak jantung Anda ke ritme alami yang damai. Hari ini adalah awal baru yang penuh ketenangan.',
-    natureTypes: ['aliran-sungai', 'burung-pagi', 'angin-pepohonan'] as NatureSoundType[],
-    ambientMusic: 'piano-lembut' as AmbientMusicType,
+    desc: 'Suara air sungai lembut pegunungan dipadukan dengan kicauan burung natural di kejauhan serta musik ambient menyejukkan.',
+    purposes: ['semua', 'latihan-lega', 'menenangkan-pikiran', 'istirahat-meditasi'],
+    purposeLabels: ['Latihan LEGA', 'Menenangkan Pikiran', 'Istirahat'],
+    sampleScript: 'Dengarkan aliran air sungai yang mengalir jernih dan tenang di hadapan Anda. Seperti arus air yang senantiasa bergerak melepaskan bebannya, izinkan setiap helaan napas Anda melepaskan kepenatan hari ini. [Jeda 4 detik] Burung-burung di kejauhan menyapa dengan lembut. Anda hadir sepenuhnya di sini.',
+    natureTypes: ['aliran-sungai', 'burung-pagi'],
+    ambientMusic: 'piano-lembut',
     narrationVolume: 80,
     natureVolume: 60,
     musicVolume: 40,
     metadata: buildAudioRelaxationMetadata(
-      'Hutan Pagi & Fajar Menenangkan',
-      'burung-pagi',
-      'piano-lembut',
-      {
-        natureSoundTypes: ['aliran-sungai', 'burung-pagi', 'angin-pepohonan'],
-        narrationVolume: 80,
-        natureVolume: 60,
-        musicVolume: 40,
-        fadeInSeconds: 3.5,
-        fadeOutSeconds: 5.0
-      }
-    )
-  },
-  {
-    id: 'pres-1',
-    title: 'Napas Penghening Senja',
-    category: 'LEGA Calm',
-    subcategory: 'Relaksasi Sebelum Tidur',
-    duration: '5 Menit',
-    desc: 'Audio panduan batin dengan aliran sungai alami dan piano lembut untuk mengendurkan otot serta pikiran sebelum tidur.',
-    sampleScript: 'Selamat malam. Ambil posisi yang paling nyaman di tempat tidur Anda. Tarik napas lembut... biarkan seluruh tubuh rileks. [Jeda 3 detik] Hari ini telah selesai, Anda tidak perlu membawa beban hari ini ke dalam tidur Anda.',
-    metadata: buildAudioRelaxationMetadata(
-      'Ketenangan Senja & Relaksasi Tidur',
+      'Ketenangan Air Sungai & Burung Alami',
       'aliran-sungai',
       'piano-lembut',
-      { narrationVolume: 90, natureVolume: 26, musicVolume: 20, fadeInSeconds: 4.5, fadeOutSeconds: 6.0 }
+      { natureSoundTypes: ['aliran-sungai', 'burung-pagi'], narrationVolume: 80, natureVolume: 60, musicVolume: 40 }
     )
   },
   {
-    id: 'pres-2',
-    title: 'Grounding Pelepasan Kecemasan',
-    category: 'LEGA Release',
-    subcategory: 'Pelepasan Cemas',
-    duration: '3 Menit',
-    desc: 'Audio pereda rasa panik dan cemas singkat dengan hembusan angin di pepohonan dan pad sinematik 432Hz.',
-    sampleScript: 'Mari berhenti sejenak. Rasakan pijakan kaki Anda di bumi. Napas Anda aman. Kecemasan ini adalah awan yang lewat di langit batin Anda. Anda bukan kecemasan itu, Anda adalah langitnya.',
-    metadata: buildAudioRelaxationMetadata(
-      'Grounding & Pelepasan Kecemasan Akut',
-      'angin-pepohonan',
-      'pad-sinematik',
-      { narrationVolume: 90, natureVolume: 25, musicVolume: 20, fadeInSeconds: 4.0, fadeOutSeconds: 5.5 }
-    )
-  },
-  {
-    id: 'pres-3',
-    title: 'Mengenal Nilai Hidup & Syukur',
-    category: 'LEGA Reflection',
-    subcategory: 'Syukur',
-    duration: '10 Menit',
-    desc: 'Panduan refleksi mendalam berlatar burung pagi dan dawai string halus untuk mengapresiasi perjalanan hidup.',
-    sampleScript: 'Luangkan waktu untuk menyapa diri sendiri. Tarik napas dalam... Apa satu hal kecil hari ini yang layak Anda beri senyuman terima kasih?',
-    metadata: buildAudioRelaxationMetadata(
-      'Syukur & Keselarasan Nilai Hidup',
-      'burung-pagi',
-      'string-halus',
-      { narrationVolume: 90, natureVolume: 22, musicVolume: 18, fadeInSeconds: 5.0, fadeOutSeconds: 6.5 }
-    )
-  },
-  {
-    id: 'pres-4',
-    title: 'Hujan Pembasuh Kelelahan Batin',
+    id: 'track-2-hujan',
+    trackNumber: 2,
+    title: '2. LEGA — Ketenangan Hujan',
+    subtitle: 'Suara Hujan Lembut + Musik Piano Tenang',
     category: 'LEGA Calm',
-    subcategory: 'Pemulihan Setelah Hari yang Berat',
+    subcategory: 'Pembersihan Pikiran & Relaksasi Tidur',
     duration: '15 Menit',
-    desc: 'Sentuhan rintik hujan lembut dan piano akustik menidurkan kegelisahan dan mengembalikan energi.',
-    sampleScript: 'Dengarkan rintik hujan yang jatuh di luar sana... Setiap tetesnya membasuh kepenatan yang menempel di pundak Anda. Hembuskan napas panjang dan lepaskan.',
+    desc: 'Suara hujan lembut membasahi bumi dipadukan dengan alunan tuts piano akustik yang tenang, hangat, dan menidurkan.',
+    purposes: ['semua', 'menjelang-tidur', 'istirahat-meditasi', 'menenangkan-pikiran'],
+    purposeLabels: ['Menjelang Tidur', 'Istirahat', 'Menenangkan Pikiran'],
+    sampleScript: 'Rintik hujan turun dengan lembut di luar jendela... Setiap tetesnya menyejukkan dan membasuh rasa lelah di kepala serta pundak Anda. [Jeda 4 detik] Dengarkan nada piano yang mengalir perlahan, menuntun tubuh Anda beristirahat dalam kenyamanan seutuhnya.',
+    natureTypes: ['hujan-lembut'],
+    ambientMusic: 'piano-lembut',
+    narrationVolume: 80,
+    natureVolume: 60,
+    musicVolume: 40,
     metadata: buildAudioRelaxationMetadata(
-      'Pemulihan Setelah Hari Berat & Hujan Hening',
+      'Ketenangan Hujan & Piano Menidurkan',
       'hujan-lembut',
       'piano-lembut',
-      { narrationVolume: 90, natureVolume: 28, musicVolume: 18, fadeInSeconds: 4.5, fadeOutSeconds: 7.0 }
+      { natureSoundTypes: ['hujan-lembut'], narrationVolume: 80, natureVolume: 60, musicVolume: 40 }
+    )
+  },
+  {
+    id: 'track-3-hutan',
+    trackNumber: 3,
+    title: '3. LEGA — Ketenangan Hutan',
+    subtitle: 'Suasana Hutan + Angin Pepohonan + Burung Jauh',
+    category: 'LEGA Presence',
+    subcategory: 'Keheningan Kanopi Tropis',
+    duration: '15 Menit',
+    desc: 'Suasana hutan alami yang rimbun dengan semilir angin di pucuk pepohonan, burung di kejauhan, dan dawai string halus meditatif.',
+    purposes: ['semua', 'latihan-lega', 'bekerja-belajar', 'istirahat-meditasi'],
+    purposeLabels: ['Latihan LEGA', 'Fokus Bekerja/Belajar', 'Meditasi'],
+    sampleScript: 'Masuki keteduhan hutan yang luas dan hijau. Tarik napas dalam... rasakan aroma kesegaran daun-daun basah dan semilir angin yang mengayun ranting pohon. [Jeda 4 detik] Anda aman di bawah naungan alam semesta.',
+    natureTypes: ['hutan-alami', 'angin-pepohonan', 'burung-pagi'],
+    ambientMusic: 'string-halus',
+    narrationVolume: 80,
+    natureVolume: 60,
+    musicVolume: 40,
+    metadata: buildAudioRelaxationMetadata(
+      'Ketenangan Hutan & Semilir Angin',
+      'hutan-alami',
+      'string-halus',
+      { natureSoundTypes: ['hutan-alami', 'angin-pepohonan', 'burung-pagi'], narrationVolume: 80, natureVolume: 60, musicVolume: 40 }
+    )
+  },
+  {
+    id: 'track-4-ombak',
+    trackNumber: 4,
+    title: '4. LEGA — Ketenangan Ombak',
+    subtitle: 'Suara Ombak Lembut + Angin Pantai + Musik Ambient',
+    category: 'LEGA Release',
+    subcategory: 'Ritme Napas & Deburan Tenang',
+    duration: '15 Menit',
+    desc: 'Suara deburan ombak laut yang lembut dan berirama teratur, berpadu dengan hembusan angin pantai dan pad sinematik hangat.',
+    purposes: ['semua', 'latihan-lega', 'menenangkan-pikiran', 'istirahat-meditasi'],
+    purposeLabels: ['Latihan LEGA', 'Pelepasan Emosi', 'Ketenangan'],
+    sampleScript: 'Samakan ritme napas Anda dengan deburan ombak di pantai. Tarik napas saat ombak mendekat ke tepian... hembuskan napas saat ombak kembali perlahan ke laut lepas. [Jeda 4 detik] Lepaskan apa pun yang tak lagi perlu Anda genggam.',
+    natureTypes: ['ombak-pantai', 'angin-pepohonan'],
+    ambientMusic: 'pad-sinematik',
+    narrationVolume: 80,
+    natureVolume: 60,
+    musicVolume: 40,
+    metadata: buildAudioRelaxationMetadata(
+      'Ketenangan Ombak & Pad Sinematik',
+      'ombak-pantai',
+      'pad-sinematik',
+      { natureSoundTypes: ['ombak-pantai', 'angin-pepohonan'], narrationVolume: 80, natureVolume: 60, musicVolume: 40 }
+    )
+  },
+  {
+    id: 'track-5-angin',
+    trackNumber: 5,
+    title: '5. LEGA — Semilir Angin',
+    subtitle: 'Angin Lembut + Suara Pepohonan + Musik Ambient',
+    category: 'LEGA Calm',
+    subcategory: 'Kelembutan Angin & Kelegaan Dada',
+    duration: '15 Menit',
+    desc: 'Hembusan angin lembut yang membelai dedaunan rimbun, ditemani pad sinematik hangat frekuensi 432Hz yang menenangkan batin.',
+    purposes: ['semua', 'bekerja-belajar', 'menenangkan-pikiran', 'istirahat-meditasi'],
+    purposeLabels: ['Bekerja & Belajar', 'Menenangkan Pikiran', 'Relaksasi'],
+    sampleScript: 'Rasakan kelembutan angin yang menyentuh kulit Anda. Angin ini hadir tanpa menuntut, hanya mengalir bebas dan menyejukkan. [Jeda 3 detik] Biarkan pikiran Anda menjadi seringan hembusan angin ini.',
+    natureTypes: ['angin-pepohonan'],
+    ambientMusic: 'pad-sinematik',
+    narrationVolume: 80,
+    natureVolume: 60,
+    musicVolume: 40,
+    metadata: buildAudioRelaxationMetadata(
+      'Semilir Angin Pepohonan & Keheningan',
+      'angin-pepohonan',
+      'pad-sinematik',
+      { natureSoundTypes: ['angin-pepohonan'], narrationVolume: 80, natureVolume: 60, musicVolume: 40 }
+    )
+  },
+  {
+    id: 'track-6-gemericik',
+    trackNumber: 6,
+    title: '6. LEGA — Gemericik Air',
+    subtitle: 'Gemericik Air + Musik Ambient Sangat Lembut',
+    category: 'LEGA Presence',
+    subcategory: 'Fokus & Kejernihan Pikiran',
+    duration: '15 Menit',
+    desc: 'Tetesan dan gemericik air sejuk di atas bebatuan alami, dipadukan alunan nada piano ambient yang sangat lembut dan hening.',
+    purposes: ['semua', 'bekerja-belajar', 'latihan-lega', 'menenangkan-pikiran'],
+    purposeLabels: ['Belajar & Kerja', 'Latihan LEGA', 'Kejernihan'],
+    sampleScript: 'Fokuskan perhatian Anda pada suara gemericik air yang jernih. Seperti tetes demi tetes yang menghidupkan kesegaran, setiap momen saat ini adalah peluang untuk kembali jernih dan tenang.',
+    natureTypes: ['gemericik-air'],
+    ambientMusic: 'piano-lembut',
+    narrationVolume: 80,
+    natureVolume: 60,
+    musicVolume: 40,
+    metadata: buildAudioRelaxationMetadata(
+      'Gemericik Air Sejuk & Piano Hening',
+      'gemericik-air',
+      'piano-lembut',
+      { natureSoundTypes: ['gemericik-air'], narrationVolume: 80, natureVolume: 60, musicVolume: 40 }
+    )
+  },
+  {
+    id: 'track-7-alam-tenang',
+    trackNumber: 7,
+    title: '7. LEGA — Suasana Alam Tenang',
+    subtitle: 'Suara Alam Lembut + Musik Ambient Minimal',
+    category: 'LEGA Reflection',
+    subcategory: 'Keheningan Ruang Batin',
+    duration: '15 Menit',
+    desc: 'Lanskap suara alam terbuka yang sejuk dan luas dengan musik ambient minimalis, memberikan ruang lapang bagi pikiran Anda.',
+    purposes: ['semua', 'istirahat-meditasi', 'bekerja-belajar', 'menenangkan-pikiran'],
+    purposeLabels: ['Istirahat & Meditasi', 'Bekerja', 'Refleksi Diri'],
+    sampleScript: 'Berhentilah sejenak dari segala kesibukan. Di ruang alam yang tenang ini, tidak ada yang perlu Anda buktikan, tidak ada yang perlu dikejar. Cukup ada di sini, menikmati keheningan.',
+    natureTypes: ['suasana-alam-tenang'],
+    ambientMusic: 'ambient-minimal',
+    narrationVolume: 80,
+    natureVolume: 60,
+    musicVolume: 40,
+    metadata: buildAudioRelaxationMetadata(
+      'Suasana Alam Tenang & Ambient Minimal',
+      'suasana-alam-tenang',
+      'ambient-minimal',
+      { natureSoundTypes: ['suasana-alam-tenang'], narrationVolume: 80, natureVolume: 60, musicVolume: 40 }
+    )
+  },
+  {
+    id: 'track-8-piano',
+    trackNumber: 8,
+    title: '8. LEGA — Piano Menenangkan',
+    subtitle: 'Piano Ambient Lembut dengan Suasana Hangat',
+    category: 'LEGA Calm',
+    subcategory: 'Harmoni Hangat 432Hz',
+    duration: '15 Menit',
+    desc: 'Komposisi piano ambient bernuansa hangat dan lembut, dirancang untuk merelakskan sistem saraf dan mengendurkan ketegangan mental.',
+    purposes: ['semua', 'menenangkan-pikiran', 'istirahat-meditasi', 'menjelang-tidur', 'bekerja-belajar'],
+    purposeLabels: ['Menenangkan Pikiran', 'Istirahat', 'Menjelang Tidur'],
+    sampleScript: 'Biarkan alunan melodi piano yang hangat ini menyelimuti hati Anda. Rasakan otot-otot wajah, bahu, dan punggung Anda yang perlahan melemas dan rileks seutuhnya.',
+    natureTypes: ['angin-pepohonan'],
+    ambientMusic: 'piano-hangat',
+    narrationVolume: 80,
+    natureVolume: 50,
+    musicVolume: 50,
+    metadata: buildAudioRelaxationMetadata(
+      'Piano Menenangkan & Resonansi Hangat',
+      'angin-pepohonan',
+      'piano-hangat',
+      { natureSoundTypes: ['angin-pepohonan'], narrationVolume: 80, natureVolume: 50, musicVolume: 50 }
+    )
+  },
+  {
+    id: 'track-9-malam',
+    trackNumber: 9,
+    title: '9. LEGA — Suasana Malam Tenang',
+    subtitle: 'Suara Malam Lembut + Jangkrik Halus + Musik Ambient Pelan',
+    category: 'LEGA Calm',
+    subcategory: 'Istirahat Malam & Tidur Nyenyak',
+    duration: '15 Menit',
+    desc: 'Suasana malam yang sunyi dan damai, semilir angin malam dengan desau jangkrik halus dan alunan piano pelan yang menghantarkan tidur lelap.',
+    purposes: ['semua', 'menjelang-tidur', 'istirahat-meditasi', 'menenangkan-pikiran'],
+    purposeLabels: ['Menjelang Tidur', 'Istirahat Malam', 'Ketenangan'],
+    sampleScript: 'Malam telah tiba untuk memeluk istirahat Anda. Tarik napas lembut... lepaskan semua beban hari ini. Biarkan ketenangan malam dan jangkrik halus mengantar Anda menuju tidur yang lelap dan damai.',
+    natureTypes: ['suasana-malam'],
+    ambientMusic: 'piano-hangat',
+    narrationVolume: 80,
+    natureVolume: 60,
+    musicVolume: 40,
+    metadata: buildAudioRelaxationMetadata(
+      'Suasana Malam Tenang & Jangkrik Halus',
+      'suasana-malam',
+      'piano-hangat',
+      { natureSoundTypes: ['suasana-malam'], narrationVolume: 80, natureVolume: 60, musicVolume: 40 }
+    )
+  },
+  {
+    id: 'track-10-fajar',
+    trackNumber: 10,
+    title: '10. LEGA — Fajar Menenteramkan',
+    subtitle: 'Suara Fajar + Burung Pagi + Musik Ambient Hangat',
+    category: 'LEGA Growth',
+    subcategory: 'Kesegaran Fajar & Semangat Baru',
+    duration: '15 Menit',
+    desc: 'Kesejukan udara fajar yang menyejukkan batin, kicauan burung pagi menyambut hari, dipadukan alunan musik piano ambient hangat yang membangkitkan rasa syukur.',
+    purposes: ['semua', 'latihan-lega', 'bekerja-belajar', 'menenangkan-pikiran', 'istirahat-meditasi'],
+    purposeLabels: ['Latihan LEGA', 'Memulai Hari', 'Bekerja & Belajar'],
+    sampleScript: 'Selamat menyambut fajar yang damai. Udara fajar ini murni dan penuh harapan baru. Tarik napas dalam... serap energi positif dan biarkan hari ini Anda jalani dengan kebaikan serta ketenangan.',
+    natureTypes: ['fajar-tenang', 'burung-pagi'],
+    ambientMusic: 'piano-hangat',
+    narrationVolume: 80,
+    natureVolume: 60,
+    musicVolume: 40,
+    metadata: buildAudioRelaxationMetadata(
+      'Fajar Menenteramkan & Kicau Burung Pagi',
+      'fajar-tenang',
+      'piano-hangat',
+      { natureSoundTypes: ['fajar-tenang', 'burung-pagi'], narrationVolume: 80, natureVolume: 60, musicVolume: 40 }
     )
   }
 ];

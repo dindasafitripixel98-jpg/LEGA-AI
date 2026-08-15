@@ -4,6 +4,7 @@ export type ModuleType =
   | 'self-discovery'
   | 'ai-coach'
   | 'emotion-analysis'
+  | 'pattern-awareness'
   | 'mindfulness'
   | 'gratitude'
   | 'forgiveness'
@@ -165,12 +166,17 @@ export type NatureSoundType =
   | 'angin-pepohonan'
   | 'ombak-pantai'
   | 'hutan-alami'
-  | 'hujan-lembut';
+  | 'hujan-lembut'
+  | 'suasana-malam'
+  | 'suasana-alam-tenang'
+  | 'fajar-tenang';
 
 export type AmbientMusicType =
   | 'piano-lembut'
   | 'pad-sinematik'
-  | 'string-halus';
+  | 'string-halus'
+  | 'piano-hangat'
+  | 'ambient-minimal';
 
 export interface AudioRelaxationMetadata {
   atmosphereTheme: string; // Tema suasana (e.g. "Ketenangan Senja")
@@ -225,3 +231,66 @@ export interface UserProfile {
   totalReflections: number;
   registeredDate: string;
 }
+
+export interface PatternAwarenessData {
+  event: string;
+  impactfulPart?: string;
+  factVsInterpretation?: string;
+  thought: string;
+  selfTalk?: string;
+  emotions: string[];
+  bodySensations: string[];
+  bodyLocation?: string;
+  impulses: string[];
+  response: string;
+  consequences: string;
+  hasSimilarPast: 'ya' | 'tidak' | 'mungkin';
+  pastSimilarExperience?: string;
+  underlyingNeeds?: {
+    expected?: string;
+    needed?: string;
+    feared?: string;
+    protecting?: string;
+    seeking?: string;
+    avoiding?: string;
+  };
+  learning?: string;
+  newResponseChoices: string[];
+  presentMomentNotes?: string;
+}
+
+export interface PatternAnalysisResult {
+  summary: string;
+  cycleOverview: {
+    eventFact: string;
+    coreThought: string;
+    identifiedEmotions: string[];
+    somaticExperience: string;
+    feltImpulse: string;
+    actualResponse: string;
+    resultingImpact: string;
+  };
+  patternRecognition: {
+    similarityInsight: string;
+    recurringTendency: string;
+    protectiveIntent: string;
+  };
+  deeperNeedsAnalysis: {
+    coreNeed: string;
+    whatIsProtected: string;
+    fearsOrLoss: string;
+  };
+  learningSummary: string;
+  consciousResponseChoices: {
+    title: string;
+    description: string;
+    practicalAction: string;
+  }[];
+  groundingGuidance: string;
+  recommendedNextModule?: {
+    moduleName: string;
+    reason: string;
+    targetModuleKey: ModuleType;
+  };
+}
+
