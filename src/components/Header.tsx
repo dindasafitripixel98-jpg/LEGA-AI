@@ -1,7 +1,8 @@
 import React from 'react';
-import { Menu, PhoneCall, Sparkles, Flame, User, Smartphone, Wifi, WifiOff } from 'lucide-react';
+import { Menu, PhoneCall, Sparkles, Flame, User, Smartphone, Wifi, WifiOff, Clock, Key } from 'lucide-react';
 import { ModuleType, UserProfile } from '../types';
 import { usePwa } from '../lib/pwaManager';
+import { useDemoAuth } from '../lib/demoAuthManager';
 
 interface HeaderProps {
   currentModule: ModuleType;
@@ -10,6 +11,8 @@ interface HeaderProps {
   onOpenCrisis: () => void;
   onSelectModule: (module: ModuleType) => void;
   onOpenPwaModal?: () => void;
+  demoState?: ReturnType<typeof useDemoAuth>;
+  onOpenDemoModal?: () => void;
 }
 
 const MODULE_TITLES: Record<ModuleType, { title: string; subtitle: string }> = {
@@ -53,6 +56,8 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenCrisis,
   onSelectModule,
   onOpenPwaModal,
+  demoState,
+  onOpenDemoModal,
 }) => {
   const { isOnline, isInstalled } = usePwa();
 
@@ -82,6 +87,28 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       <div className="flex items-center gap-2">
+        {/* 24-Hour Demo Account Quick Status / Trigger Button */}
+        {onOpenDemoModal && (
+          <button
+            onClick={onOpenDemoModal}
+            className={`px-2.5 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition active:scale-95 shadow-sm ${
+              demoState?.isDemoActive
+                ? 'bg-emerald-950/80 border-emerald-600/70 text-emerald-300 hover:bg-emerald-900'
+                : 'bg-stone-800 hover:bg-stone-700 border-amber-500/40 text-amber-300'
+            }`}
+            title="Kelola Akun Demo 24 Jam"
+          >
+            <Clock className={`w-3.5 h-3.5 ${demoState?.isDemoActive ? 'animate-pulse text-emerald-400' : 'text-amber-400'}`} />
+            {demoState?.isDemoActive ? (
+              <span className="font-mono tracking-wider text-[11px] font-bold">
+                {demoState.timeRemaining.formatted}
+              </span>
+            ) : (
+              <span className="text-[11px] font-medium hidden sm:inline">Demo 24 Jam</span>
+            )}
+          </button>
+        )}
+
         {/* PWA / Offline Status Indicator */}
         {onOpenPwaModal && (
           <button
