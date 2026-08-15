@@ -3947,27 +3947,135 @@ function resolveLegaVoiceConfig(rawName?: string) {
   if (!rawName) return LEGA_VOICE_CONFIGS['suara-tenang'];
   const q = rawName.toLowerCase().trim();
 
-  if (q.includes('tenang') || q.includes('kore') || q === '1' || q === 'suara-tenang') {
+  // Voice 1: Kore (Suara Tenang / Laras / Feminin Damai)
+  if (q.includes('tenang') || q.includes('kore') || q.includes('laras') || q === '1' || q === 'suara-tenang') {
     return LEGA_VOICE_CONFIGS['suara-tenang'];
   }
-  if (q.includes('hangat') || q.includes('puck') || q === '2' || q === 'suara-hangat') {
+  // Voice 2: Puck (Suara Hangat / Bayu / Bersahabat)
+  if (q.includes('hangat') || q.includes('puck') || q.includes('bayu') || q === '2' || q === 'suara-hangat') {
     return LEGA_VOICE_CONFIGS['suara-hangat'];
   }
-  if (q.includes('lembut') || q.includes('aoede') || q === '3' || q === 'suara-lembut') {
+  // Voice 3: Aoede (Suara Lembut / Sinta / Welas Asih)
+  if (q.includes('lembut') || q.includes('aoede') || q.includes('sinta') || q === '3' || q === 'suara-lembut') {
     return LEGA_VOICE_CONFIGS['suara-lembut'];
   }
-  if (q.includes('natural') || q.includes('zephyr') || q === '4' || q === 'suara-natural') {
+  // Voice 4: Zephyr (Suara Natural / Damai / Maskulin Santai)
+  if (q.includes('natural') || q.includes('zephyr') || q.includes('damai') || q === '4' || q === 'suara-natural') {
     return LEGA_VOICE_CONFIGS['suara-natural'];
   }
+  // Voice 5: Leda (Suara Jernih / Fokus & Segar)
   if (q.includes('jernih') || q.includes('leda') || q.includes('calliope') || q === '5' || q === 'suara-jernih') {
     return LEGA_VOICE_CONFIGS['suara-jernih'];
   }
-  if (q.includes('dalam') || q.includes('fenrir') || q.includes('charon') || q.includes('orus') || q === '6' || q === 'suara-dalam') {
+  // Voice 6: Fenrir (Suara Dalam / Arga / Bariton Berjangkar)
+  if (q.includes('dalam') || q.includes('fenrir') || q.includes('charon') || q.includes('orus') || q.includes('arga') || q === '6' || q === 'suara-dalam') {
     return LEGA_VOICE_CONFIGS['suara-dalam'];
   }
 
   return LEGA_VOICE_CONFIGS['suara-tenang'];
 }
+
+// 9b. Voice Samples Batch Endpoint (Pre-caches all 6 voices for zero-latency audio preview on iOS, Android & PC)
+const VOICE_SAMPLE_PHRASES: Record<string, { id: string; name: string; samplePhrase: string }> = {
+  'suara-tenang': {
+    id: 'suara-tenang',
+    name: 'Suara Tenang',
+    samplePhrase: 'Selamat datang di ruang tenang LEGA. Tarik napas lembut... izinkan tubuh dan pikiran Anda beristirahat dalam kedamaian.'
+  },
+  'suara-hangat': {
+    id: 'suara-hangat',
+    name: 'Suara Hangat',
+    samplePhrase: 'Mari berhenti sejenak. Sadari apa yang sedang Anda rasakan saat ini dengan jujur, hangat, dan lapang dada.'
+  },
+  'suara-lembut': {
+    id: 'suara-lembut',
+    name: 'Suara Lembut',
+    samplePhrase: 'Tarik napas perlahan... rasakan kelembutan udara yang mengalir, izinkan seluruh ketegangan batin Anda melunak.'
+  },
+  'suara-natural': {
+    id: 'suara-natural',
+    name: 'Suara Natural',
+    samplePhrase: 'Dengarkan suara alami di sekitar Anda. Anda tidak perlu terburu-buru, hadir seutuhnya di momen saat ini.'
+  },
+  'suara-jernih': {
+    id: 'suara-jernih',
+    name: 'Suara Jernih',
+    samplePhrase: 'Perhatikan setiap kejernihan pikiran Anda. Setiap tarikan napas membawa kesegaran baru bagi tubuh dan pikiran Anda.'
+  },
+  'suara-dalam': {
+    id: 'suara-dalam',
+    name: 'Suara Dalam',
+    samplePhrase: 'Rasakan pijakan Anda yang kokoh dan berjangkar kuat. Napas Anda aman. Saat ini Anda berada dalam ruang perlindungan yang tenang.'
+  }
+};
+
+app.get('/api/gemini/voice-samples', async (req, res) => {
+  try {
+    const ai = getGeminiClient();
+    const samples: Record<string, { audioDataUrl: string; voiceName: string; geminiVoice: string }> = {};
+
+    await Promise.all(
+      Object.entries(LEGA_VOICE_CONFIGS).map(async ([key, cfg]) => {
+        const phraseData = VOICE_SAMPLE_PHRASES[key];
+        const sampleText = phraseData?.samplePhrase || 'Selamat datang di ruang tenang LEGA.';
+        const cacheKey = `${cfg.geminiVoice}:${sampleText}`;
+
+        if (ttsServerCache.has(cacheKey)) {
+          const cached = ttsServerCache.get(cacheKey)!;
+          samples[key] = {
+            audioDataUrl: cached.audioDataUrl,
+            voiceName: cfg.voiceLabel,
+            geminiVoice: cfg.geminiVoice
+          };
+          return;
+        }
+
+        try {
+          const response = await ai.models.generateContent({
+            model: 'gemini-3.1-flash-tts-preview',
+            contents: [{ parts: [{ text: `${cfg.stylePrompt} ${sampleText}` }] }],
+            config: {
+              responseModalities: [Modality.AUDIO],
+              speechConfig: {
+                voiceConfig: {
+                  prebuiltVoiceConfig: { voiceName: cfg.geminiVoice },
+                },
+              },
+            },
+          });
+
+          const rawBase64 = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+          if (rawBase64) {
+            const pcmBuffer = Buffer.from(rawBase64, 'base64');
+            const wavBuffer = pcmToWavBuffer(pcmBuffer, 24000, 1, 16);
+            const wavBase64 = wavBuffer.toString('base64');
+            const audioDataUrl = `data:audio/wav;base64,${wavBase64}`;
+
+            const resultObj = {
+              audioBase64: wavBase64,
+              audioDataUrl: audioDataUrl,
+              voiceName: cfg.voiceLabel,
+              geminiVoice: cfg.geminiVoice
+            };
+
+            ttsServerCache.set(cacheKey, resultObj);
+            samples[key] = {
+              audioDataUrl: audioDataUrl,
+              voiceName: cfg.voiceLabel,
+              geminiVoice: cfg.geminiVoice
+            };
+          }
+        } catch (err: any) {
+          console.warn(`Failed sample generation for ${key}:`, err?.message || err);
+        }
+      })
+    );
+
+    res.json({ success: true, samples });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error?.message || 'Gagal memuat sampel audio.' });
+  }
+});
 
 app.post('/api/gemini/tts', async (req, res) => {
   try {

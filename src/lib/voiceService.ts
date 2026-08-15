@@ -1,8 +1,8 @@
 // LEGA Universal Voice Engine - Seamless Gemini TTS & Offline Speech Synthesis
 // SHAQILA DIGITAL 99 - LEGA AI Voice System
 
-import { generateGeminiTts } from './geminiApi';
-import { pcmToWavBlobUrl, speakIndonesianNarration, stopIndonesianNarration } from './audioEngine';
+import { generateGeminiTts, fetchVoiceSamples } from './geminiApi';
+import { pcmToWavBlobUrl, speakIndonesianNarration, stopIndonesianNarration, getVoiceCharacter } from './audioEngine';
 
 export interface VoiceOptions {
   title?: string;
@@ -83,6 +83,37 @@ export function setStoredVoiceName(name: string) {
 }
 
 /**
+ * Pre-warms the 6 voice character samples on client startup for 0ms latency audio preview
+ */
+let isPrewarmed = false;
+export async function initializeVoiceEngine(): Promise<void> {
+  if (isPrewarmed || typeof window === 'undefined') return;
+  isPrewarmed = true;
+
+  try {
+    const sampleBatch = await fetchVoiceSamples();
+    if (sampleBatch) {
+      for (const [key, data] of Object.entries(sampleBatch)) {
+        if (data.audioDataUrl) {
+          audioCache.set(`sample:${key}`, data.audioDataUrl);
+          audioCache.set(`sample:${data.voiceName}`, data.audioDataUrl);
+          audioCache.set(`sample:${data.geminiVoice}`, data.audioDataUrl);
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('Voice engine auto-warm notice:', err);
+  }
+}
+
+// Automatically trigger voice sample warming
+if (typeof window !== 'undefined') {
+  setTimeout(() => {
+    initializeVoiceEngine().catch(() => {});
+  }, 100);
+}
+
+/**
  * Previews a specific voice character with its sample phrase using Gemini Neural TTS audio.
  * Works seamlessly on iOS, Android, Tablets, PC, Mac, Windows across all browsers.
  */
@@ -101,12 +132,15 @@ export async function previewVoiceCharacterAudio(
   }
   stopVoiceNarration();
 
-  const { getVoiceCharacter } = await import('./audioEngine');
   const profile = getVoiceCharacter(voiceName);
   const samplePhrase = profile.samplePhrase;
   const trackId = `preview:${profile.geminiVoice}:${samplePhrase}`;
 
-  let audioUrl = audioCache.get(trackId);
+  let audioUrl = 
+    audioCache.get(`sample:${profile.id}`) ||
+    audioCache.get(`sample:${profile.name}`) ||
+    audioCache.get(`sample:${profile.geminiVoice}`) ||
+    audioCache.get(trackId);
 
   if (!audioUrl) {
     try {
@@ -117,6 +151,8 @@ export async function previewVoiceCharacterAudio(
           audioUrl = pcmToWavBlobUrl(audioUrl, 24000);
         }
         if (audioUrl) {
+          audioCache.set(`sample:${profile.id}`, audioUrl);
+          audioCache.set(`sample:${profile.name}`, audioUrl);
           audioCache.set(trackId, audioUrl);
         }
       }
@@ -139,17 +175,9 @@ export async function previewVoiceCharacterAudio(
         if (onEnd) onEnd();
       };
       audio.onerror = (e) => {
-        console.warn('Preview Audio error, fallback to web speech:', e);
+        console.warn('Preview Audio error:', e);
         previewAudioInstance = null;
-        // Fallback to speech synthesis
-        speakIndonesianNarration(samplePhrase, {
-          voiceCharacter: profile.name,
-          pitch: profile.pitch,
-          rate: profile.rate,
-          onStart,
-          onEnd,
-          onError
-        });
+        if (onError) onError(e);
       };
 
       await audio.play();

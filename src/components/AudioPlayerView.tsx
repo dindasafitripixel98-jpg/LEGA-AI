@@ -708,6 +708,20 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
     }
   };
 
+  // Handle Voice Character Selection
+  const handleVoiceSelect = async (vName: string) => {
+    stopVoicePreview();
+    setVoiceName(vName);
+    setStoredVoiceName(vName);
+    setAudioUrl(null); // Invalidate old voice audio URL
+
+    if (isPlaying) {
+      if (voiceAudioRef.current) voiceAudioRef.current.pause();
+      stopIndonesianNarration();
+      await startPlaybackForMode(playbackSource, undefined, null, vName);
+    }
+  };
+
   // Preview Indonesian Voice Character Sample (iOS, Android, Tablet, PC ready)
   const handlePreviewVoice = (vName: string) => {
     if (previewingVoiceName === vName) {
@@ -720,6 +734,7 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
     setPreviewingVoiceName(vName);
     setVoiceName(vName);
     setStoredVoiceName(vName);
+    setAudioUrl(null);
 
     previewVoiceCharacterAudio(
       vName,
@@ -1752,10 +1767,7 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
                   <div
                     key={v.id || v.name}
                     id={`voice-option-${v.id || index}`}
-                    onClick={() => {
-                      setVoiceName(v.name);
-                      setStoredVoiceName(v.name);
-                    }}
+                    onClick={() => handleVoiceSelect(v.name)}
                     className={`p-3 rounded-2xl border cursor-pointer transition-all flex flex-col justify-between gap-2.5 relative ${
                       isSelected
                         ? 'bg-gradient-to-br from-sky-950/90 via-stone-900 to-indigo-950/80 border-sky-500 ring-1 ring-sky-500 shadow-md shadow-sky-950/50 scale-[1.01]'
@@ -1789,9 +1801,9 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
                     <div className="flex items-center justify-between pt-1.5 border-t border-stone-800/60 gap-1.5">
                       <button
                         type="button"
-                        onClick={() => {
-                          setVoiceName(v.name);
-                          setStoredVoiceName(v.name);
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleVoiceSelect(v.name);
                         }}
                         className={`flex-1 py-1 px-2 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1 ${
                           isSelected

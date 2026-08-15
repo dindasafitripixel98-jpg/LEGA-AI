@@ -1555,6 +1555,19 @@ export async function generateGeminiTts(text: string, voiceName: string = 'Kore'
   }
 }
 
+export async function fetchVoiceSamples(): Promise<Record<string, { audioDataUrl: string; voiceName: string; geminiVoice: string }> | null> {
+  try {
+    const res = await fetch('/api/gemini/voice-samples');
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data.success || !data.samples) return null;
+    return data.samples;
+  } catch (err: any) {
+    console.warn('fetchVoiceSamples notice:', err);
+    return null;
+  }
+}
+
 export const generateVoiceAudio = generateGeminiTts;
 
 
