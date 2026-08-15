@@ -72,17 +72,37 @@ export const NATURE_SOUND_DEFINITIONS: Record<NatureSoundType, {
     description: 'Arus sungai pegunungan alami yang jernih, mengalir konstan, dan stabil membawa keheningan.',
     icon: '🌊',
     recommendedTheme: 'Pelepasan Beban Pikiran & Ketenangan Mengalir',
-    defaultNatureVolume: 0.32,
+    defaultNatureVolume: 0.34,
     defaultMusicVolume: 0.12,
     defaultAmbient: 'piano-lembut',
     loopRecommendation: 'Seamless Organic Flow Loop (30 Detik)'
+  },
+  'gemericik-air': {
+    name: 'Gemericik Air',
+    description: 'Tetesan dan percikan air sejuk lembut di atas bebatuan alami yang menyegarkan batin dan menjernihkan pikiran.',
+    icon: '💧',
+    recommendedTheme: 'Kehadiran Momen Ini & Kejernihan Jiwa',
+    defaultNatureVolume: 0.30,
+    defaultMusicVolume: 0.12,
+    defaultAmbient: 'piano-lembut',
+    loopRecommendation: 'Granular Ripple Loop (25 Detik)'
+  },
+  'air-terjun-lembut': {
+    name: 'Air Terjun Menyejukkan',
+    description: 'Gemuruh air terjun alami yang lembut dan sejuk di sela bebatuan, membasuh rasa lelah dan menyegarkan jiwa.',
+    icon: '🌊',
+    recommendedTheme: 'Pembersihan Mental & Kesegaran Jiwa',
+    defaultNatureVolume: 0.34,
+    defaultMusicVolume: 0.10,
+    defaultAmbient: 'pad-sinematik',
+    loopRecommendation: 'Cascading Water Flow Loop (30 Detik)'
   },
   'hujan-lembut': {
     name: 'Hujan Ringan',
     description: 'Rintik hujan lembut dan sejuk di atas dedaunan yang membasuh kecemasan dan mengantar istirahat damai.',
     icon: '🌧️',
     recommendedTheme: 'Kenyamanan Emosional & Pengantar Tidur Nyenyak',
-    defaultNatureVolume: 0.30,
+    defaultNatureVolume: 0.32,
     defaultMusicVolume: 0.12,
     defaultAmbient: 'piano-lembut',
     loopRecommendation: 'Continuous Gentle Rain Loop (30 Detik)'
@@ -94,7 +114,7 @@ export const NATURE_SOUND_DEFINITIONS: Record<NatureSoundType, {
     recommendedTheme: 'Pelepasan Ketegangan Fisik & Pengheningan Somatis',
     defaultNatureVolume: 0.32,
     defaultMusicVolume: 0.12,
-    defaultAmbient: 'pad-sinematik',
+    defaultAmbient: 'petikan-gitar',
     loopRecommendation: 'Atmospheric Breeze Cycle (30 Detik)'
   },
   'burung-pagi': {
@@ -117,24 +137,14 @@ export const NATURE_SOUND_DEFINITIONS: Record<NatureSoundType, {
     defaultAmbient: 'pad-sinematik',
     loopRecommendation: 'Tidal Wave Dynamic Loop (24 Detik)'
   },
-  'gemericik-air': {
-    name: 'Gemericik Air',
-    description: 'Tetesan dan percikan air sejuk lembut di atas bebatuan alami yang menyegarkan batin dan menjernihkan pikiran.',
-    icon: '💧',
-    recommendedTheme: 'Kehadiran Momen Ini & Kejernihan Jiwa',
-    defaultNatureVolume: 0.30,
-    defaultMusicVolume: 0.12,
-    defaultAmbient: 'piano-lembut',
-    loopRecommendation: 'Granular Ripple Loop (25 Detik)'
-  },
   'hutan-alami': {
     name: 'Suasana Hutan yang Nyaman',
     description: 'Suasana kanopi hutan alami yang damai, hangat, teduh, dan menaungi jiwa dengan keheningan alam.',
     icon: '🌲',
     recommendedTheme: 'Grounding Batin & Rasa Terhubung dengan Alam',
     defaultNatureVolume: 0.32,
-    defaultMusicVolume: 0.14,
-    defaultAmbient: 'string-halus',
+    defaultMusicVolume: 0.12,
+    defaultAmbient: 'akustik-hangat',
     loopRecommendation: 'Deep Sanctuary Rainforest Loop (40 Detik)'
   },
   'suasana-alam-tenang': {
@@ -143,7 +153,7 @@ export const NATURE_SOUND_DEFINITIONS: Record<NatureSoundType, {
     icon: '🌿',
     recommendedTheme: 'Fokus Bekerja, Belajar & Meditasi Ruang Terbuka',
     defaultNatureVolume: 0.30,
-    defaultMusicVolume: 0.12,
+    defaultMusicVolume: 0.10,
     defaultAmbient: 'ambient-minimal',
     loopRecommendation: 'Open Horizon Zen Loop (30 Detik)'
   },
@@ -153,8 +163,8 @@ export const NATURE_SOUND_DEFINITIONS: Record<NatureSoundType, {
     icon: '🌙',
     recommendedTheme: 'Relaksasi Menjelang Tidur & Pengheningan Malam',
     defaultNatureVolume: 0.28,
-    defaultMusicVolume: 0.12,
-    defaultAmbient: 'piano-hangat',
+    defaultMusicVolume: 0.10,
+    defaultAmbient: 'lullaby-malam',
     loopRecommendation: 'Nocturnal Calm Cycle (30 Detik)'
   },
   'fajar-tenang': {
@@ -173,41 +183,86 @@ export const AMBIENT_MUSIC_DEFINITIONS: Record<AmbientMusicType, {
   name: string;
   description: string;
   character: string;
+  recommendedFor: string;
 }> = {
   'piano-lembut': {
-    name: 'Piano Ambient Ringan & Hangat (432Hz)',
-    description: 'Sentuhan tuts piano akustik sederhana bernada pentatonik cerah dan hangat yang menjadi latar tipis menenangkan.',
-    character: 'Ringan, Hangat, Cerah, Sederhana & Stabil'
+    name: 'Piano Akustik Lembut (432Hz)',
+    description: 'Sentuhan tuts piano akustik sederhana bernada pentatonik cerah, lembut, dan stabil sebagai latar tipis.',
+    character: 'Ringan, Hangat, Cerah, Sederhana & Stabil',
+    recommendedFor: 'Universal Calm, Hadir Saat Ini, Kesegaran Jiwa'
   },
-  'piano-hangat': {
-    name: 'Piano Teduh Hangat (432Hz)',
-    description: 'Progresi harmoni piano solfeggio lembut dengan suasana teduh, stabil, dan tidak mendominasi suara alam.',
-    character: 'Hangat, Sederhana, Teduh & Menenteramkan'
+  'petikan-gitar': {
+    name: 'Petikan Gitar Akustik Ringan & Stabil (432Hz)',
+    description: 'Petikan dawai gitar akustik berirama perlahan, mantap, dan teratur yang menenangkan tanpa ramai.',
+    character: 'Stabil, Bersahaja, Lembut, Tidak Ramai & Grounded',
+    recommendedFor: 'LEGA — MARAH & Pelepasan Emosi Tertahan'
+  },
+  'akustik-hangat': {
+    name: 'Instrumen Akustik Lembut & Mengayomi',
+    description: 'Harmoni instrumen akustik bernada hangat dan merangkul, memberi ruang aman tanpa membebani suasana.',
+    character: 'Hangat, Merangkul, Aman, Welas Asih & Menyejukkan',
+    recommendedFor: 'LEGA — SEDIH & LEGA — TAKUT'
+  },
+  'harp-kalimba': {
+    name: 'Kalimba & Harpa Lembut Menenangkan',
+    description: 'Petikan kalimba dan harpa yang mengalir stabil, ringan, dan menenangkan tanpa lonjakan suara mendadak.',
+    character: 'Stabil, Ringan, Menenangkan, Halus & Konsisten',
+    recommendedFor: 'LEGA — CEMAS & Meredakan Ketegangan Syaraf'
+  },
+  'gitar-reflektif': {
+    name: 'Petikan Gitar Reflektif & Rhodes Hangat',
+    description: 'Petikan gitar reflektif yang lembut dan hangat, menemani proses penerimaan dan pelepasan ekspektasi.',
+    character: 'Reflektif, Lembut, Hangat & Menerima',
+    recommendedFor: 'LEGA — KECEWA & Refleksi Batin'
+  },
+  'ambient-minimal': {
+    name: 'Musik Minimalis Hening (Suara Alam Dominan)',
+    description: 'Dengung nada hening minimalis tanpa melodi rumit agar tidak membuat pikiran ramai, membiarkan suara alam menjadi dominan.',
+    character: 'Sederhana, Stabil, Minimalis, Hening & Alami',
+    recommendedFor: 'LEGA — OVERTHINKING & LEGA — PRESENCE'
+  },
+  'tibetan-bowl-deep': {
+    name: 'Resonansi Tibetan Bowl & Pad Somatis',
+    description: 'Resonansi mangkuk Tibet bernada 528Hz dan pad somatis beritme pernapasan lambat yang menuntun pengamatan tubuh.',
+    character: 'Perlahan, Stabil, Berjangkar & Menyelaraskan Tubuh',
+    recommendedFor: 'LEGA — BODY AWARENESS (Kesadaran Tubuh)'
   },
   'pad-sinematik': {
     name: 'Pad Ambient Mengalun Lembut (432Hz)',
     description: 'Lapisan pad analog hangat mengambang tipis di latar belakang memberi rasa aman dan ruang batin lapang.',
-    character: 'Ringan, Melayang Tipis, Hangat & Nyaman'
+    character: 'Ringan, Melayang Tipis, Hangat & Nyaman',
+    recommendedFor: 'LEGA — RELEASE & Penyelarasan Napas'
   },
   'string-halus': {
     name: 'String Akustik Halus & Damai (528Hz)',
     description: 'Gesekan dawai senar orkestra sangat lembut dengan resonansi panjang yang meredakan beban batin.',
-    character: 'Lembut, Stabil, Damai & Tidak Mencolok'
+    character: 'Lembut, Stabil, Damai & Tidak Mencolok',
+    recommendedFor: 'Memaafkan, Syukur & Inner Child'
   },
-  'ambient-minimal': {
-    name: 'Musik Ambient Minimalis Hening',
-    description: 'Dengung nada hening minimalis tanpa melodi rumit untuk membiarkan suara alam dan narasi tetap menjadi pusat perhatian.',
-    character: 'Minimalis, Hening, Ringan, Jernih & Menyejukkan'
+  'piano-hangat': {
+    name: 'Piano Teduh Hangat (432Hz)',
+    description: 'Progresi harmoni piano solfeggio lembut dengan suasana teduh, stabil, dan tidak mendominasi suara alam.',
+    character: 'Hangat, Sederhana, Teduh & Menenteramkan',
+    recommendedFor: 'Refleksi Diri & Istirahat Berkualitas'
+  },
+  'lullaby-malam': {
+    name: 'Musik Tidur Hening & Sangat Perlahan (432Hz Delta)',
+    description: 'Harmoni tidur hening dengan tempo sangat lambat dan nada-nada lembut yang menghantarkan tubuh dan pikiran menuju tidur lelap.',
+    character: 'Sangat Lembut, Stabil, Perlahan & Menidurkan',
+    recommendedFor: 'LEGA — TIDUR (Pengantar Tidur Nyenyak)'
   }
 };
 
 /**
- * Indonesian Vocal Character Profiles
+ * Indonesian Vocal Character Profiles (6 Pilihan Suara Resmi LEGA)
  */
 export interface VoiceCharacterProfile {
-  name: string; // Internal key (e.g. Kore, Zephyr, Puck, Fenrir, Charon, Aoede)
+  id: string;
+  name: string; // 'Suara Tenang', 'Suara Hangat', etc.
+  geminiVoice: string; // 'Kore', 'Puck', 'Aoede', 'Zephyr', 'Leda', 'Fenrir'
   indonesianName: string;
   label: string;
+  badge: string;
   gender: 'female' | 'male';
   tone: string;
   pitch: number;
@@ -218,70 +273,88 @@ export interface VoiceCharacterProfile {
 
 export const VOICE_CHARACTERS: VoiceCharacterProfile[] = [
   {
-    name: 'Kore',
-    indonesianName: 'Laras (Feminin Lembut)',
-    label: 'Kore — Laras (Lembut, Tenang & Hangat)',
+    id: 'suara-tenang',
+    name: 'Suara Tenang',
+    geminiVoice: 'Kore',
+    indonesianName: 'Suara Tenang',
+    label: 'Suara Tenang (Damai & Lembut)',
+    badge: 'Damai & Teduh',
     gender: 'female',
     tone: 'Feminin Lembut & Mengayomi',
-    pitch: 1.05,
-    rate: 0.80,
-    description: 'Artikulasi lembut menyejukkan batin, cocok untuk meditasi, kesadaran diri, dan refleksi mendalam.',
-    samplePhrase: 'Selamat datang. Ambil napas lembut... izinkan tubuh dan pikiran Anda beristirahat dalam ketenangan.'
-  },
-  {
-    name: 'Zephyr',
-    indonesianName: 'Bayu (Maskulin Hangat)',
-    label: 'Zephyr — Bayu (Hangat, Bersahabat & Jernih)',
-    gender: 'male',
-    tone: 'Maskulin Hangat & Bersahabat',
-    pitch: 0.88,
-    rate: 0.84,
-    description: 'Vokal maskulin yang bersahabat dan tenang, seperti sahabat setia yang mendengarkan tanpa menghakimi.',
-    samplePhrase: 'Mari berhenti sejenak. Sadari apa yang sedang Anda rasakan saat ini dengan jujur dan lapang dada.'
-  },
-  {
-    name: 'Puck',
-    indonesianName: 'Damai (Ramah & Santai)',
-    label: 'Puck — Damai (Ramah, Rileks & Mengalir)',
-    gender: 'female',
-    tone: 'Ramah, Mengalir & Meringankan',
-    pitch: 1.12,
-    rate: 0.85,
-    description: 'Nada ramah dan santai yang membantu melepaskan overthinking dan meredakan ketegangan harian.',
-    samplePhrase: 'Tarik napas sejenak. Anda tidak perlu menyelesaikan semuanya sekaligus saat ini. Hadirlah di sini.'
-  },
-  {
-    name: 'Fenrir',
-    indonesianName: 'Arga (Grounded & Dalam)',
-    label: 'Fenrir — Arga (Suara Dalam, Mantap & Grounded)',
-    gender: 'male',
-    tone: 'Maskulin Dalam & Berjangkar',
-    pitch: 0.72,
-    rate: 0.76,
-    description: 'Resonansi vokal dalam dan stabil yang sangat efektif untuk meredakan kepanikan dan kecemasan tinggi.',
-    samplePhrase: 'Rasakan pijakan kaki Anda di bumi. Napas Anda aman. Saat ini Anda berada dalam ruang yang terlindungi.'
-  },
-  {
-    name: 'Charon',
-    indonesianName: 'Sinta (Bisikan Hening Pengantar Tidur)',
-    label: 'Charon — Sinta (Hening Khusus Menjelang Tidur)',
-    gender: 'female',
-    tone: 'Lembut Hening & Meditatif',
-    pitch: 0.82,
-    rate: 0.72,
-    description: 'Tempo sangat lambat dan bisikan damai yang menuntun otot tubuh menuju tidur lelap yang berkualitas.',
-    samplePhrase: 'Hari ini telah selesai. Lepaskan semua beban pikiran... pejamkan mata Anda dan beristirahatlah dengan damai.'
-  },
-  {
-    name: 'Aoede',
-    indonesianName: 'Nirmala (Welas Asih & Teduh)',
-    label: 'Aoede — Nirmala (Penuh Welas Asih & Menyejukkan)',
-    gender: 'female',
-    tone: 'Welas Asih & Penuh Penerimaan',
-    pitch: 0.98,
+    pitch: 1.02,
     rate: 0.78,
-    description: 'Vokal penuh kehangatan welas asih, cocok untuk latihan memaafkan diri, rasa syukur, dan inner child.',
-    samplePhrase: 'Terima kasih telah bertahan sejauh ini. Berikan pelukan hangat dan penerimaan tulus bagi diri Anda hari ini.'
+    description: 'Vokal feminin yang sangat tenang, damai, dan mengayomi. Artikulasi lembut menyejukkan batin, cocok untuk meditasi, kesadaran diri, dan refleksi mendalam.',
+    samplePhrase: 'Selamat datang di ruang tenang LEGA. Tarik napas lembut... izinkan tubuh dan pikiran Anda beristirahat dalam kedamaian.'
+  },
+  {
+    id: 'suara-hangat',
+    name: 'Suara Hangat',
+    geminiVoice: 'Puck',
+    indonesianName: 'Suara Hangat',
+    label: 'Suara Hangat (Bersahabat & Ramah)',
+    badge: 'Hangat & Ramah',
+    gender: 'female',
+    tone: 'Hangat, Bersahabat & Merangkul',
+    pitch: 1.10,
+    rate: 0.84,
+    description: 'Vokal hangat, bersahabat, dan penuh penerimaan. Seperti teman terpercaya yang mendengarkan tanpa menghakimi.',
+    samplePhrase: 'Mari berhenti sejenak. Sadari apa yang sedang Anda rasakan saat ini dengan jujur, hangat, dan lapang dada.'
+  },
+  {
+    id: 'suara-lembut',
+    name: 'Suara Lembut',
+    geminiVoice: 'Aoede',
+    indonesianName: 'Suara Lembut',
+    label: 'Suara Lembut (Welas Asih & Hening)',
+    badge: 'Welas Asih & Hening',
+    gender: 'female',
+    tone: 'Sangat Lembut, Welas Asih & Hening',
+    pitch: 0.95,
+    rate: 0.74,
+    description: 'Vokal sangat lembut dan welas asih dengan tempo mengalir lambat. Ideal untuk latihan penerimaan diri, memaafkan, dan pengantar tidur.',
+    samplePhrase: 'Tarik napas perlahan... rasakan kelembutan udara yang mengalir, izinkan seluruh ketegangan batin Anda melunak.'
+  },
+  {
+    id: 'suara-natural',
+    name: 'Suara Natural',
+    geminiVoice: 'Zephyr',
+    indonesianName: 'Suara Natural',
+    label: 'Suara Natural (Alami & Santai)',
+    badge: 'Natural & Bersahaja',
+    gender: 'male',
+    tone: 'Alami, Bersahaja & Santai',
+    pitch: 0.90,
+    rate: 0.85,
+    description: 'Vokal alami maskulin bersahaja yang mengalir rileks dan organik, mengarahkan perhatian tanpa terasa menggurui.',
+    samplePhrase: 'Dengarkan suara alami di sekitar Anda. Anda tidak perlu terburu-buru, hadir seutuhnya di momen saat ini.'
+  },
+  {
+    id: 'suara-jernih',
+    name: 'Suara Jernih',
+    geminiVoice: 'Leda',
+    indonesianName: 'Suara Jernih',
+    label: 'Suara Jernih (Segar & Fokus)',
+    badge: 'Jernih & Fokus',
+    gender: 'female',
+    tone: 'Jernih, Segar & Teratur',
+    pitch: 1.16,
+    rate: 0.82,
+    description: 'Vokal artikulasi jernih, terang, dan teratur yang membangkitkan kesegaran batin, fokus belajar/bekerja, dan mengurai overthinking.',
+    samplePhrase: 'Perhatikan setiap kejernihan pikiran Anda. Setiap tarikan napas membawa kesegaran baru bagi tubuh dan pikiran Anda.'
+  },
+  {
+    id: 'suara-dalam',
+    name: 'Suara Dalam',
+    geminiVoice: 'Fenrir',
+    indonesianName: 'Suara Dalam',
+    label: 'Suara Dalam (Bariton & Grounded)',
+    badge: 'Grounded & Berjangkar',
+    gender: 'male',
+    tone: 'Bariton Rendah, Mantap & Berjangkar',
+    pitch: 0.70,
+    rate: 0.76,
+    description: 'Resonansi vokal bariton rendah yang kuat, stabil, dan berjangkar. Sangat efektif untuk meredakan kepanikan, kecemasan tinggi, dan grounding tubuh.',
+    samplePhrase: 'Rasakan pijakan Anda yang kokoh dan berjangkar kuat. Napas Anda aman. Saat ini Anda berada dalam ruang perlindungan yang tenang.'
   }
 ];
 
@@ -410,7 +483,7 @@ export async function generateRelaxationSoundscapeWav(
   const offlineCtx = new OfflineCtxClass(numChannels, length, sampleRate);
 
   // -------------------------------------------------------------
-  // 1. AMBIENT MUSIC SYNTHESIS (Warm, Light, Bright, Simple, Gentle & Stable - Very Thin Background)
+  // 1. AMBIENT MUSIC SYNTHESIS (Warm, Light, Diverse Instruments & Compositions)
   // -------------------------------------------------------------
   if (ambientType === 'piano-lembut' || ambientType === 'piano-hangat') {
     // Warm, bright, simple acoustic chords tuned to 432Hz (Cmaj9, Gmaj7, Fmaj7, D9)
@@ -454,7 +527,7 @@ export async function generateRelaxationSoundscapeWav(
           filter.frequency.setValueAtTime(ambientType === 'piano-hangat' ? 520 : 620, noteTime);
           filter.frequency.exponentialRampToValueAtTime(160, Math.min(actualDuration, noteTime + 6.0));
 
-          // Extremely soft, delicate envelope (very thin background level)
+          // Extremely soft, delicate envelope
           const targetVol = musicVol * (0.07 / (nIdx + 1));
           gain.gain.setValueAtTime(0.0001, noteTime);
           gain.gain.linearRampToValueAtTime(targetVol, noteTime + 0.18);
@@ -472,6 +545,254 @@ export async function generateRelaxationSoundscapeWav(
         }
       });
     }
+  } else if (ambientType === 'petikan-gitar') {
+    // 🎸 PETIKAN GITAR AKUSTIK RINGAN & STABIL (Khusus Marah, Release & Grounding)
+    // Ritme perlahan, stabil, grounded, tanpa nada keras atau mendadak (432Hz: A, E, D, C#)
+    const guitarPatterns = [
+      [108, 162, 216, 270, 324],     // A2 - E3 - A3 - C#4 - E4
+      [144, 216, 288, 360, 432],     // D3 - A3 - D4 - F#4 - A4
+      [129.6, 194.4, 259.2, 324],    // F3 - C4 - F4 - A4
+      [108, 162, 216, 270],          // A2 - E3 - A3 - C#4
+    ];
+
+    const pickInterval = 1.35; // Slow, steady acoustic plucking rhythm
+    let currentChordIdx = 0;
+    let t = 0.6;
+
+    while (t < actualDuration - 2.0) {
+      const currentChord = guitarPatterns[currentChordIdx % guitarPatterns.length];
+      for (let pIdx = 0; pIdx < currentChord.length; pIdx++) {
+        const noteT = t + pIdx * 0.42;
+        if (noteT >= actualDuration - 1.5) break;
+
+        const freq = currentChord[pIdx];
+        const osc = offlineCtx.createOscillator();
+        const subOsc = offlineCtx.createOscillator();
+        const filter = offlineCtx.createBiquadFilter();
+        const gain = offlineCtx.createGain();
+
+        // Warm acoustic nylon pluck emulation (triangle + warm body sine)
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, noteT);
+
+        subOsc.type = 'sine';
+        subOsc.frequency.setValueAtTime(freq * 0.5, noteT);
+
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(750, noteT);
+        filter.frequency.exponentialRampToValueAtTime(220, noteT + 2.8);
+
+        const pluckVol = musicVol * (pIdx === 0 ? 0.08 : 0.055);
+        gain.gain.setValueAtTime(0.0001, noteT);
+        gain.gain.linearRampToValueAtTime(pluckVol, noteT + 0.035);
+        gain.gain.exponentialRampToValueAtTime(0.0001, Math.min(actualDuration, noteT + 3.8));
+
+        osc.connect(filter);
+        subOsc.connect(filter);
+        filter.connect(gain);
+        gain.connect(offlineCtx.destination);
+
+        osc.start(noteT);
+        osc.stop(Math.min(actualDuration, noteT + 4.0));
+        subOsc.start(noteT);
+        subOsc.stop(Math.min(actualDuration, noteT + 4.0));
+      }
+      t += currentChord.length * 0.42 + pickInterval;
+      currentChordIdx++;
+    }
+  } else if (ambientType === 'akustik-hangat') {
+    // 🪵 INSTRUMEN AKUSTIK LEMBUT & MENGAYOMI (Khusus Sedih & Takut)
+    // Harmoni hangat, merangkul, memberi ruang tanpa membuat suasana semakin berat
+    const warmNotes = [
+      [194.4, 259.2, 324, 388.8],    // C4 - E4 - G4 - B4
+      [172.8, 216, 259.2, 345.6],    // A3 - C#4 - E4 - A4
+      [144, 216, 288, 360],          // D3 - A3 - D4 - F#4
+      [129.6, 194.4, 259.2, 388.8],  // F3 - C4 - F4 - C5
+    ];
+
+    const warmInterval = 7.0;
+    const numSets = Math.ceil(actualDuration / warmInterval);
+
+    for (let s = 0; s < numSets; s++) {
+      const setTime = s * warmInterval + 0.8;
+      if (setTime >= actualDuration - 1.8) break;
+
+      const chord = warmNotes[s % warmNotes.length];
+      chord.forEach((freq, idx) => {
+        const noteTime = setTime + idx * 0.28;
+        if (noteTime < actualDuration - 1.5) {
+          const osc = offlineCtx.createOscillator();
+          const bodyOsc = offlineCtx.createOscillator();
+          const filter = offlineCtx.createBiquadFilter();
+          const gain = offlineCtx.createGain();
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, noteTime);
+
+          bodyOsc.type = 'triangle';
+          bodyOsc.frequency.setValueAtTime(freq * 1.5, noteTime);
+
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(540, noteTime);
+          filter.frequency.exponentialRampToValueAtTime(180, noteTime + 5.0);
+
+          const vol = musicVol * (0.065 / (idx + 1));
+          gain.gain.setValueAtTime(0.0001, noteTime);
+          gain.gain.linearRampToValueAtTime(vol, noteTime + 0.25);
+          gain.gain.exponentialRampToValueAtTime(0.0001, Math.min(actualDuration, noteTime + 6.8));
+
+          osc.connect(filter);
+          bodyOsc.connect(filter);
+          filter.connect(gain);
+          gain.connect(offlineCtx.destination);
+
+          osc.start(noteTime);
+          osc.stop(Math.min(actualDuration, noteTime + 7.0));
+          bodyOsc.start(noteTime);
+          bodyOsc.stop(Math.min(actualDuration, noteTime + 7.0));
+        }
+      });
+    }
+  } else if (ambientType === 'harp-kalimba') {
+    // 🪕 KALIMBA & HARPA LEMBUT MENENANGKAN (Khusus Cemas)
+    // Nada-nada stabil, halus, konsisten, hindari perubahan suara mendadak
+    const harpNotes = [162, 216, 270, 324, 378, 432]; // Pentatonik lembut 432Hz
+    const step = 0.75;
+    let t = 0.5;
+    let noteIdx = 0;
+
+    while (t < actualDuration - 1.5) {
+      const freq = harpNotes[noteIdx % harpNotes.length];
+      const osc = offlineCtx.createOscillator();
+      const filter = offlineCtx.createBiquadFilter();
+      const gain = offlineCtx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, t);
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(680, t);
+
+      // Sangat halus & stabil tanpa dinamika tajam
+      const targetVol = musicVol * 0.045;
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.linearRampToValueAtTime(targetVol, t + 0.06);
+      gain.gain.exponentialRampToValueAtTime(0.0001, Math.min(actualDuration, t + 2.4));
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(offlineCtx.destination);
+
+      osc.start(t);
+      osc.stop(Math.min(actualDuration, t + 2.5));
+
+      t += step;
+      noteIdx++;
+    }
+  } else if (ambientType === 'gitar-reflektif') {
+    // 🍂 PETIKAN GITAR REFLEKTIF & RHODES HANGAT (Khusus Kecewa)
+    // Reflektif, hangat, memberi kelegaan dan penerimaan
+    const refChords = [
+      [129.6, 194.4, 259.2, 345.6],  // Fmaj7
+      [108, 162, 216, 324],          // Em7
+      [144, 216, 288, 360],          // Dm7
+      [129.6, 194.4, 259.2, 388.8],  // Cmaj7
+    ];
+
+    const refInterval = 7.5;
+    const numC = Math.ceil(actualDuration / refInterval);
+
+    for (let i = 0; i < numC; i++) {
+      const chordT = i * refInterval + 0.6;
+      if (chordT >= actualDuration - 1.5) break;
+
+      const chord = refChords[i % refChords.length];
+      chord.forEach((freq, idx) => {
+        const nT = chordT + idx * 0.22;
+        if (nT < actualDuration - 1.5) {
+          const osc = offlineCtx.createOscillator();
+          const filter = offlineCtx.createBiquadFilter();
+          const gain = offlineCtx.createGain();
+
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, nT);
+
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(460, nT);
+          filter.frequency.exponentialRampToValueAtTime(160, nT + 4.5);
+
+          const vol = musicVol * (0.055 / (idx + 1));
+          gain.gain.setValueAtTime(0.0001, nT);
+          gain.gain.linearRampToValueAtTime(vol, nT + 0.12);
+          gain.gain.exponentialRampToValueAtTime(0.0001, Math.min(actualDuration, nT + 5.5));
+
+          osc.connect(filter);
+          filter.connect(gain);
+          gain.connect(offlineCtx.destination);
+
+          osc.start(nT);
+          osc.stop(Math.min(actualDuration, nT + 6.0));
+        }
+      });
+    }
+  } else if (ambientType === 'tibetan-bowl-deep') {
+    // 🔔 RESONANSI TIBETAN BOWL & PAD SOMATIS (Khusus Body Awareness)
+    // Perlahan dan stabil, berirama dengan napas sadar
+    const bowlFreqs = [108, 216, 432, 528];
+    bowlFreqs.forEach((freq, idx) => {
+      const osc = offlineCtx.createOscillator();
+      const gain = offlineCtx.createGain();
+      const filter = offlineCtx.createBiquadFilter();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, 0);
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(360, 0);
+
+      // Slow deep breathing cycle
+      const baseVol = (musicVol * 0.05) / (idx + 1);
+      gain.gain.setValueAtTime(0.0001, 0);
+      gain.gain.linearRampToValueAtTime(baseVol, fadeIn + 2.0);
+      gain.gain.setValueAtTime(baseVol, actualDuration - fadeOut);
+      gain.gain.linearRampToValueAtTime(0.0001, actualDuration);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(offlineCtx.destination);
+
+      osc.start(0);
+      osc.stop(actualDuration);
+    });
+  } else if (ambientType === 'lullaby-malam') {
+    // 🌙 MUSIK TIDUR HENING & SANGAT PERLAHAN (Khusus Tidur)
+    // Sangat lembut, stabil, nada-nada hangat tempo perlahan
+    const lullabyNotes = [108, 162, 216, 288];
+    lullabyNotes.forEach((freq, idx) => {
+      const osc = offlineCtx.createOscillator();
+      const gain = offlineCtx.createGain();
+      const filter = offlineCtx.createBiquadFilter();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, 0);
+      osc.detune.setValueAtTime(idx * 0.5, 0);
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(220, 0); // Sangat hangat & bebas distorsi
+
+      const baseVol = (musicVol * 0.038) / (idx + 1);
+      gain.gain.setValueAtTime(0.0001, 0);
+      gain.gain.linearRampToValueAtTime(baseVol, fadeIn + 3.0);
+      gain.gain.setValueAtTime(baseVol, actualDuration - fadeOut);
+      gain.gain.linearRampToValueAtTime(0.0001, actualDuration);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(offlineCtx.destination);
+
+      osc.start(0);
+      osc.stop(actualDuration);
+    });
   } else if (ambientType === 'pad-sinematik') {
     // Ultra-light, airy analog warm pad drone (432Hz Solfeggio Harmonics)
     const padFreqs = [108, 216, 324, 432];
@@ -501,7 +822,8 @@ export async function generateRelaxationSoundscapeWav(
       osc.stop(actualDuration);
     });
   } else if (ambientType === 'ambient-minimal') {
-    // Ultra-thin minimal pure sine harmonic drone (432Hz Pure Zen)
+    // 🍃 ULTRA-MINIMAL PURE SINE (Khusus Overthinking & Presence - Suara Alam Dominan)
+    // Sederhana, stabil, tidak banyak melodi agar pikiran tidak ramai
     const minFreqs = [108, 216, 432];
     minFreqs.forEach((freq, idx) => {
       const osc = offlineCtx.createOscillator();
@@ -512,9 +834,9 @@ export async function generateRelaxationSoundscapeWav(
       osc.frequency.setValueAtTime(freq, 0);
 
       filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(260, 0);
+      filter.frequency.setValueAtTime(240, 0);
 
-      const baseVol = (musicVol * 0.04) / (idx + 1);
+      const baseVol = (musicVol * 0.035) / (idx + 1);
       gain.gain.setValueAtTime(0.0001, 0);
       gain.gain.linearRampToValueAtTime(baseVol, fadeIn);
       gain.gain.setValueAtTime(baseVol, actualDuration - fadeOut);
@@ -596,6 +918,11 @@ export async function generateRelaxationSoundscapeWav(
       natureFilter.frequency.setValueAtTime(620, 0);
       natureFilter.Q.setValueAtTime(1.1, 0);
       natureGain.gain.setValueAtTime(effectiveLayerVol * 0.9, 0);
+    } else if (nType === 'air-terjun-lembut') {
+      // 🌊 Air terjun lembut (deep soothing cascade roar & gentle mist dispersion)
+      natureFilter.type = 'lowpass';
+      natureFilter.frequency.setValueAtTime(820, 0);
+      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.92, 0);
     } else if (nType === 'hujan-lembut') {
       // 🌧️ Hujan ringan (soothing, gentle rain drops on leaves, zero harshness)
       natureFilter.type = 'lowpass';
@@ -627,8 +954,8 @@ export async function generateRelaxationSoundscapeWav(
           dropOsc.stop(dt + 0.18);
         }
       });
-    } else if (nType === 'burung-pagi') {
-      // 🐦 Burung natural yang jauh (peaceful, distant reverberant songs, safe and pleasant)
+    } else if (nType === 'burung-pagi' || nType === 'fajar-tenang') {
+      // 🐦 Burung natural yang jauh & fajar tenang (peaceful, distant reverberant songs)
       natureFilter.type = 'lowpass';
       natureFilter.frequency.setValueAtTime(450, 0);
       natureGain.gain.setValueAtTime(effectiveLayerVol * 0.35, 0);
@@ -785,6 +1112,201 @@ export async function generateLegaCalmNatureWav(
 }
 
 /**
+ * EMOTION & TRAINING NEED PRESET CONFIGURATIONS (LEGA Audio Presets)
+ * Suasana alam tetap menjadi identitas utama seluruh audio LEGA.
+ * Musik relaksasinya disesuaikan secara dinamis dengan kebutuhan & emosi pengguna.
+ */
+export interface EmotionalAudioPreset {
+  id: string;
+  name: string;
+  emotionLabel: string;
+  musicDescription: string;
+  natureDescription: string;
+  natureTypes: NatureSoundType[];
+  ambientMusic: AmbientMusicType;
+  narrationPromptTone: string;
+  suggestedGeminiVoice: string;
+  sampleScript: string;
+  natureVolume: number;
+  musicVolume: number;
+  narrationVolume: number;
+}
+
+export const LEGA_EMOTION_PRESETS: Record<string, EmotionalAudioPreset> = {
+  'marah': {
+    id: 'marah',
+    name: 'LEGA — MARAH',
+    emotionLabel: 'Pelepasan & Ketenangan Marah',
+    musicDescription: 'Musik petikan gitar akustik lembut, stabil, tidak ramai, dan ritme perlahan.',
+    natureDescription: 'Angin lembut di pepohonan & aliran air sungai pegunungan.',
+    natureTypes: ['angin-pepohonan', 'aliran-sungai'],
+    ambientMusic: 'petikan-gitar',
+    narrationPromptTone: 'Suara tenang, stabil, memberi ruang aman tanpa menghakimi, membantu meredakan gelora amarah.',
+    suggestedGeminiVoice: 'Suara Tenang',
+    sampleScript: 'Sadari rasa marah yang sedang hadir di dalam diri Anda. Anda tidak perlu melawannya atau menekannya. Izinkan napas Anda mengalir perlahan... Dengarkan semilir angin yang menaungi pepohonan dan arus air yang senantiasa mengalir. Bersama setiap hembusan napas, lepaskan ketegangan di rahang, leher, dan dada Anda. Anda aman di sini.',
+    natureVolume: 0.34,
+    musicVolume: 0.11,
+    narrationVolume: 0.90
+  },
+  'sedih': {
+    id: 'sedih',
+    name: 'LEGA — SEDIH',
+    emotionLabel: 'Ruang Hangat Merasakan Kesedihan',
+    musicDescription: 'Musik instrumen akustik lembut dan hangat, memberi ruang aman tanpa membuat suasana terasa semakin berat.',
+    natureDescription: 'Rintik hujan ringan menyejukkan & gemericik air alami.',
+    natureTypes: ['hujan-lembut', 'gemericik-air'],
+    ambientMusic: 'akustik-hangat',
+    narrationPromptTone: 'Suara hangat dan lembut, penuh welas asih, merangkul tanpa terburu-buru menghibur.',
+    suggestedGeminiVoice: 'Suara Hangat',
+    sampleScript: 'Izinkan diri Anda merasakan apa pun yang sedang hadir. Kesedihan adalah bukti bahwa ada hal berharga yang Anda pedulikan. Dengarkan rintik hujan lembut yang menyejukkan... Rasakan kehangatan musik yang menemani Anda tanpa menuntut apa pun. Berikan pelukan kasih sayang pada diri Anda sendiri saat ini.',
+    natureVolume: 0.32,
+    musicVolume: 0.11,
+    narrationVolume: 0.90
+  },
+  'cemas': {
+    id: 'cemas',
+    name: 'LEGA — CEMAS',
+    emotionLabel: 'Kestabilan & Ketenangan Batin',
+    musicDescription: 'Musik kalimba & harpa stabil, ringan, menenangkan, tanpa perubahan suara yang mendadak.',
+    natureDescription: 'Air mengalir lembut, semilir angin, dan rintik hujan ringan.',
+    natureTypes: ['aliran-sungai', 'angin-pepohonan'],
+    ambientMusic: 'harp-kalimba',
+    narrationPromptTone: 'Suara jernih, stabil, dan konsisten, memandu kembali ke pijakan yang nyata.',
+    suggestedGeminiVoice: 'Suara Jernih',
+    sampleScript: 'Tarik napas perlahan... dan hembuskan dengan lembut. Sadari bahwa saat ini Anda berada di tempat yang aman. Dengarkan aliran air yang mengalir stabil di hadapan Anda... dan petikan nada lembut yang konstan. Pikiran Anda mungkin sedang mengembara ke masa depan, namun tubuh Anda ada di sini, aman dan terlindungi.',
+    natureVolume: 0.34,
+    musicVolume: 0.10,
+    narrationVolume: 0.90
+  },
+  'takut': {
+    id: 'takut',
+    name: 'LEGA — TAKUT',
+    emotionLabel: 'Rasa Aman & Perlindungan Jiwa',
+    musicDescription: 'Musik instrumen akustik yang terasa aman, lembut, hangat, dan menaungi.',
+    natureDescription: 'Suasana hutan kanopi yang tenang, teduh, dan angin lembut.',
+    natureTypes: ['hutan-alami', 'angin-pepohonan'],
+    ambientMusic: 'akustik-hangat',
+    narrationPromptTone: 'Suara dalam, kokoh, menenteramkan, dan meyakinkan rasa aman.',
+    suggestedGeminiVoice: 'Suara Dalam',
+    sampleScript: 'Anda tidak sendirian. Sadari telapak kaki Anda yang menopang ke bumi. Masuki keteduhan kanopi hutan yang kokoh dan melindungi Anda dari segala badai. Rasakan kehangatan nada musik yang menyelimuti tubuh Anda. Ambil napas dalam... di dalam ruang ini, Anda aman dan berdaya.',
+    natureVolume: 0.32,
+    musicVolume: 0.11,
+    narrationVolume: 0.90
+  },
+  'kecewa': {
+    id: 'kecewa',
+    name: 'LEGA — KECEWA',
+    emotionLabel: 'Refleksi Batin & Pelepasan Ekspektasi',
+    musicDescription: 'Musik petikan gitar reflektif yang lembut dan hangat.',
+    natureDescription: 'Air sungai mengalir & semilir angin dedaunan.',
+    natureTypes: ['aliran-sungai', 'angin-pepohonan'],
+    ambientMusic: 'gitar-reflektif',
+    narrationPromptTone: 'Suara lembut dan bijaksana, membimbing penerimaan realitas dengan lapang dada.',
+    suggestedGeminiVoice: 'Suara Lembut',
+    sampleScript: 'Kekecewaan hadir ketika harapan kita belum sesuai dengan kenyataan. Biarkan diri Anda bernapas bersama rasa ini... Dengarkan petikan gitar reflektif dan air yang mengalir melepaskan bebannya. Apa yang terjadi biarlah berlalu. Saat ini, Anda berhak memulihkan batin Anda kembali.',
+    natureVolume: 0.32,
+    musicVolume: 0.12,
+    narrationVolume: 0.90
+  },
+  'overthinking': {
+    id: 'overthinking',
+    name: 'LEGA — OVERTHINKING',
+    emotionLabel: 'Pengheningan Pikiran & Jeda Mental',
+    musicDescription: 'Musik ambient sederhana, stabil, dan minimalis tanpa banyak melodi agar pikiran tidak semakin ramai.',
+    natureDescription: 'Air mengalir stabil & gemericik air alami di bebatuan.',
+    natureTypes: ['aliran-sungai', 'gemericik-air'],
+    ambientMusic: 'ambient-minimal',
+    narrationPromptTone: 'Suara natural, santai, memberi jeda hening yang luas tanpa instruksi rumit.',
+    suggestedGeminiVoice: 'Suara Natural',
+    sampleScript: 'Pikiran Anda telah bekerja sangat keras hari ini. Sekarang adalah waktunya beristirahat. Anda tidak perlu menganalisis atau memecahkan apa pun saat ini. Fokuskan pendengaran Anda hanya pada aliran air yang konstan dan jernih. Setiap kali pikiran muncul, biarkan ia mengalir seperti daun di atas air sungai.',
+    natureVolume: 0.36,
+    musicVolume: 0.08,
+    narrationVolume: 0.88
+  },
+  'presence': {
+    id: 'presence',
+    name: 'LEGA — PRESENCE (Hadir Saat Ini)',
+    emotionLabel: 'Kesadaran Momen Ini',
+    musicDescription: 'Musik minimalis yang sangat ringan dan natural, membiarkan suara alam menjadi LEBIH dominan daripada musik.',
+    natureDescription: 'Suasana alam terbuka, kicau burung alami di kejauhan, dan semilir angin fajar.',
+    natureTypes: ['suasana-alam-tenang', 'burung-pagi', 'angin-pepohonan'],
+    ambientMusic: 'ambient-minimal',
+    narrationPromptTone: 'Suara jernih dan hadir, membimbing panca indra ke saat ini.',
+    suggestedGeminiVoice: 'Suara Jernih',
+    sampleScript: 'Bawa seluruh kesadaran Anda ke momen ini. Rasakan udara yang menyentuh kulit... dengarkan kicau burung fajar yang bergema di kejauhan... dan semilir angin di padang rumput terbuka. Tidak ada masa lalu, tidak ada masa depan. Hanya ada keheningan dan kehidupan di saat ini.',
+    natureVolume: 0.38,
+    musicVolume: 0.07,
+    narrationVolume: 0.88
+  },
+  'body-awareness': {
+    id: 'body-awareness',
+    name: 'LEGA — BODY AWARENESS (Kesadaran Tubuh)',
+    emotionLabel: 'Pengamatan & Relaksasi Somatis',
+    musicDescription: 'Musik perlahan dan stabil dengan resonansi mangkuk Tibet dan pad somatis bernada 528Hz.',
+    natureDescription: 'Air mengalir lembut, semilir angin pepohonan, dan gemericik air sejuk.',
+    natureTypes: ['aliran-sungai', 'angin-pepohonan'],
+    ambientMusic: 'tibetan-bowl-deep',
+    narrationPromptTone: 'Suara dalam, berakar, dan perlahan, memandu pemindaian tubuh secara bertahap.',
+    suggestedGeminiVoice: 'Suara Dalam',
+    sampleScript: 'Arahkan perhatian lembut Anda ke seluruh tubuh. Mulai dari ujung jari kaki... naik perlahan ke betis... paha... perut... hingga pundak dan wajah. Rasakan resonansi mangkuk hening dan aliran air yang merelakskan setiap serat otot Anda. Setiap napas masuk membawa ketenangan, setiap napas keluar melepaskan beban.',
+    natureVolume: 0.34,
+    musicVolume: 0.11,
+    narrationVolume: 0.90
+  },
+  'release': {
+    id: 'release',
+    name: 'LEGA — RELEASE (Pelepasan Emosi)',
+    emotionLabel: 'Katarsis & Kelegaan Batin',
+    musicDescription: 'Musik pelepasan dinamis yang mengalun lembut menyesuaikan emosi yang diproses.',
+    natureDescription: 'Air mengalir bebas, semilir angin pepohonan, dan deburan ombak berirama.',
+    natureTypes: ['aliran-sungai', 'angin-pepohonan', 'ombak-pantai'],
+    ambientMusic: 'pad-sinematik',
+    narrationPromptTone: 'Suara tenang dan mantap, memandu proses pelepasan emosi secara tuntas dan aman.',
+    suggestedGeminiVoice: 'Suara Tenang',
+    sampleScript: 'Tarik napas dalam-dalam memenuhi rongga dada Anda... tahan sejenak... dan hembuskan dengan kelegaan yang utuh melalui mulut. Lepaskan apa pun yang selama ini Anda genggam dengan erat. Dengarkan perpaduan arus air dan angin bebas. Biarkan diri Anda merasa lega, ringan, dan bebas.',
+    natureVolume: 0.35,
+    musicVolume: 0.12,
+    narrationVolume: 0.90
+  },
+  'tidur': {
+    id: 'tidur',
+    name: 'LEGA — TIDUR (Pengantar Tidur Nyenyak)',
+    emotionLabel: 'Istirahat Malam & Tidur Lelap',
+    musicDescription: 'Musik tidur hening, sangat lembut, stabil, dan bertempo perlahan (Delta-Sleep 432Hz).',
+    natureDescription: 'Suasana malam tenang, desau angin malam, dan rintik hujan lembut.',
+    natureTypes: ['suasana-malam', 'hujan-lembut'],
+    ambientMusic: 'lullaby-malam',
+    narrationPromptTone: 'Suara sangat lembut, hangat, mengalun perlahan, menidurkan sistem syaraf.',
+    suggestedGeminiVoice: 'Suara Lembut',
+    sampleScript: 'Hari ini telah usai, dan Anda telah melakukan yang terbaik. Biarkan tubuh Anda tenggelam dalam kelembutan kasur yang nyaman. Dengarkan suara malam yang hening dan rintik hujan yang menentramkan. Pejamkan mata Anda... biarkan pikiran Anda melayang dalam kedamaian... Selamat beristirahat dalam tidur yang lelap.',
+    natureVolume: 0.30,
+    musicVolume: 0.09,
+    narrationVolume: 0.88
+  }
+};
+
+/**
+ * Synthesizes specialized emotional relaxation soundscapes based on user's emotion or training goal
+ */
+export async function generateEmotionSoundscapeWav(
+  emotionKey: string,
+  durationSeconds = 24
+): Promise<string> {
+  const normKey = emotionKey.toLowerCase().replace(/lega\s*[-—]\s*/i, '').trim();
+  const preset = LEGA_EMOTION_PRESETS[normKey] || LEGA_EMOTION_PRESETS['marah'] || LEGA_EMOTION_PRESETS['cemas'];
+
+  return generateRelaxationSoundscapeWav(durationSeconds, {
+    natureTypes: preset.natureTypes,
+    ambientType: preset.ambientMusic,
+    natureVolume: preset.natureVolume,
+    musicVolume: preset.musicVolume,
+    fadeInSeconds: 3.5,
+    fadeOutSeconds: 4.5,
+    includeSingingBowl: normKey !== 'overthinking' && normKey !== 'presence'
+  });
+}
+
+/**
  * Backward compatibility alias for generateMeditationAmbientWav
  */
 export async function generateMeditationAmbientWav(durationSeconds = 120): Promise<string> {
@@ -864,13 +1386,39 @@ if (typeof window !== 'undefined' && window.speechSynthesis) {
 export function getVoiceCharacter(nameOrKey?: string): VoiceCharacterProfile {
   if (!nameOrKey) return VOICE_CHARACTERS[0];
   const q = nameOrKey.toLowerCase().trim();
+
+  // 1. Direct match by id or name
+  const exact = VOICE_CHARACTERS.find(
+    (v) => v.id === q || v.name.toLowerCase() === q || v.geminiVoice.toLowerCase() === q
+  );
+  if (exact) return exact;
+
+  // 2. Keyword heuristic mapping for all 6 official voices
+  if (q.includes('tenang') || q.includes('kore') || q.includes('laras') || q === '1') {
+    return VOICE_CHARACTERS[0]; // Suara Tenang
+  }
+  if (q.includes('hangat') || q.includes('puck') || q.includes('damai') || q === '2') {
+    return VOICE_CHARACTERS[1]; // Suara Hangat
+  }
+  if (q.includes('lembut') || q.includes('aoede') || q.includes('nirmala') || q === '3') {
+    return VOICE_CHARACTERS[2]; // Suara Lembut
+  }
+  if (q.includes('natural') || q.includes('zephyr') || q.includes('bayu') || q === '4') {
+    return VOICE_CHARACTERS[3]; // Suara Natural
+  }
+  if (q.includes('jernih') || q.includes('leda') || q.includes('calliope') || q === '5') {
+    return VOICE_CHARACTERS[4]; // Suara Jernih
+  }
+  if (q.includes('dalam') || q.includes('fenrir') || q.includes('arga') || q.includes('charon') || q.includes('orus') || q === '6') {
+    return VOICE_CHARACTERS[5]; // Suara Dalam
+  }
+
+  // 3. Fallback fuzzy search
   const found = VOICE_CHARACTERS.find(
     (v) =>
-      v.name.toLowerCase() === q ||
       v.indonesianName.toLowerCase().includes(q) ||
       v.label.toLowerCase().includes(q) ||
-      q.includes(v.name.toLowerCase()) ||
-      (v.indonesianName.toLowerCase().split(' ')[0] && q.includes(v.indonesianName.toLowerCase().split(' ')[0]))
+      v.tone.toLowerCase().includes(q)
   );
   return found || VOICE_CHARACTERS[0];
 }

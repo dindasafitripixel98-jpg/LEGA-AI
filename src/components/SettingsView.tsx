@@ -13,9 +13,11 @@ import {
   Sparkles,
   Layers,
   RefreshCw,
-  CheckCircle2
+  CheckCircle2,
+  Mic
 } from 'lucide-react';
 import { usePwa } from '../lib/pwaManager';
+import { LegaVoiceSelector } from './LegaVoiceSelector';
 
 interface SettingsViewProps {
   onOpenPwaModal?: () => void;
@@ -168,6 +170,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ onOpenPwaModal }) =>
               <span>{isClearing ? 'Membersihkan...' : clearedNotice ? 'Cache Berhasil Dibersihkan' : 'Bersihkan Cache Offline'}</span>
             </button>
           </div>
+        </div>
+
+        {/* 6 Pilihan Suara Narasi LEGA */}
+        <div className="p-5 md:p-6 rounded-3xl bg-stone-900 border border-stone-800 space-y-4 shadow-xl">
+          <LegaVoiceSelector />
         </div>
 
         {/* Offline Features Guarantee */}

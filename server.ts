@@ -3907,13 +3907,74 @@ function pcmToWavBuffer(pcmBuffer: Buffer, sampleRate = 24000, numChannels = 1, 
   return Buffer.concat([header, pcmBuffer]);
 }
 
-// 9. Gemini TTS Voice API (Text to Speech Audio)
+// 9. Gemini TTS Voice API (Text to Speech Audio - 6 Karakter Suara LEGA)
+const LEGA_VOICE_CONFIGS: Record<string, { geminiVoice: string; stylePrompt: string; voiceLabel: string }> = {
+  'suara-tenang': {
+    geminiVoice: 'Kore',
+    voiceLabel: 'Suara Tenang',
+    stylePrompt: 'Bicaralah dengan karakter Suara Tenang: vokal feminin yang sangat tenang, damai, mengayomi, lembut, artikulasi jelas, dan ritme perlahan dalam Bahasa Indonesia:'
+  },
+  'suara-hangat': {
+    geminiVoice: 'Puck',
+    voiceLabel: 'Suara Hangat',
+    stylePrompt: 'Bicaralah dengan karakter Suara Hangat: vokal yang ramah, hangat, bersahabat, merangkul, dan penuh penerimaan dalam Bahasa Indonesia:'
+  },
+  'suara-lembut': {
+    geminiVoice: 'Aoede',
+    voiceLabel: 'Suara Lembut',
+    stylePrompt: 'Bicaralah dengan karakter Suara Lembut: vokal yang sangat lembut, welas asih, hening, rileks, dan mengalir perlahan dalam Bahasa Indonesia:'
+  },
+  'suara-natural': {
+    geminiVoice: 'Zephyr',
+    voiceLabel: 'Suara Natural',
+    stylePrompt: 'Bicaralah dengan karakter Suara Natural: vokal maskulin alami, bersahaja, santai, dan mengalir organik tanpa tergesa-gesa dalam Bahasa Indonesia:'
+  },
+  'suara-jernih': {
+    geminiVoice: 'Leda',
+    voiceLabel: 'Suara Jernih',
+    stylePrompt: 'Bicaralah dengan karakter Suara Jernih: artikulasi sangat jernih, segar, terang, teratur, dan memberi fokus dalam Bahasa Indonesia:'
+  },
+  'suara-dalam': {
+    geminiVoice: 'Fenrir',
+    voiceLabel: 'Suara Dalam',
+    stylePrompt: 'Bicaralah dengan karakter Suara Dalam: resonansi bariton rendah, mantap, kokoh, grounded, dan berjangkar kuat dalam Bahasa Indonesia:'
+  }
+};
+
+function resolveLegaVoiceConfig(rawName?: string) {
+  if (!rawName) return LEGA_VOICE_CONFIGS['suara-tenang'];
+  const q = rawName.toLowerCase().trim();
+
+  if (q.includes('tenang') || q.includes('kore') || q === '1') {
+    return LEGA_VOICE_CONFIGS['suara-tenang'];
+  }
+  if (q.includes('hangat') || q.includes('puck') || q === '2') {
+    return LEGA_VOICE_CONFIGS['suara-hangat'];
+  }
+  if (q.includes('lembut') || q.includes('aoede') || q === '3') {
+    return LEGA_VOICE_CONFIGS['suara-lembut'];
+  }
+  if (q.includes('natural') || q.includes('zephyr') || q === '4') {
+    return LEGA_VOICE_CONFIGS['suara-natural'];
+  }
+  if (q.includes('jernih') || q.includes('leda') || q.includes('calliope') || q === '5') {
+    return LEGA_VOICE_CONFIGS['suara-jernih'];
+  }
+  if (q.includes('dalam') || q.includes('fenrir') || q.includes('charon') || q.includes('orus') || q === '6') {
+    return LEGA_VOICE_CONFIGS['suara-dalam'];
+  }
+
+  return LEGA_VOICE_CONFIGS['suara-tenang'];
+}
+
 app.post('/api/gemini/tts', async (req, res) => {
   try {
-    const { text, voiceName = 'Kore' } = req.body;
+    const { text, voiceName = 'Suara Tenang' } = req.body;
     if (!text) {
       return res.status(400).json({ success: false, error: 'Teks dibutuhkan untuk TTS.' });
     }
+
+    const voiceConfig = resolveLegaVoiceConfig(voiceName);
 
     // Clean pause markers and special characters so Gemini TTS reads naturally
     const cleanedText = text
@@ -3928,15 +3989,15 @@ app.post('/api/gemini/tts', async (req, res) => {
     const ai = getGeminiClient();
 
     try {
-      // Use Gemini TTS preview model
+      // Use Gemini TTS with distinct per-voice prompt and voiceConfig
       const response = await ai.models.generateContent({
         model: 'gemini-3.1-flash-tts-preview',
-        contents: [{ parts: [{ text: `Bicaralah dengan nada sangat tenang, hangat, lembut, dan perlahan dalam Bahasa Indonesia: ${promptText}` }] }],
+        contents: [{ parts: [{ text: `${voiceConfig.stylePrompt} ${promptText}` }] }],
         config: {
           responseModalities: [Modality.AUDIO],
           speechConfig: {
             voiceConfig: {
-              prebuiltVoiceConfig: { voiceName: voiceName || 'Kore' }, // Kore, Zephyr, Puck, Fenrir, Charon
+              prebuiltVoiceConfig: { voiceName: voiceConfig.geminiVoice },
             },
           },
         },
@@ -3953,6 +4014,8 @@ app.post('/api/gemini/tts', async (req, res) => {
           success: true,
           audioBase64: wavBase64,
           audioDataUrl: audioDataUrl,
+          voiceName: voiceConfig.voiceLabel,
+          geminiVoice: voiceConfig.geminiVoice,
           format: 'wav',
           sampleRate: 24000
         });
@@ -3965,6 +4028,7 @@ app.post('/api/gemini/tts', async (req, res) => {
       success: true,
       audioBase64: null,
       audioDataUrl: null,
+      voiceName: voiceConfig.voiceLabel,
       fallbackSynthesizer: true
     });
   } catch (error: any) {

@@ -7,7 +7,7 @@ import { pcmToWavBlobUrl, speakIndonesianNarration, stopIndonesianNarration } fr
 export interface VoiceOptions {
   title?: string;
   subtitle?: string;
-  voiceName?: 'Kore' | 'Aoede' | 'Puck' | 'Fenrir' | 'Leda' | 'Charon';
+  voiceName?: string;
   rate?: number;
   pitch?: number;
   volume?: number;
@@ -48,7 +48,7 @@ let state: VoiceState = {
   currentTime: 0,
   duration: 0,
   engine: 'none',
-  voiceName: typeof localStorage !== 'undefined' ? localStorage.getItem('lega_voice_name') || 'Kore' : 'Kore'
+  voiceName: typeof localStorage !== 'undefined' ? localStorage.getItem('lega_voice_name') || 'Suara Tenang' : 'Suara Tenang'
 };
 
 function notifyListeners() {
@@ -69,9 +69,9 @@ export function subscribeVoiceState(listener: VoiceListener): () => void {
 
 export function getStoredVoiceName(): string {
   if (typeof localStorage !== 'undefined') {
-    return localStorage.getItem('lega_voice_name') || 'Kore';
+    return localStorage.getItem('lega_voice_name') || 'Suara Tenang';
   }
-  return 'Kore';
+  return 'Suara Tenang';
 }
 
 export function setStoredVoiceName(name: string) {

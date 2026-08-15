@@ -10,7 +10,8 @@ import {
   RotateCcw,
   Loader2,
   ChevronUp,
-  ChevronDown
+  ChevronDown,
+  Mic
 } from 'lucide-react';
 import {
   subscribeVoiceState,
@@ -19,6 +20,7 @@ import {
   seekVoice,
   VoiceState
 } from '../lib/voiceService';
+import { getVoiceCharacter } from '../lib/audioEngine';
 
 export const GlobalVoiceBar: React.FC = () => {
   const [voiceState, setVoiceState] = useState<VoiceState>(() => ({
@@ -30,7 +32,7 @@ export const GlobalVoiceBar: React.FC = () => {
     currentTime: 0,
     duration: 0,
     engine: 'none',
-    voiceName: 'Kore'
+    voiceName: 'Suara Tenang'
   }));
 
   const [isExpanded, setIsExpanded] = useState(false);
@@ -45,6 +47,8 @@ export const GlobalVoiceBar: React.FC = () => {
     return null;
   }
 
+  const voiceProfile = getVoiceCharacter(voiceState.voiceName);
+
   const formatTime = (secs: number) => {
     const m = Math.floor(secs / 60);
     const s = Math.floor(secs % 60);
@@ -57,7 +61,7 @@ export const GlobalVoiceBar: React.FC = () => {
 
   return (
     <div className="fixed bottom-3 left-3 right-3 sm:left-auto sm:right-6 sm:max-w-md z-50 animate-slide-up">
-      <div className="bg-stone-900/95 backdrop-blur-xl border border-emerald-800/80 rounded-2xl shadow-2xl shadow-stone-950/80 overflow-hidden text-stone-100 transition-all">
+      <div className="bg-stone-900/95 backdrop-blur-xl border border-sky-800/80 rounded-2xl shadow-2xl shadow-stone-950/80 overflow-hidden text-stone-100 transition-all">
         {/* Top Progress Bar */}
         <div
           className="w-full h-1 bg-stone-800 cursor-pointer relative group"
@@ -70,7 +74,7 @@ export const GlobalVoiceBar: React.FC = () => {
           }}
         >
           <div
-            className="h-full bg-emerald-500 transition-all duration-150"
+            className="h-full bg-sky-500 transition-all duration-150"
             style={{ width: `${progressPercent}%` }}
           />
         </div>
@@ -79,14 +83,14 @@ export const GlobalVoiceBar: React.FC = () => {
         <div className="p-3 flex items-center justify-between gap-3">
           {/* Track Info */}
           <div className="flex items-center gap-2.5 min-w-0 flex-1">
-            <div className="w-8 h-8 rounded-xl bg-emerald-950 border border-emerald-700/60 flex items-center justify-center text-emerald-400 shrink-0 shadow-inner">
+            <div className="w-8 h-8 rounded-xl bg-sky-950 border border-sky-700/60 flex items-center justify-center text-sky-400 shrink-0 shadow-inner">
               {voiceState.isLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin text-emerald-400" />
+                <Loader2 className="w-4 h-4 animate-spin text-sky-400" />
               ) : voiceState.isPlaying ? (
                 <div className="flex items-center gap-0.5 h-3 px-0.5">
-                  <span className="w-0.5 h-2 bg-emerald-400 rounded-full animate-pulse" />
-                  <span className="w-0.5 h-3.5 bg-emerald-400 rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
-                  <span className="w-0.5 h-2 bg-emerald-400 rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
+                  <span className="w-0.5 h-2 bg-sky-400 rounded-full animate-pulse" />
+                  <span className="w-0.5 h-3.5 bg-sky-400 rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
+                  <span className="w-0.5 h-2 bg-sky-400 rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
                 </div>
               ) : (
                 <Volume2 className="w-4 h-4 text-stone-400" />
@@ -94,16 +98,16 @@ export const GlobalVoiceBar: React.FC = () => {
             </div>
 
             <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 flex-wrap">
                 <p className="text-xs font-bold text-stone-100 truncate">
                   {voiceState.currentTitle || 'Panduan Suara LEGA'}
                 </p>
-                <span className="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shrink-0">
-                  {voiceState.engine === 'gemini-tts' ? 'Audio Narasi' : 'Web Speech'}
+                <span className="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-sky-500/20 text-sky-300 border border-sky-500/30 shrink-0">
+                  {voiceProfile.name}
                 </span>
               </div>
               <p className="text-[11px] text-stone-400 truncate">
-                {voiceState.currentSubtitle || (voiceState.isLoading ? 'Menyiapkan suara AI...' : 'Sedang memutar audio...')}
+                {voiceState.currentSubtitle || (voiceState.isLoading ? 'Menyiapkan suara Gemini AI...' : 'Sedang memutar audio...')}
               </p>
             </div>
           </div>
@@ -113,7 +117,7 @@ export const GlobalVoiceBar: React.FC = () => {
             <button
               onClick={() => togglePauseVoice()}
               disabled={voiceState.isLoading}
-              className="p-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-stone-950 font-bold transition active:scale-95 flex items-center justify-center"
+              className="p-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-stone-950 font-bold transition active:scale-95 flex items-center justify-center"
               title={voiceState.isPlaying ? 'Jeda' : 'Lanjutkan'}
             >
               {voiceState.isPlaying ? (
@@ -145,7 +149,10 @@ export const GlobalVoiceBar: React.FC = () => {
         {isExpanded && voiceState.currentText && (
           <div className="px-3.5 pb-3.5 pt-1 border-t border-stone-800/80 space-y-2 animate-fade-in">
             <div className="flex items-center justify-between text-[11px] text-stone-400">
-              <span>Naskah Narasi Bimbingan:</span>
+              <span className="flex items-center gap-1 text-sky-400">
+                <Mic className="w-3 h-3" />
+                <span>Karakter Suara: <strong>{voiceProfile.name}</strong> ({voiceProfile.badge})</span>
+              </span>
               <span>
                 {formatTime(voiceState.currentTime)} / {formatTime(voiceState.duration)}
               </span>

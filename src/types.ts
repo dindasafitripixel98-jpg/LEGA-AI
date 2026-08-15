@@ -162,6 +162,7 @@ export interface Article {
 export type NatureSoundType =
   | 'aliran-sungai'
   | 'gemericik-air'
+  | 'air-terjun-lembut'
   | 'burung-pagi'
   | 'angin-pepohonan'
   | 'ombak-pantai'
@@ -173,10 +174,16 @@ export type NatureSoundType =
 
 export type AmbientMusicType =
   | 'piano-lembut'
+  | 'petikan-gitar'
+  | 'akustik-hangat'
+  | 'harp-kalimba'
+  | 'gitar-reflektif'
+  | 'ambient-minimal'
+  | 'tibetan-bowl-deep'
   | 'pad-sinematik'
   | 'string-halus'
   | 'piano-hangat'
-  | 'ambient-minimal';
+  | 'lullaby-malam';
 
 export interface AudioRelaxationMetadata {
   atmosphereTheme: string; // Tema suasana (e.g. "Ketenangan Senja")
