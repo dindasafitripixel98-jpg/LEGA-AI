@@ -113,6 +113,8 @@ export interface ConversationMessage {
     breathingExercise?: string;
     journalPrompt?: string;
     audioRecommendation?: string;
+    suggestedModuleKey?: ModuleType;
+    suggestedModuleName?: string;
     summary?: string;
     summaryInsight?: string;
     learningInsight?: string;

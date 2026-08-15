@@ -38,10 +38,12 @@ const FLOW_STEPS = [
 ];
 
 const PRESET_PROMPTS = [
-  'Aku merasa sangat cemas dengan beban pekerjaan hari ini.',
-  'Dadaku terasa sesak dan kepalaku pusing.',
-  'Bagaimana cara berdamai dengan ekspektasi orang lain?',
-  'Aku merasa lelah mental dan ingin jeda sebentar.',
+  'Saya merasa kecewa dengan hasilnya.',
+  'Saya merasa cemas dan gelisah.',
+  'Saya merasa marah karena tidak dihargai.',
+  'Saya merasa sedih dan butuh ruang sendiri.',
+  'Pikiran saya overthinking terus-menerus.',
+  'Tubuh dan pikiran saya merasa sangat lelah.',
 ];
 
 export const AICoach: React.FC<AICoachProps> = ({
@@ -53,15 +55,15 @@ export const AICoach: React.FC<AICoachProps> = ({
     {
       id: 'welcome',
       sender: 'ai',
-      text: `Halo ${userProfile.name}, selamat datang di LEGA AI. Saya di sini untuk mendampingi refleksi dirimu dengan tenang, lembut, dan tanpa menghakimi. Apa yang sedang kamu rasakan atau alami saat ini?`,
+      text: `Halo ${userProfile.name}, selamat datang di ruang aman LEGA AI. Saya hadir untuk mendampingi Anda mendengarkan apa pun yang sedang dirasakan saat ini secara jujur, tenang, dan tanpa penghakiman. Apa emosi atau pengalaman yang sedang Anda alami saat ini?`,
       timestamp: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
       stage: 1,
       structuredOutput: {
         reflectiveQuestions: [
-          'Bagaimana sensasi napas dan tubuhmu saat ini?',
-          'Apa satu hal utama yang sedang paling memenuhi pikiranmu?',
+          'Bagaimana sensasi napas dan kenyamanan tubuh Anda saat ini?',
+          'Apa satu hal utama yang sedang paling Anda rasakan?',
         ],
-        summaryInsight: 'Mulai dengan menyadari kehadiranmu saat ini dengan lembut.',
+        summaryInsight: 'Mulai dengan menyadari kehadiran dan emosi saat ini dengan penuh kelembutan.',
       },
     },
   ]);
@@ -120,6 +122,8 @@ export const AICoach: React.FC<AICoachProps> = ({
         structuredOutput: {
           emotionAnalysis: responseData?.identifiedEmotion || undefined,
           reflectiveQuestions: responseData?.reflectiveQuestions || [],
+          suggestedModuleKey: responseData?.suggestedModuleKey,
+          suggestedModuleName: responseData?.suggestedModuleName || responseData?.suggestedExercise?.title,
           mindfulnessExercise:
             responseData?.suggestedExercise?.type === 'grounding'
               ? responseData.suggestedExercise.title
@@ -306,25 +310,31 @@ export const AICoach: React.FC<AICoachProps> = ({
                       </div>
                     )}
 
-                  {/* Suggested Exercise Launcher */}
-                  {(m.structuredOutput.breathingExercise || m.structuredOutput.mindfulnessExercise) && (
-                    <div className="p-3 bg-sky-900/80 border border-sky-600/60 rounded-xl text-xs flex items-center justify-between shadow-sm">
+                  {/* Suggested Exercise & Dedicated Module Launcher */}
+                  {(m.structuredOutput.suggestedModuleKey || m.structuredOutput.breathingExercise || m.structuredOutput.mindfulnessExercise || m.structuredOutput.suggestedModuleName) && (
+                    <div className="p-3 bg-sky-900/80 border border-sky-600/60 rounded-xl text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 shadow-sm">
                       <div className="flex items-center gap-2 text-sky-100 font-medium">
                         <Wind className="w-4 h-4 text-sky-300 shrink-0" />
-                        <span>
-                          Rekomendasi Latihan:{' '}
+                        <div>
+                          <span className="text-sky-300 text-[11px] block">Rekomendasi Modul & Latihan:</span>
                           <strong className="text-white">
-                            {m.structuredOutput.breathingExercise || m.structuredOutput.mindfulnessExercise}
+                            {m.structuredOutput.suggestedModuleName ||
+                              m.structuredOutput.breathingExercise ||
+                              m.structuredOutput.mindfulnessExercise ||
+                              'Latihan Kesadaran Terarah'}
                           </strong>
-                        </span>
+                        </div>
                       </div>
                       <button
-                        onClick={() =>
-                          onSelectModule(m.structuredOutput?.breathingExercise ? 'breathing' : 'mindfulness')
-                        }
-                        className="px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white rounded-lg text-xs font-bold transition shadow-sm"
+                        onClick={() => {
+                          const target = m.structuredOutput?.suggestedModuleKey ||
+                            (m.structuredOutput?.breathingExercise ? 'breathing' : 'mindfulness');
+                          onSelectModule(target);
+                        }}
+                        className="px-3.5 py-1.5 bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-500 hover:to-cyan-500 text-white rounded-lg text-xs font-bold transition shadow-sm shrink-0 flex items-center gap-1.5 self-end sm:self-auto"
                       >
-                        Mulai Latihan
+                        <BookOpen className="w-3.5 h-3.5" />
+                        <span>Buka Modul</span>
                       </button>
                     </div>
                   )}

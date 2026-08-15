@@ -1,5 +1,8 @@
 // LEGA AI Coach Dynamic Response Engine
-// Implements the 10-step coaching framework from LEGA MASTER PROMPTS 01 & 02
+// Strictly implements the 10 Mandatory Rules for Personalized, Emotion-First Contextual Dialogue
+// SHAQILA DIGITAL 99
+
+import { ModuleType } from '../types';
 
 export interface LegaChatResponse {
   replyText: string;
@@ -10,181 +13,315 @@ export interface LegaChatResponse {
     title: string;
     description: string;
   };
+  suggestedModuleKey?: ModuleType;
+  suggestedModuleName?: string;
   summaryInsight: string;
 }
 
+interface EmotionRuleConfig {
+  key: string;
+  displayName: string;
+  targetModuleKey: ModuleType;
+  moduleName: string;
+  exerciseType: 'breathing' | 'grounding' | 'journal';
+  exerciseTitle: string;
+  exerciseDesc: string;
+  singleWordFollowUp: string;
+  detailedResponseGenerator: (userName: string, contextDetail: string) => string;
+  primaryReflectiveQuestion: string;
+  secondaryOpenQuestion: string;
+  summaryInsight: string;
+}
+
+const EMOTION_CONFIGS: Record<string, EmotionRuleConfig> = {
+  kecewa: {
+    key: 'kecewa',
+    displayName: 'kecewa',
+    targetModuleKey: 'emotional-release',
+    moduleName: 'LEGA Release — Melepaskan Kekecewaan',
+    exerciseType: 'journal',
+    exerciseTitle: 'LEGA Release: Mengurai Harapan & Kekecewaan',
+    exerciseDesc: 'Tuliskan apa yang Anda harapkan dan apa yang sebenarnya terjadi, lalu ambil satu napas pembebasan perlahan.',
+    singleWordFollowUp: 'Mari kita beri ruang sejenak bagi rasa kecewa ini tanpa perlu menghakiminya. Bagaimana sensasi di tubuh Anda saat perasaan ini hadir, dan apa yang membuat rasa kecewa ini muncul?',
+    detailedResponseGenerator: (userName: string, contextDetail: string) =>
+      `Terima kasih sudah menceritakannya, ${userName}. Saya memahami bahwa saat ini Anda sedang merasa kecewa${contextDetail ? ` mengenai hal tersebut` : ''}. Kekecewaan adalah perasaan yang wajar saat kenyataan tidak berjalan sejalan dengan harapan yang Anda simpan. Mari kita tarik napas perlahan dan sadari sensasi di area dada dan bahu saat ini. Izinkan rasa kecewa ini hadir apa adanya sejenak tanpa terburu-buru melawannya.`,
+    primaryReflectiveQuestion: 'Harapan apa yang paling berharga bagi Anda yang terasa belum terpenuhi dalam situasi ini?',
+    secondaryOpenQuestion: 'Apakah selain rasa kecewa, ada perasaan lain yang juga Anda rasakan saat ini?',
+    summaryInsight: 'Kekecewaan menunjukkan adanya hal yang sangat Anda pedulikan; menerima kenyataan adalah awal untuk memulihkan kedamaian batin.',
+  },
+
+  marah: {
+    key: 'marah',
+    displayName: 'marah',
+    targetModuleKey: 'anger',
+    moduleName: 'LEGA Anger — Mengenali & Mengelola Kemarahan',
+    exerciseType: 'breathing',
+    exerciseTitle: 'LEGA Release: Hembusan Napas Pereda Tekanan (Sigh of Relief)',
+    exerciseDesc: 'Tarik napas dalam lewat hidung, lalu hembuskan panjang lewat mulut sambil melemaskan rahang dan bahu.',
+    singleWordFollowUp: 'Mari kita beri jeda sejenak untuk mengamati rasa marah ini. Sadari di bagian tubuh mana panas atau ketegangan terasa paling kuat saat ini, dan apa pemicu utama yang membuat Anda merasa marah?',
+    detailedResponseGenerator: (userName: string, contextDetail: string) =>
+      `Terima kasih sudah menceritakannya, ${userName}. Saya memahami bahwa saat ini Anda sedang merasa marah${contextDetail ? ` terhadap situasi tersebut` : ''}. Rasa marah adalah sinyal alami ketika ada batasan diri, keadilan, atau nilai penting yang terasa dilanggar. Kita tidak perlu menekan rasa marah ini. Mari kita ambil jeda sejenak, lemaskan rahang, dan rasakan pijakan kaki Anda di lantai dengan mantap.`,
+    primaryReflectiveQuestion: 'Batasan diri atau nilai penting apa yang terasa terusik dalam peristiwa ini?',
+    secondaryOpenQuestion: 'Apakah selain rasa marah, ada perasaan lain yang juga Anda rasakan saat ini?',
+    summaryInsight: 'Kemarahan membawa pesan tentang hal yang berharga bagi Anda; memberi jeda membantu Anda merespons dengan bijak.',
+  },
+
+  cemas: {
+    key: 'cemas',
+    displayName: 'cemas',
+    targetModuleKey: 'anxiety',
+    moduleName: 'LEGA Anxiety — Regulasi Kecemasan & Menemukan Jangkar',
+    exerciseType: 'breathing',
+    exerciseTitle: 'LEGA Breathing: Pernapasan Penenang Saraf (4-2-6)',
+    exerciseDesc: 'Tarik napas 4 detik, tahan santai 2 detik, hembuskan perlahan 6 detik untuk menstabilkan sistem saraf.',
+    singleWordFollowUp: 'Anda berada di ruang yang aman saat ini. Sadari bagaimana ritme napas dan detak jantung Anda sekarang, dan hal apa yang paling memicu kekhawatiran tersebut?',
+    detailedResponseGenerator: (userName: string, contextDetail: string) =>
+      `Terima kasih sudah menceritakannya, ${userName}. Saya memahami bahwa saat ini Anda sedang merasa cemas${contextDetail ? ` menghadapi hal tersebut` : ''}. Kecemasan adalah cara tubuh dan pikiran bersiap menghadapi ketidakpastian. Anda aman saat ini. Mari kembali ke saat ini bersama hembusan napas yang mengalir lembut, melepaskan ketegangan di leher dan pundak.`,
+    primaryReflectiveQuestion: 'Dari hal-hal yang sedang Anda cemaskan, bagian mana yang saat ini benar-benar berada dalam kendali langsung Anda?',
+    secondaryOpenQuestion: 'Apakah selain rasa cemas, ada perasaan lain yang juga Anda rasakan saat ini?',
+    summaryInsight: 'Kecemasan sering melihat masa depan yang belum terjadi; menjangkarkan diri pada napas saat ini memulihkan kendali diri.',
+  },
+
+  sedih: {
+    key: 'sedih',
+    displayName: 'sedih',
+    targetModuleKey: 'sadness',
+    moduleName: 'LEGA Sadness — Merawat Kesedihan dengan Kelembutan',
+    exerciseType: 'grounding',
+    exerciseTitle: 'LEGA Presence: Sentuhan Welas Asih pada Diri',
+    exerciseDesc: 'Letakkan satu tangan di dada, rasakan kehangatan telapak tangan, dan berikan izin pada diri untuk beristirahat.',
+    singleWordFollowUp: 'Tidak apa-apa untuk merasa sedih dan tidak perlu buru-buru menghilangkannya. Sadari bagaimana sensasi di dada atau kelopak mata Anda saat ini, dan apa yang sedang terasa paling berat di hati Anda?',
+    detailedResponseGenerator: (userName: string, contextDetail: string) =>
+      `Terima kasih sudah menceritakannya, ${userName}. Saya memahami bahwa saat ini Anda sedang merasa sedih. Kesedihan adalah bukti bahwa Anda memiliki hati yang tulus dan menghargai sesuatu yang bermakna. Anda tidak harus selalu kuat setiap saat. Izinkan diri Anda untuk beristirahat dan menerima rasa sedih ini dengan penuh kelembutan.`,
+    primaryReflectiveQuestion: 'Apa satu hal yang paling dibutuhkan oleh batin dan tubuh Anda saat ini untuk merasa lebih nyaman?',
+    secondaryOpenQuestion: 'Apakah selain rasa sedih, ada perasaan lain yang juga Anda rasakan saat ini?',
+    summaryInsight: 'Memberi ruang bagi kesedihan tanpa penghakiman adalah bentuk belas kasih terdalam pada diri sendiri.',
+  },
+
+  takut: {
+    key: 'takut',
+    displayName: 'takut',
+    targetModuleKey: 'fear',
+    moduleName: 'LEGA Fear — Menghadapi Ketakutan dengan Aman',
+    exerciseType: 'breathing',
+    exerciseTitle: 'LEGA Breathing: Grounding Jangkar Aman',
+    exerciseDesc: 'Rasakan sentuhan kedua telapak kaki di lantai dan tarik napas perlahan sambil menyadari bahwa Anda berada di tempat yang aman.',
+    singleWordFollowUp: 'Rasa takut adalah respon alami saat kita merasa terancam atau tidak pasti. Apa yang saat ini paling membuat Anda merasa takut atau khawatir?',
+    detailedResponseGenerator: (userName: string, contextDetail: string) =>
+      `Terima kasih sudah menceritakannya, ${userName}. Saya memahami bahwa saat ini Anda sedang merasa takut${contextDetail ? ` terhadap situasi tersebut` : ''}. Rasa takut hadir untuk melindungi kita, namun terkadang ia membesar melebihi kenyataannya. Anda tidak sendirian di sini. Mari kita amati bersama rasa takut ini dari titik pijak yang tenang dan aman.`,
+    primaryReflectiveQuestion: 'Dukungan atau hal apa yang bisa membantu Anda merasa sedikit lebih aman dan tenang saat ini?',
+    secondaryOpenQuestion: 'Apakah selain rasa takut, ada perasaan lain yang juga Anda rasakan saat ini?',
+    summaryInsight: 'Keberanian hadir bukan saat rasa takut hilang, melainkan saat kita mampu melangkah perlahan bersama kesadaran napas.',
+  },
+
+  stres: {
+    key: 'stres',
+    displayName: 'stres',
+    targetModuleKey: 'stress',
+    moduleName: 'LEGA Stress — Meredakan Tekanan & Beban',
+    exerciseType: 'breathing',
+    exerciseTitle: 'LEGA Breathing: Jeda Relaksasi 3 Menit',
+    exerciseDesc: 'Tarik napas seimbang 4 detik, lalu hembuskan 4 detik secara teratur untuk menurunkan kadar ketegangan tubuh.',
+    singleWordFollowUp: 'Beban dan tekanan memang bisa membuat pikiran dan tubuh terasa sangat kencang. Apa sumber tekanan utama yang sedang paling membebani Anda saat ini?',
+    detailedResponseGenerator: (userName: string, contextDetail: string) =>
+      `Terima kasih sudah menceritakannya, ${userName}. Saya memahami bahwa saat ini Anda sedang merasa stres karena banyaknya tuntutan yang dihadapi. Tubuh dan pikiran Anda telah bekerja sangat keras. Sekarang, izinkan diri Anda untuk meletakkan sejenak beban tersebut selama beberapa menit ke depan untuk memulihkan ruang batin.`,
+    primaryReflectiveQuestion: 'Dari seluruh beban yang ada, apa 1 hal kecil yang bisa Anda beri jeda atau selesaikan terlebih dahulu?',
+    secondaryOpenQuestion: 'Apakah selain rasa stres, ada perasaan lain yang juga Anda rasakan saat ini?',
+    summaryInsight: 'Istirahat bukan bentuk kegagalan, melainkan cara bijak merawat energi agar dapat melangkah lebih jernih.',
+  },
+
+  lelah: {
+    key: 'lelah',
+    displayName: 'lelah mental / lelah fisik',
+    targetModuleKey: 'body-awareness',
+    moduleName: 'LEGA Body Awareness — Pemulihan Energi & Relaksasi Tubuh',
+    exerciseType: 'grounding',
+    exerciseTitle: 'LEGA Body Awareness: Pelepasan Ketegangan Menyeluruh',
+    exerciseDesc: 'Tutup mata sejenak, pindai sensasi di kepala, leher, dan bahu, lalu biarkan gravitasi menopang tubuh Anda sepenuhnya.',
+    singleWordFollowUp: 'Mengakui rasa lelah adalah langkah awal yang sangat berharga. Bentuk kelelahan seperti apa yang paling Anda rasakan saat ini, apakah fisik, emosional, atau pikiran?',
+    detailedResponseGenerator: (userName: string, contextDetail: string) =>
+      `Terima kasih sudah menceritakannya, ${userName}. Saya memahami bahwa saat ini Anda sedang merasa lelah. Tubuh dan batin Anda sedang mengirimkan pesan jujur bahwa kapasitas energi Anda perlu dipulihkan. Anda berhak untuk beristirahat tanpa rasa bersalah.`,
+    primaryReflectiveQuestion: 'Bentuk jeda atau istirahat sederhana apa yang paling dibutuhkan tubuh Anda hari ini?',
+    secondaryOpenQuestion: 'Apakah selain rasa lelah, ada perasaan lain yang juga Anda rasakan saat ini?',
+    summaryInsight: 'Menghormati batas kapasitas tubuh adalah bentuk kasih sayang dan perlindungan terbaik bagi diri sendiri.',
+  },
+
+  overthinking: {
+    key: 'overthinking',
+    displayName: 'overthinking',
+    targetModuleKey: 'overthinking',
+    moduleName: 'LEGA Overthinking — Memilah Fakta & Menjernihkan Pikiran',
+    exerciseType: 'grounding',
+    exerciseTitle: 'LEGA Observer: Menjeda Arus Pikiran',
+    exerciseDesc: 'Amati pikiran yang berputar sebagai suara latar tanpa perlu masuk ke dalam ceritanya, kembali rasakan napas masuk dan keluar.',
+    singleWordFollowUp: 'Pikiran yang berputar terus-menerus memang sangat menguras tenaga. Pikiran atau skenario apa yang sedang paling sering berulang di kepala Anda saat ini?',
+    detailedResponseGenerator: (userName: string, contextDetail: string) =>
+      `Terima kasih sudah menceritakannya, ${userName}. Saya memahami bahwa saat ini Anda sedang mengalami overthinking. Otak kita sering kali mencoba mencari kepastian dengan memikirkan semua kemungkinan. Ingatlah bahwa tidak semua yang dipikirkan adalah fakta nyata. Mari kita kembali ke saat ini dan memijak kenyataan dengan tenang.`,
+    primaryReflectiveQuestion: 'Manakah dari pikiran tersebut yang merupakan fakta nyata saat ini, dan mana yang sekadar kekhawatiran masa depan?',
+    secondaryOpenQuestion: 'Apakah selain overthinking, ada perasaan emosional lain yang menyertainya saat ini?',
+    summaryInsight: 'Pikiran adalah peristiwa mental yang datang dan pergi; Anda adalah ruang hening dan jernih di baliknya.',
+  },
+
+  bersalah: {
+    key: 'bersalah',
+    displayName: 'bersalah (guilt)',
+    targetModuleKey: 'guilt',
+    moduleName: 'LEGA Guilt — Memahami Tanggung Jawab & Memaafkan Diri',
+    exerciseType: 'journal',
+    exerciseTitle: 'LEGA Forgiveness: Refleksi Penerimaan Diri',
+    exerciseDesc: 'Akui ketidaksempurnaan manusiawi, pisahkan antara kesalahan tindakan dan keberhargaan diri Anda seutuhnya.',
+    singleWordFollowUp: 'Rasa bersalah sering kali membawa beban berat di dada. Apa yang membuat Anda merasa bersalah saat ini, dan apa yang sebenarnya Anda harapkan dari diri Anda?',
+    detailedResponseGenerator: (userName: string, contextDetail: string) =>
+      `Terima kasih sudah menceritakannya, ${userName}. Saya memahami bahwa saat ini Anda sedang merasa bersalah. Rasa bersalah menunjukkan bahwa Anda memiliki nilai moral dan kepedulian yang tinggi. Namun, menyiksa diri tidak akan memperbaiki keadaan. Mari kita pisahkan antara hal yang bisa diperbaiki dengan penerimaan bahwa setiap manusia bisa berproses dari kekhilafan.`,
+    primaryReflectiveQuestion: 'Langkah perbaikan kecil apa yang berada dalam kendali Anda, atau apakah ini saatnya memperlakukan diri dengan belas kasih?',
+    secondaryOpenQuestion: 'Apakah selain rasa bersalah, ada perasaan lain yang juga Anda rasakan saat ini?',
+    summaryInsight: 'Rasa bersalah mengingatkan kita pada nilai hidup; memaafkan diri memberi kita kesempatan untuk tumbuh lebih baik.',
+  },
+
+  malu: {
+    key: 'malu',
+    displayName: 'malu (shame)',
+    targetModuleKey: 'shame',
+    moduleName: 'LEGA Shame — Memulihkan Rasa Berharga Diri',
+    exerciseType: 'grounding',
+    exerciseTitle: 'LEGA Presence: Mengakui Keberhargaan Diri Sejati',
+    exerciseDesc: 'Sadari bahwa kesalahan atau penilaian luar tidak menentukan nilai sejati diri Anda sebagai manusia.',
+    singleWordFollowUp: 'Rasa malu bisa membuat kita ingin bersembunyi atau menarik diri. Anda berada di tempat yang aman tanpa penghakiman. Apa yang memicu rasa malu tersebut?',
+    detailedResponseGenerator: (userName: string, contextDetail: string) =>
+      `Terima kasih sudah menceritakannya, ${userName}. Saya memahami bahwa saat ini Anda sedang merasa malu. Rasa malu sering membuat kita merasa kurang berharga atau takut dinilai orang lain. Sadarilah bahwa satu peristiwa atau pandangan orang lain tidak mendefinisikan jati diri Anda seutuhnya. Anda berharga apa adanya.`,
+    primaryReflectiveQuestion: 'Bagaimana Anda bisa bersikap seperti sahabat terbaik yang penuh pengertian kepada diri Anda sendiri saat ini?',
+    secondaryOpenQuestion: 'Apakah selain rasa malu, ada perasaan lain yang juga Anda rasakan saat ini?',
+    summaryInsight: 'Rasa malu melemah saat diungkapkan di ruang yang aman dan dibalut dengan penerimaan diri tanpa syarat.',
+  },
+};
+
+// Precise emotion detector that checks exact words, single word triggers, and natural statements
+function detectUserEmotion(rawText: string): { matchedKey: string | null; isSingleWord: boolean } {
+  const text = (rawText || '').trim().toLowerCase();
+  if (!text) return { matchedKey: null, isSingleWord: false };
+
+  // Remove trailing punctuation
+  const cleanSingle = text.replace(/^[!?,.\s]+|[!?,.\s]+$/g, '');
+
+  // 1. Single Word Check
+  if (cleanSingle === 'kecewa' || cleanSingle === 'kecewaa' || cleanSingle === 'patah hati') {
+    return { matchedKey: 'kecewa', isSingleWord: true };
+  }
+  if (cleanSingle === 'marah' || cleanSingle === 'kesal' || cleanSingle === 'jengkel' || cleanSingle === 'geram') {
+    return { matchedKey: 'marah', isSingleWord: true };
+  }
+  if (cleanSingle === 'cemas' || cleanSingle === 'anxiety' || cleanSingle === 'gelisah' || cleanSingle === 'khawatir' || cleanSingle === 'was-was' || cleanSingle === 'panik') {
+    return { matchedKey: 'cemas', isSingleWord: true };
+  }
+  if (cleanSingle === 'sedih' || cleanSingle === 'sedihh' || cleanSingle === 'menangis' || cleanSingle === 'nangis') {
+    return { matchedKey: 'sedih', isSingleWord: true };
+  }
+  if (cleanSingle === 'takut' || cleanSingle === 'takutt' || cleanSingle === 'ngeri' || cleanSingle === 'gugup') {
+    return { matchedKey: 'takut', isSingleWord: true };
+  }
+  if (cleanSingle === 'stres' || cleanSingle === 'stress' || cleanSingle === 'tertekan' || cleanSingle === 'penat') {
+    return { matchedKey: 'stres', isSingleWord: true };
+  }
+  if (cleanSingle === 'lelah' || cleanSingle === 'capek' || cleanSingle === 'capekk' || cleanSingle === 'burnout' || cleanSingle === 'lemas') {
+    return { matchedKey: 'lelah', isSingleWord: true };
+  }
+  if (cleanSingle === 'overthinking' || cleanSingle === 'mikir terus' || cleanSingle === 'pikiran berputar') {
+    return { matchedKey: 'overthinking', isSingleWord: true };
+  }
+  if (cleanSingle === 'bersalah' || cleanSingle === 'merasa bersalah' || cleanSingle === 'guilt') {
+    return { matchedKey: 'bersalah', isSingleWord: true };
+  }
+  if (cleanSingle === 'malu' || cleanSingle === 'shame' || cleanSingle === 'minder') {
+    return { matchedKey: 'malu', isSingleWord: true };
+  }
+
+  // 2. Multi-word phrase matching with priority order (e.g. "kecewa" checked strictly before "sedih")
+  // Rule 2 & 6: NEVER replace kecewa with sedih!
+  if (/\b(kecewa|kekecewaan|patah hati|dikecewakan)\b/i.test(text)) {
+    return { matchedKey: 'kecewa', isSingleWord: false };
+  }
+  if (/\b(marah|kesal|jengkel|geram|emosi|dendam|benci)\b/i.test(text)) {
+    return { matchedKey: 'marah', isSingleWord: false };
+  }
+  if (/\b(cemas|kecemasan|panik|khawatir|gelisah|was-was|anxiety|resah)\b/i.test(text)) {
+    return { matchedKey: 'cemas', isSingleWord: false };
+  }
+  if (/\b(sedih|kesedihan|menangis|nangis|pilu|terpuruk|berduka)\b/i.test(text)) {
+    return { matchedKey: 'sedih', isSingleWord: false };
+  }
+  if (/\b(takut|ketakutan|ngeri|gugup|fobia|terancam)\b/i.test(text)) {
+    return { matchedKey: 'takut', isSingleWord: false };
+  }
+  if (/\b(bersalah|rasa bersalah|guilt|menyesal|penyesalan)\b/i.test(text)) {
+    return { matchedKey: 'bersalah', isSingleWord: false };
+  }
+  if (/\b(malu|rasa malu|shame|minder|insecure)\b/i.test(text)) {
+    return { matchedKey: 'malu', isSingleWord: false };
+  }
+  if (/\b(overthinking|mikir terus|pikiran berulang|pikiran berputar|sulit tidur memikirkan)\b/i.test(text)) {
+    return { matchedKey: 'overthinking', isSingleWord: false };
+  }
+  if (/\b(stres|stress|tertekan|tekanan|beban berat|pusing tugas)\b/i.test(text)) {
+    return { matchedKey: 'stres', isSingleWord: false };
+  }
+  if (/\b(lelah|capek|burnout|lemas|kehabisan energi|letih|penat mental)\b/i.test(text)) {
+    return { matchedKey: 'lelah', isSingleWord: false };
+  }
+
+  return { matchedKey: null, isSingleWord: false };
+}
+
 export function generateLegaContextualChat(messages: any[], userProfile: any): LegaChatResponse {
-  const userName = userProfile?.name || 'Sahabat LEGA';
-  const lastUserMsg = messages && messages.length > 0
-    ? [...messages].reverse().find((m: any) => m.sender === 'user')?.text || ''
-    : '';
+  const userName = userProfile?.name || 'Teman LEGA';
+  const userMessages = messages ? messages.filter((m: any) => m.sender === 'user') : [];
+  const lastUserMsg = userMessages.length > 0 ? userMessages[userMessages.length - 1]?.text || '' : '';
 
-  const lower = lastUserMsg.toLowerCase();
-  const stepCount = Math.min(messages.filter((m: any) => m.sender === 'user').length, 10);
+  const { matchedKey, isSingleWord } = detectUserEmotion(lastUserMsg);
 
-  // 1. Emotion & Theme detection
-  let detectedEmotion: string | null = null;
-  let category: 'anxiety' | 'sadness' | 'anger' | 'stress' | 'fatigue' | 'overthinking' | 'fear' | 'general' = 'general';
+  if (matchedKey && EMOTION_CONFIGS[matchedKey]) {
+    const config = EMOTION_CONFIGS[matchedKey];
 
-  if (lower.includes('cemas') || lower.includes('panik') || lower.includes('khawatir') || lower.includes('was-was') || lower.includes('gelisah') || lower.includes('sesak')) {
-    detectedEmotion = 'cemas';
-    category = 'anxiety';
-  } else if (lower.includes('sedih') || lower.includes('kecewa') || lower.includes('patah hati') || lower.includes('nangis') || lower.includes('kehilangan') || lower.includes('hampa')) {
-    detectedEmotion = 'sedih';
-    category = 'sadness';
-  } else if (lower.includes('marah') || lower.includes('kesal') || lower.includes('jengkel') || lower.includes('emosi') || lower.includes('benci') || lower.includes('dendam')) {
-    detectedEmotion = 'marah';
-    category = 'anger';
-  } else if (lower.includes('stres') || lower.includes('tertekan') || lower.includes('beban') || lower.includes('pusing') || lower.includes('berat')) {
-    detectedEmotion = 'stres';
-    category = 'stress';
-  } else if (lower.includes('lelah') || lower.includes('capek') || lower.includes('burnout') || lower.includes('lemas') || lower.includes('habis energi')) {
-    detectedEmotion = 'lelah mental';
-    category = 'fatigue';
-  } else if (lower.includes('overthinking') || lower.includes('mikir terus') || lower.includes('pikiran berulang') || lower.includes('bingung') || lower.includes('sulit tidur')) {
-    detectedEmotion = 'overthinking';
-    category = 'overthinking';
-  } else if (lower.includes('takut') || lower.includes('gugup') || lower.includes('ngeri') || lower.includes('trauma')) {
-    detectedEmotion = 'takut';
-    category = 'fear';
+    let replyText = '';
+    if (isSingleWord) {
+      // Rule 10: Single word input handling with exact first sentence acknowledgment
+      replyText = `Terima kasih sudah menceritakannya, ${userName}. Saya memahami bahwa saat ini Anda sedang merasa ${config.displayName}.\n\n${config.singleWordFollowUp}`;
+    } else {
+      // Rule 1 & 5: Exact first sentence acknowledgment + gentle step-by-step presence & body awareness
+      replyText = `${config.detailedResponseGenerator(userName, '')}\n\nMari kita amati bersama sensasi fisik dan napas Anda saat ini tanpa menghakimi. ${config.primaryReflectiveQuestion}`;
+    }
+
+    return {
+      replyText,
+      identifiedEmotion: config.displayName,
+      reflectiveQuestions: [config.primaryReflectiveQuestion, config.secondaryOpenQuestion],
+      suggestedExercise: {
+        type: config.exerciseType,
+        title: config.exerciseTitle,
+        description: config.exerciseDesc,
+      },
+      suggestedModuleKey: config.targetModuleKey,
+      suggestedModuleName: config.moduleName,
+      summaryInsight: config.summaryInsight,
+    };
   }
 
-  // 2. Formulate stage-aware dialogue following LEGA 10-step method
-  let replyText = '';
-  let reflectiveQuestions: string[] = [];
-  let suggestedExercise: LegaChatResponse['suggestedExercise'] = {
-    type: 'breathing',
-    title: 'Napas Hadir Saat Ini (4-2-6)',
-    description: 'Tarik napas perlahan 4 detik, tahan santai 2 detik, lalu hembuskan lembut 6 detik.'
-  };
-  let summaryInsight = 'Mendengarkan pengalaman batin dengan lembut adalah langkah awal menuju kelegaan.';
-
-  switch (category) {
-    case 'anxiety':
-      replyText = `Saya mendengar dan merasakan bahwa rasa cemas ini terasa cukup intens di dalam diri Anda saat ini, ${userName}. Wajar sekali jika tubuh Anda bereaksi seperti dada berdebar atau napas terasa lebih pendek ketika menghadapi ketidakpastian. Anda berada di tempat yang aman sekarang. Mari kita berikan ruang sejenak bagi rasa cemas ini tanpa perlu melawannya.`;
-      reflectiveQuestions = [
-        'Sensasi fisik apa yang paling terasa di tubuh Anda saat kecemasan ini muncul?',
-        'Dari situasi yang sedang Anda hadapi, hal apa yang saat ini benar-benar berada di bawah kendali Anda?'
-      ];
-      suggestedExercise = {
-        type: 'breathing',
-        title: 'LEGA Breathing: Regulasi Sistem Saraf',
-        description: 'Tarik napas 4 detik, tahan 2 detik, hembuskan perlahan 6 detik untuk menstabilkan detak jantung.'
-      };
-      summaryInsight = 'Kecemasan adalah sinyal perlindungan dari tubuh; menjangkarkan napas di saat ini membantu memulihkan rasa aman.';
-      break;
-
-    case 'sadness':
-      replyText = `Terima kasih sudah mau berbagi apa yang sedang terasa berat di hati Anda, ${userName}. Rasa sedih sering kali hadir saat ada hal yang sangat berharga atau harapan yang belum terwujud. Tidak perlu terburu-buru menghilangkannya atau memaksakan diri tersenyum. Izinkan diri Anda untuk beristirahat dan menerima perasaan ini dengan kelembutan.`;
-      reflectiveQuestions = [
-        'Apa yang paling Anda butuhkan dari diri Anda sendiri di hari yang terasa berat ini?',
-        'Apakah ada hal sederhana yang bisa memberi Anda rasa nyaman atau kehangatan saat ini?'
-      ];
-      suggestedExercise = {
-        type: 'grounding',
-        title: 'LEGA Presence: Merangkul Momen Ini',
-        description: 'Rasakan sentuhan kedua telapak tangan di dada atau pangkuan, sadari napas mengalir lembut.'
-      };
-      summaryInsight = 'Memberi ruang bagi kesedihan tanpa penghakiman adalah bentuk belas kasih terdalam pada diri sendiri.';
-      break;
-
-    case 'anger':
-      replyText = `Saya memahami bahwa situasi ini memicu rasa marah dan kekesalan yang nyata, ${userName}. Marah adalah emosi yang valid dan sering menandakan adanya batasan diri atau nilai penting yang terasa dilanggar. Mari beri jeda sejenak sebelum mengambil respon, agar Anda dapat melihat situasi ini dengan ruang batin yang lebih jernih.`;
-      reflectiveQuestions = [
-        'Kebutuhan atau nilai penting apa yang terasa tidak dihargai dalam kejadian ini?',
-        'Apa respon yang paling bijak dan aman yang bisa Anda pilih saat tubuh mulai lebih rileks?'
-      ];
-      suggestedExercise = {
-        type: 'breathing',
-        title: 'LEGA Release: Pelepasan Ketegangan Fisik',
-        description: 'Tarik napas dalam melalui hidung, hembuskan panjang melalui mulut sambil melemaskan rahang dan bahu.'
-      };
-      summaryInsight = 'Marah memberi kita informasi tentang apa yang penting; kejernihan membantu kita menyampaikannya secara sehat.';
-      break;
-
-    case 'stress':
-      replyText = `Beban tanggung jawab dan tekanan yang menumpuk tentu menguras energi, ${userName}. Wajar jika pikiran terasa penuh dan tubuh terasa kaku. Anda telah berjuang keras hari ini. Sekarang, mari izinkan diri Anda untuk meletakkan sejenak beban pikiran tersebut selama beberapa menit ke depan.`;
-      reflectiveQuestions = [
-        'Dari seluruh daftar pekerjaan atau urusan, mana 1 hal kecil yang paling mendesak, dan mana yang bisa ditunda?',
-        'Kapan terakhir kali Anda memberi waktu jeda murni tanpa memikirkan tugas?'
-      ];
-      suggestedExercise = {
-        type: 'breathing',
-        title: 'LEGA Breathing: Jeda 3 Menit',
-        description: 'Irama napas seimbang 4 detik tarik napas dan 4 detik hembuskan napas secara ritmis.'
-      };
-      summaryInsight = 'Istirahat bukan tanda kelemahan, melainkan kebutuhan esensial agar pikiran kembali segar dan terarah.';
-      break;
-
-    case 'fatigue':
-      replyText = `Tubuh dan batin Anda sedang mengirimkan sinyal nyata bahwa energi Anda sedang berada di titik rendah, ${userName}. Mengakui rasa lelah adalah langkah awal yang sangat berani. Anda tidak harus selalu produktif setiap saat. Mari prioritaskan pemulihan energi Anda hari ini.`;
-      reflectiveQuestions = [
-        'Bentuk istirahat apa yang paling dirindukan oleh tubuh Anda saat ini?',
-        'Apa satu hal yang bisa Anda kurangi atau delegasikan agar pikiran terasa lebih lapang?'
-      ];
-      suggestedExercise = {
-        type: 'grounding',
-        title: 'LEGA Body Awareness: Pemindaian Relaksasi',
-        description: 'Amati sensasi berat di bahu, leher, dan kelopak mata, lalu izinkan setiap bagian tubuh beristirahat.'
-      };
-      summaryInsight = 'Menghargai batasan energi tubuh adalah cara terbaik menjaga keberlanjutan hidup jangka panjang.';
-      break;
-
-    case 'overthinking':
-      replyText = `Pikiran berputar yang memikirkan berbagai skenario memang sangat melelahkan, ${userName}. Otak kita sering kali mencoba mencari kepastian di tengah ketidakpastian. Ingatlah bahwa tidak semua hal yang dibayangkan oleh pikiran adalah kenyataan yang pasti terjadi. Mari kembali ke apa yang nyata di hadapan kita saat ini.`;
-      reflectiveQuestions = [
-        'Manakah dari kekhawatiran ini yang merupakan fakta nyata saat ini, dan mana yang sekadar asumsi pikiran?',
-        'Apa satu langkah kecil berdurasi 2 menit yang bisa Anda lakukan sekarang daripada terus memikirkannya?'
-      ];
-      suggestedExercise = {
-        type: 'grounding',
-        title: 'LEGA Observer: Posisi Saksi Pengamat',
-        description: 'Amati pikiran sebagai awan yang melintas di langit kesadaran tanpa harus masuk ke dalam ceritanya.'
-      };
-      summaryInsight = 'Pikiran hanyalah peristiwa mental; Anda adalah ruang hening tempat pikiran itu datang dan pergi.';
-      break;
-
-    case 'fear':
-      replyText = `Rasa takut atau kekhawatiran akan masa depan adalah respon alami saat kita berhadapan dengan hal yang belum kita kenal, ${userName}. Anda tidak sendirian dalam menghadapi perasaan ini. Mari kita uraikan bersama perlahan-lahan dari titik yang paling aman.`;
-      reflectiveQuestions = [
-        'Apa skenario yang paling Anda khawatirkan, dan apa sumber daya/dukungan yang Anda miliki untuk menghadapinya?',
-        'Bagaimana Anda bisa bersikap lebih ramah dan menguatkan diri sendiri di tengah ketidakpastian ini?'
-      ];
-      suggestedExercise = {
-        type: 'breathing',
-        title: 'LEGA Breathing: Menemukan Jangkar Aman',
-        description: 'Tarik napas perlahan sambil merasakan telapak kaki menapak kuat di lantai.'
-      };
-      summaryInsight = 'Keberanian bukan ketiadaan rasa takut, melainkan kemampuan untuk terus melangkah bersama kesadaran napas.';
-      break;
-
-    default:
-      replyText = `Terima kasih sudah meluangkan waktu berharga untuk menyapa diri sendiri hari ini, ${userName}. Saya mendengarkan apa yang sedang Anda alami. Bersama LEGA AI, kita berada di ruang refleksi yang tenang untuk mengenali pola pikir dan emosi Anda langkah demi langkah.`;
-      reflectiveQuestions = [
-        'Bagaimana ritme napas dan kenyamanan tubuh Anda pada detik ini?',
-        'Apa hal utama yang ingin Anda temukan atau refleksikan dalam sesi kita kali ini?'
-      ];
-      suggestedExercise = {
-        type: 'breathing',
-        title: 'Napas Kesadaran Penuh',
-        description: 'Perhatikan udara sejuk yang masuk melalui hidung dan udara hangat yang keluar perlahan.'
-      };
-      summaryInsight = 'Momen saat ini adalah satu-satunya ruang di mana kita memiliki kendali penuh.';
-      break;
-  }
-
-  // Add step-specific progression context
-  if (stepCount >= 4 && stepCount < 7) {
-    replyText += `\n\nMenyadari hal ini membantu kita melihat pola batin yang sedang bekerja.`;
-  } else if (stepCount >= 7) {
-    replyText += `\n\nMelalui refleksi ini, Anda telah menunjukkan komitmen yang indah untuk merawat kesehatan mental diri Anda.`;
-  }
+  // Fallback for general neutral or descriptive input
+  const replyText = `Terima kasih telah menceritakan apa yang sedang Anda alami saat ini, ${userName}. Saya mendengarkan Anda dengan penuh perhatian dan tanpa penghakiman. Mari kita luangkan jeda sejenak untuk menyadari napas dan apa yang paling dirasakan tubuh Anda pada detik ini.\n\nApa emosi atau perasaan utama yang paling terasa di dalam diri Anda saat ini?`;
 
   return {
     replyText,
-    identifiedEmotion: detectedEmotion,
-    reflectiveQuestions,
-    suggestedExercise,
-    summaryInsight,
+    identifiedEmotion: null,
+    reflectiveQuestions: [
+      'Apa emosi atau perasaan utama yang paling Anda rasakan saat ini?',
+      'Bagaimana sensasi napas dan kenyamanan tubuh Anda saat menceritakan hal ini?',
+    ],
+    suggestedExercise: {
+      type: 'breathing',
+      title: 'LEGA Presence: Sadari Napas Hadir Saat Ini',
+      description: 'Rasakan hembusan napas yang mengalir lembut masuk dan keluar dari hidung.',
+    },
+    suggestedModuleKey: 'mindfulness',
+    suggestedModuleName: 'LEGA Presence — Hadir Saat Ini',
+    summaryInsight: 'Menyadari dan menamai apa yang sedang dirasakan adalah langkah awal menuju kelegaan batin.',
   };
 }
