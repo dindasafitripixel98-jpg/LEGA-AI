@@ -220,7 +220,7 @@ export const AdminPanel: React.FC = () => {
                 LEGA Admin AI <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400">v3.0 Final</span>
               </h1>
               <p className="text-xs text-stone-400">
-                Pusat Kendali Ekosistem Administrator &bull; Developer: <strong className="text-stone-300">SHAQILA DIGITAL 99</strong>
+                Pusat Kendali Ekosistem Administrator &bull; Developer: <strong className="font-extrabold text-white tracking-wide">SHAQILA DIGITAL 99</strong>
               </p>
             </div>
           </div>
@@ -898,7 +898,7 @@ export const AdminPanel: React.FC = () => {
 
       {/* Footer Branding */}
       <div className="text-center text-[11px] text-stone-500 pt-4 border-t border-stone-800">
-        LEGA Admin AI v3.0 Final &bull; Developed by <strong className="text-stone-400">SHAQILA DIGITAL 99</strong> &bull; Hak Akses Administrator Terlindungi.
+        LEGA Admin AI v3.0 Final &bull; Developed by <strong className="font-extrabold text-white tracking-wide">SHAQILA DIGITAL 99</strong> &bull; Hak Akses Administrator Terlindungi.
       </div>
     </div>
   );

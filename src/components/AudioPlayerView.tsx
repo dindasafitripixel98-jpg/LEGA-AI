@@ -38,7 +38,8 @@ import {
   Droplets,
   Disc,
   Info,
-  SlidersHorizontal
+  SlidersHorizontal,
+  CheckSquare
 } from 'lucide-react';
 import { ModuleType, NatureSoundType, AmbientMusicType, AudioRelaxationMetadata } from '../types';
 import { generateAudioScript, generateGeminiTts } from '../lib/geminiApi';
@@ -189,6 +190,33 @@ const EMOTIONS = ['Cemas', 'Marah', 'Sedih', 'Kecewa', 'Bersalah', 'Lelah', 'Net
 
 const PRESET_LIBRARY = [
   {
+    id: 'pres-hutan-pagi',
+    title: '🌊 Hutan Pagi',
+    category: 'LEGA Calm',
+    subcategory: 'Keseimbangan Jiwa & Kesegaran Fajar',
+    duration: '15 Menit',
+    desc: 'Lanskap audio multi-layer fajar yang kaya memadukan aliran sungai jernih, kicau burung pagi, semilir angin pepohonan, serta alunan piano akustik lembut 432Hz.',
+    sampleScript: 'Selamat pagi. Ambil napas panjang yang sejuk dan biarkan dada Anda mengembang dengan tenang. Dengarkan suara aliran air sungai pegunungan yang jernih, kicauan burung fajar di kejauhan, serta semilir angin lembut yang membelai dedaunan rimbun. [Jeda 4 detik] Biarkan alunan piano ini menuntun detak jantung Anda ke ritme alami yang damai. Hari ini adalah awal baru yang penuh ketenangan.',
+    natureTypes: ['aliran-sungai', 'burung-pagi', 'angin-pepohonan'] as NatureSoundType[],
+    ambientMusic: 'piano-lembut' as AmbientMusicType,
+    narrationVolume: 80,
+    natureVolume: 60,
+    musicVolume: 40,
+    metadata: buildAudioRelaxationMetadata(
+      'Hutan Pagi & Fajar Menenangkan',
+      'burung-pagi',
+      'piano-lembut',
+      {
+        natureSoundTypes: ['aliran-sungai', 'burung-pagi', 'angin-pepohonan'],
+        narrationVolume: 80,
+        natureVolume: 60,
+        musicVolume: 40,
+        fadeInSeconds: 3.5,
+        fadeOutSeconds: 5.0
+      }
+    )
+  },
+  {
     id: 'pres-1',
     title: 'Napas Penghening Senja',
     category: 'LEGA Calm',
@@ -250,6 +278,12 @@ const PRESET_LIBRARY = [
   }
 ];
 
+// Helper: Renders ASCII block meter for volume (e.g. ████████░░)
+export const renderAsciiVolumeMeter = (pct: number, bars = 10): string => {
+  const filled = Math.max(0, Math.min(bars, Math.round((pct / 100) * bars)));
+  return '█'.repeat(filled) + '░'.repeat(bars - filled);
+};
+
 export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
   onSelectModule,
   onOpenCrisis,
@@ -257,57 +291,138 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
 }) => {
   // Category & Generation Configuration
   const [selectedCategory, setSelectedCategory] = useState<AudioCategory>(CATEGORIES[0]);
-  const [selectedSubcategory, setSelectedSubcategory] = useState<string>(CATEGORIES[0].subcategories[2]); // Pelepasan Cemas
-  const [durationMinutes, setDurationMinutes] = useState<number>(5);
-  const [emotionState, setEmotionState] = useState<string>('Cemas');
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string>(CATEGORIES[0].subcategories[0]); // Hutan Pagi / Relaksasi
+  const [durationMinutes, setDurationMinutes] = useState<number>(15);
+  const [emotionState, setEmotionState] = useState<string>('Netral');
   const [emotionIntensity, setEmotionIntensity] = useState<'Rendah' | 'Sedang' | 'Tinggi' | 'Sangat Tinggi'>('Sedang');
   const [userExperienceLevel, setUserExperienceLevel] = useState<'pemula' | 'menengah' | 'lanjutan'>('pemula');
-  const [audioMode, setAudioMode] = useState<'guided' | 'gentle' | 'reflective' | 'sleep' | 'emergency_calming'>('guided');
+  const [audioMode, setAudioMode] = useState<'guided' | 'gentle' | 'reflective' | 'sleep' | 'emergency_calming'>('gentle');
   const [spiritualMode, setSpiritualMode] = useState<boolean>(false);
-  const [customGoal, setCustomGoal] = useState<string>('Menenangkan pikiran dan melepaskan ketegangan tubuh');
+  const [customGoal, setCustomGoal] = useState<string>('Kesegaran dan ketenangan pagi bersama suara alam');
   const [voiceName, setVoiceName] = useState<string>('Kore');
   const [speechSpeed, setSpeechSpeed] = useState<'perlahan' | 'normal' | 'santai'>('perlahan');
 
   // Soundscape & Acoustic Mixing Controls
-  const [natureSound, setNatureSound] = useState<NatureSoundType>('angin-pepohonan');
-  const [ambientMusic, setAmbientMusic] = useState<AmbientMusicType>('pad-sinematik');
-  const [narrationVolumePct, setNarrationVolumePct] = useState<number>(90); // 90%
-  const [natureVolumePct, setNatureVolumePct] = useState<number>(25); // 25% (Latar)
-  const [musicVolumePct, setMusicVolumePct] = useState<number>(20); // 20% (Latar)
-  const [fadeInSec, setFadeInSec] = useState<number>(4.5);
-  const [fadeOutSec, setFadeOutSec] = useState<number>(6.0);
+  const [selectedNatureSounds, setSelectedNatureSounds] = useState<NatureSoundType[]>([
+    'aliran-sungai',
+    'burung-pagi',
+    'angin-pepohonan'
+  ]);
+  const [natureSound, setNatureSound] = useState<NatureSoundType>('burung-pagi');
+  const [ambientMusic, setAmbientMusic] = useState<AmbientMusicType>('piano-lembut');
+  const [narrationVolumePct, setNarrationVolumePct] = useState<number>(80); // 80% (████████░░)
+  const [natureVolumePct, setNatureVolumePct] = useState<number>(60); // 60% (██████░░░░)
+  const [musicVolumePct, setMusicVolumePct] = useState<number>(40); // 40% (████░░░░░░)
+  const [fadeInSec, setFadeInSec] = useState<number>(3.5);
+  const [fadeOutSec, setFadeOutSec] = useState<number>(5.0);
 
   // Active Session Metadata
   const [activeMetadata, setActiveMetadata] = useState<AudioRelaxationMetadata>(() =>
-    buildAudioRelaxationMetadata('Pelepasan Ketegangan Batin', 'angin-pepohonan', 'pad-sinematik')
+    buildAudioRelaxationMetadata('Hutan Pagi & Fajar Menenangkan', 'burung-pagi', 'piano-lembut', {
+      natureSoundTypes: ['aliran-sungai', 'burung-pagi', 'angin-pepohonan'],
+      narrationVolume: 80,
+      natureVolume: 60,
+      musicVolume: 40
+    })
   );
 
   // Audio Player State
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
-  const [generatedScriptData, setGeneratedScriptData] = useState<any | null>(null);
+  const [generatedScriptData, setGeneratedScriptData] = useState<any | null>(() => ({
+    title: PRESET_LIBRARY[0].title,
+    category: PRESET_LIBRARY[0].category,
+    subcategory: PRESET_LIBRARY[0].subcategory,
+    durationMinutes: 15,
+    description: PRESET_LIBRARY[0].desc,
+    script: PRESET_LIBRARY[0].sampleScript,
+    ttsPrompt: PRESET_LIBRARY[0].sampleScript,
+    reflectiveQuestions: [
+      'Bagaimana rasa napas dan ketenangan batin Anda saat membayangkan embun fajar di hutan ini?',
+      'Apakah ada niat positif atau rasa syukur yang ingin Anda bawa sepanjang hari ini?'
+    ]
+  }));
+
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [masterVolume, setMasterVolume] = useState<number>(0.85);
   const [currentTime, setCurrentTime] = useState<number>(0);
-  const [totalDuration, setTotalDuration] = useState<number>(0);
+  const [totalDuration, setTotalDuration] = useState<number>(900); // 15 mins
   const [copiedScript, setCopiedScript] = useState<boolean>(false);
   const [previewingSound, setPreviewingSound] = useState<string | null>(null);
   const [showMetadataDrawer, setShowMetadataDrawer] = useState<boolean>(true);
 
   // Audio Engine & Playback Options
-  const [playbackSource, setPlaybackSource] = useState<'gemini_tts' | 'web_speech' | 'ambient_music'>('gemini_tts');
+  const [playbackSource, setPlaybackSource] = useState<'gemini_tts' | 'web_speech' | 'ambient_music'>('web_speech');
 
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  // Dedicated Audio Refs for Voice and Background Soundscape
+  const voiceAudioRef = useRef<HTMLAudioElement | null>(null);
+  const soundscapeAudioRef = useRef<HTMLAudioElement | null>(null);
   const previewAudioRef = useRef<HTMLAudioElement | null>(null);
+  const progressTimerRef = useRef<number | null>(null);
+
+  // Helper: Toggle individual nature sound layers
+  const toggleNatureSound = (soundId: NatureSoundType) => {
+    setSelectedNatureSounds((prev) => {
+      let next: NatureSoundType[];
+      if (prev.includes(soundId)) {
+        if (prev.length === 1) return prev; // keep at least 1 sound active
+        next = prev.filter((s) => s !== soundId);
+      } else {
+        next = [...prev, soundId];
+      }
+      setNatureSound(next[0]);
+      prepareSoundscapeAudio(next, ambientMusic, natureVolumePct, musicVolumePct);
+      return next;
+    });
+  };
+
+  // Helper: Prepare or update background soundscape audio (handles multi-nature layers)
+  const prepareSoundscapeAudio = async (
+    nats: NatureSoundType[] | NatureSoundType = selectedNatureSounds,
+    amb: AmbientMusicType = ambientMusic,
+    natVol = natureVolumePct,
+    musVol = musicVolumePct
+  ): Promise<string> => {
+    try {
+      const activeNatureTypes = Array.isArray(nats) ? nats : [nats];
+      const primaryNature = activeNatureTypes[0] || 'burung-pagi';
+
+      const url = await generateRelaxationSoundscapeWav(24, {
+        natureType: primaryNature,
+        natureTypes: activeNatureTypes,
+        ambientType: amb,
+        natureVolume: natVol / 100,
+        musicVolume: musVol / 100,
+        fadeInSeconds: fadeInSec,
+        fadeOutSeconds: fadeOutSec,
+        includeSingingBowl: true
+      });
+
+      if (soundscapeAudioRef.current && url) {
+        if (soundscapeAudioRef.current.src !== url) {
+          soundscapeAudioRef.current.src = url;
+          soundscapeAudioRef.current.loop = true;
+        }
+        const effectiveVol = isMuted ? 0 : masterVolume * Math.min(1, (natVol + musVol) / 100);
+        soundscapeAudioRef.current.volume = effectiveVol;
+      }
+      return url;
+    } catch (err) {
+      console.warn('Prepare soundscape error:', err);
+      return '';
+    }
+  };
 
   // Sync category change with defaults
   const handleCategoryChange = (cat: AudioCategory) => {
     setSelectedCategory(cat);
     setSelectedSubcategory(cat.subcategories[0]);
     setNatureSound(cat.defaultNature);
+    setSelectedNatureSounds([cat.defaultNature]);
     setAmbientMusic(cat.defaultAmbient);
     updateMetadataForSelection(cat.name, cat.subcategories[0], cat.defaultNature, cat.defaultAmbient);
+    prepareSoundscapeAudio([cat.defaultNature], cat.defaultAmbient);
   };
 
   const updateMetadataForSelection = (
@@ -343,15 +458,15 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
         ambientType: testAmbient,
         natureVolume: natureVolumePct / 100,
         musicVolume: musicVolumePct / 100,
-        fadeInSeconds: 1.0,
-        fadeOutSeconds: 1.5,
+        fadeInSeconds: 0.5,
+        fadeOutSeconds: 1.0,
         includeSingingBowl: false
       });
 
-      if (previewAudioRef.current) {
+      if (previewAudioRef.current && wavUrl) {
         previewAudioRef.current.src = wavUrl;
-        previewAudioRef.current.volume = masterVolume;
-        previewAudioRef.current.play();
+        previewAudioRef.current.volume = isMuted ? 0 : masterVolume;
+        previewAudioRef.current.play().catch((e) => console.warn('Preview play warning:', e));
       }
     } catch (err) {
       console.warn('Preview sound error:', err);
@@ -365,14 +480,89 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
     playCalmMeditationChime('bowl', 0.25);
   };
 
+  // Start Playback by current Mode
+  const startPlaybackForMode = async (
+    mode: 'gemini_tts' | 'web_speech' | 'ambient_music',
+    scriptText?: string,
+    geminiAudioUrl?: string | null
+  ) => {
+    const textToSpeak = scriptText || generatedScriptData?.cleanScriptForTTS || generatedScriptData?.script || PRESET_LIBRARY[0].sampleScript;
+    const targetUrl = geminiAudioUrl !== undefined ? geminiAudioUrl : audioUrl;
+
+    // Ensure soundscape is ready and playing
+    await prepareSoundscapeAudio();
+    if (soundscapeAudioRef.current) {
+      const effectiveSoundscapeVol = isMuted ? 0 : masterVolume * Math.min(1, (natureVolumePct + musicVolumePct) / 100);
+      soundscapeAudioRef.current.volume = effectiveSoundscapeVol;
+      soundscapeAudioRef.current.play().catch((e) => console.log('Soundscape autoplay handled:', e));
+    }
+
+    if (mode === 'ambient_music') {
+      // Pure Soundscape - No speech
+      stopIndonesianNarration();
+      if (voiceAudioRef.current) voiceAudioRef.current.pause();
+      setIsPlaying(true);
+    } else if (mode === 'web_speech') {
+      // Indonesian Speech + Soundscape
+      if (voiceAudioRef.current) voiceAudioRef.current.pause();
+      stopIndonesianNarration();
+
+      speakIndonesianNarration(textToSpeak, {
+        rate: speechSpeed === 'perlahan' ? 0.78 : speechSpeed === 'santai' ? 0.85 : 0.92,
+        pitch: 0.95,
+        volume: isMuted ? 0 : (narrationVolumePct / 100) * masterVolume,
+        onEnd: () => {
+          // Keep gentle soundscape playing in background or let user pause
+        },
+        onError: () => {
+          // Web speech error fallback
+        }
+      });
+      setIsPlaying(true);
+    } else {
+      // Gemini TTS Mode
+      stopIndonesianNarration();
+      if (targetUrl && voiceAudioRef.current) {
+        voiceAudioRef.current.src = targetUrl;
+        voiceAudioRef.current.volume = isMuted ? 0 : masterVolume * (narrationVolumePct / 100);
+        voiceAudioRef.current.play()
+          .then(() => setIsPlaying(true))
+          .catch(() => {
+            // Fallback to Web Speech + Soundscape
+            speakIndonesianNarration(textToSpeak, {
+              rate: 0.80,
+              pitch: 0.95,
+              volume: isMuted ? 0 : (narrationVolumePct / 100) * masterVolume
+            });
+            setIsPlaying(true);
+          });
+      } else {
+        // Fallback to Web Speech + Soundscape
+        speakIndonesianNarration(textToSpeak, {
+          rate: 0.80,
+          pitch: 0.95,
+          volume: isMuted ? 0 : (narrationVolumePct / 100) * masterVolume
+        });
+        setIsPlaying(true);
+      }
+    }
+  };
+
+  // Switch Audio Engine Mode
+  const handleSelectPlaybackSource = (newMode: 'gemini_tts' | 'web_speech' | 'ambient_music') => {
+    setPlaybackSource(newMode);
+    if (isPlaying) {
+      startPlaybackForMode(newMode);
+    }
+  };
+
   // Generate Personalized AI Audio & Relaxation Experience
   const handleGenerateAudio = async () => {
     setIsGenerating(true);
     stopIndonesianNarration();
-    if (audioRef.current) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-    }
+    if (voiceAudioRef.current) voiceAudioRef.current.pause();
+    if (soundscapeAudioRef.current) soundscapeAudioRef.current.pause();
+    setIsPlaying(false);
 
     // Build session metadata
     const meta = buildAudioRelaxationMetadata(
@@ -408,102 +598,32 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
       });
 
       setGeneratedScriptData(scriptData);
+      setTotalDuration(durationMinutes * 60);
 
-      // 2. Synthesize Audio Experience
       const ttsText = scriptData?.cleanScriptForTTS || scriptData?.script || 'Mari kita hening sejenak...';
 
-      if (playbackSource === 'web_speech') {
-        // Mode 1: Indonesian Web Speech Narration + Multi-Layer Soundscape (Nature + Ambient)
-        const soundscapeUrl = await generateRelaxationSoundscapeWav(durationMinutes * 60, {
-          natureType: natureSound,
-          ambientType: ambientMusic,
-          natureVolume: natureVolumePct / 100,
-          musicVolume: musicVolumePct / 100,
-          fadeInSeconds: fadeInSec,
-          fadeOutSeconds: fadeOutSec
-        });
-
-        setAudioUrl(soundscapeUrl);
-        if (audioRef.current) {
-          audioRef.current.src = soundscapeUrl;
-          // Background sound stays gentle as a backdrop
-          audioRef.current.volume = masterVolume * (natureVolumePct / 100 + musicVolumePct / 100);
-          audioRef.current.play().then(() => setIsPlaying(true)).catch((e) => console.log('Autoplay handled:', e));
-        }
-
-        speakIndonesianNarration(ttsText, {
-          rate: speechSpeed === 'perlahan' ? 0.80 : speechSpeed === 'santai' ? 0.85 : 0.92,
-          pitch: 0.95,
-          volume: (narrationVolumePct / 100) * masterVolume,
-          onEnd: () => setIsPlaying(false),
-          onError: () => setIsPlaying(false)
-        });
-      } else if (playbackSource === 'ambient_music') {
-        // Mode 2: Pure Relaxing Nature & Ambient Soundscape
-        const soundscapeUrl = await generateRelaxationSoundscapeWav(durationMinutes * 60, {
-          natureType: natureSound,
-          ambientType: ambientMusic,
-          natureVolume: natureVolumePct / 100,
-          musicVolume: musicVolumePct / 100,
-          fadeInSeconds: fadeInSec,
-          fadeOutSeconds: fadeOutSec
-        });
-
-        setAudioUrl(soundscapeUrl);
-        if (audioRef.current) {
-          audioRef.current.src = soundscapeUrl;
-          audioRef.current.volume = masterVolume;
-          audioRef.current.play().then(() => setIsPlaying(true)).catch((e) => console.log('Autoplay handled:', e));
-        }
-      } else {
-        // Mode 3: Gemini TTS with Indonesian Tone & Automatic Ambient Soundbed
-        const rawAudio = await generateGeminiTts(ttsText, voiceName as any);
-        let finalUrl: string | null = null;
-
-        if (rawAudio) {
-          if (rawAudio.startsWith('data:audio/') || rawAudio.startsWith('blob:') || rawAudio.startsWith('http')) {
-            finalUrl = rawAudio;
-          } else {
-            finalUrl = pcmToWavBlobUrl(rawAudio, 24000);
+      let newVoiceUrl: string | null = null;
+      if (playbackSource === 'gemini_tts') {
+        try {
+          const rawAudio = await generateGeminiTts(ttsText, voiceName as any);
+          if (rawAudio) {
+            if (rawAudio.startsWith('data:audio/') || rawAudio.startsWith('blob:') || rawAudio.startsWith('http')) {
+              newVoiceUrl = rawAudio;
+            } else {
+              newVoiceUrl = pcmToWavBlobUrl(rawAudio, 24000);
+            }
           }
-        }
-
-        if (!finalUrl) {
-          // Robust Fallback: Synthesize soundscape & speak in warm Indonesian
-          finalUrl = await generateRelaxationSoundscapeWav(durationMinutes * 60, {
-            natureType: natureSound,
-            ambientType: ambientMusic,
-            natureVolume: natureVolumePct / 100,
-            musicVolume: musicVolumePct / 100,
-            fadeInSeconds: fadeInSec,
-            fadeOutSeconds: fadeOutSec
-          });
-          speakIndonesianNarration(ttsText, {
-            rate: 0.82,
-            pitch: 0.95,
-            volume: (narrationVolumePct / 100) * masterVolume,
-            onEnd: () => setIsPlaying(false),
-            onError: () => setIsPlaying(false)
-          });
-        }
-
-        setAudioUrl(finalUrl);
-        if (audioRef.current && finalUrl) {
-          audioRef.current.src = finalUrl;
-          audioRef.current.volume = masterVolume;
-          audioRef.current.play().then(() => setIsPlaying(true)).catch((e) => {
-            console.log('Autoplay deferred:', e);
-            speakIndonesianNarration(ttsText, {
-              rate: 0.82,
-              pitch: 0.95,
-              volume: (narrationVolumePct / 100) * masterVolume,
-              onEnd: () => setIsPlaying(false)
-            });
-          });
+        } catch (e) {
+          console.warn('Gemini TTS warning:', e);
         }
       }
+
+      setAudioUrl(newVoiceUrl);
+      await startPlaybackForMode(playbackSource, ttsText, newVoiceUrl);
     } catch (err) {
       console.error('Error generating audio:', err);
+      // Fallback: Start soundscape and web speech
+      await startPlaybackForMode('web_speech');
     } finally {
       setIsGenerating(false);
     }
@@ -513,21 +633,28 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
   const handlePlayPreset = async (preset: typeof PRESET_LIBRARY[0]) => {
     setIsGenerating(true);
     stopIndonesianNarration();
-    if (audioRef.current) audioRef.current.pause();
+    if (voiceAudioRef.current) voiceAudioRef.current.pause();
+    if (soundscapeAudioRef.current) soundscapeAudioRef.current.pause();
+    setIsPlaying(false);
 
     setActiveMetadata(preset.metadata);
-    setNatureSound(preset.metadata.natureSoundType);
+    const presetNats = (preset as any).natureTypes || (preset.metadata.natureSoundTypes && preset.metadata.natureSoundTypes.length > 0 ? preset.metadata.natureSoundTypes : [preset.metadata.natureSoundType]);
+    setSelectedNatureSounds(presetNats);
+    setNatureSound(presetNats[0] || preset.metadata.natureSoundType);
     setAmbientMusic(preset.metadata.ambientMusicType);
     setNarrationVolumePct(preset.metadata.narrationVolume);
     setNatureVolumePct(preset.metadata.natureVolume);
     setMusicVolumePct(preset.metadata.musicVolume);
+
+    const durMins = preset.id === 'pres-hutan-pagi' || preset.duration.includes('15') ? 15 : (preset.duration.includes('10') ? 10 : (preset.duration.includes('3') ? 3 : 5));
+    setDurationMinutes(durMins);
 
     try {
       setGeneratedScriptData({
         title: preset.title,
         category: preset.category,
         subcategory: preset.subcategory,
-        durationMinutes: 5,
+        durationMinutes: durMins,
         description: preset.desc,
         script: preset.sampleScript,
         ttsPrompt: preset.sampleScript,
@@ -536,128 +663,136 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
           'Apakah ada rasa lega atau ketegangan yang mulai mengendur?'
         ]
       });
+      setTotalDuration(durMins * 60);
 
-      // Try Gemini TTS first
-      const rawAudio = await generateGeminiTts(preset.sampleScript, 'Kore');
+      // Prepare soundscape with the preset's multi-layers
+      await prepareSoundscapeAudio(
+        presetNats,
+        preset.metadata.ambientMusicType,
+        preset.metadata.natureVolume,
+        preset.metadata.musicVolume
+      );
+
       let url: string | null = null;
-
-      if (rawAudio) {
-        if (rawAudio.startsWith('data:audio/') || rawAudio.startsWith('blob:') || rawAudio.startsWith('http')) {
-          url = rawAudio;
-        } else {
-          url = pcmToWavBlobUrl(rawAudio, 24000);
+      if (playbackSource === 'gemini_tts') {
+        try {
+          const rawAudio = await generateGeminiTts(preset.sampleScript, 'Kore');
+          if (rawAudio) {
+            if (rawAudio.startsWith('data:audio/') || rawAudio.startsWith('blob:') || rawAudio.startsWith('http')) {
+              url = rawAudio;
+            } else {
+              url = pcmToWavBlobUrl(rawAudio, 24000);
+            }
+          }
+        } catch (e) {
+          console.warn('Preset Gemini TTS error:', e);
         }
       }
 
-      if (!url) {
-        // Guaranteed Fallback: Multi-layer Soundscape + Indonesian speech
-        url = await generateRelaxationSoundscapeWav(180, {
-          natureType: preset.metadata.natureSoundType,
-          ambientType: preset.metadata.ambientMusicType,
-          natureVolume: preset.metadata.natureVolume / 100,
-          musicVolume: preset.metadata.musicVolume / 100
-        });
-        speakIndonesianNarration(preset.sampleScript, {
-          rate: 0.82,
-          pitch: 0.95,
-          volume: masterVolume,
-          onEnd: () => setIsPlaying(false),
-          onError: () => setIsPlaying(false)
-        });
-      }
-
       setAudioUrl(url);
-      if (audioRef.current && url) {
-        audioRef.current.src = url;
-        audioRef.current.volume = masterVolume;
-        audioRef.current.play().then(() => setIsPlaying(true)).catch((e) => {
-          console.log('Autoplay deferred:', e);
-          speakIndonesianNarration(preset.sampleScript, {
-            rate: 0.82,
-            pitch: 0.95,
-            volume: masterVolume,
-            onEnd: () => setIsPlaying(false)
-          });
-        });
-      }
+      await startPlaybackForMode(playbackSource, preset.sampleScript, url);
     } catch (err) {
       console.error('Preset play error:', err);
+      await startPlaybackForMode('web_speech', preset.sampleScript);
     } finally {
       setIsGenerating(false);
     }
   };
 
+  // Quick Action: Launch 🌊 Hutan Pagi Session
+  const handleStartHutanPagiSession = async () => {
+    const hutanPagiPreset = PRESET_LIBRARY[0];
+    await handlePlayPreset(hutanPagiPreset);
+  };
+
   // Play/Pause toggle
-  const togglePlayPause = () => {
-    if (!audioRef.current) return;
+  const togglePlayPause = async () => {
     if (isPlaying) {
-      audioRef.current.pause();
+      if (soundscapeAudioRef.current) soundscapeAudioRef.current.pause();
+      if (voiceAudioRef.current) voiceAudioRef.current.pause();
       stopIndonesianNarration();
       setIsPlaying(false);
     } else {
-      audioRef.current.play().catch((e) => {
-        console.log('Audio play resumed error:', e);
-        if (generatedScriptData?.script) {
-          speakIndonesianNarration(generatedScriptData.script, {
-            rate: 0.82,
-            pitch: 0.95,
-            volume: masterVolume,
-            onEnd: () => setIsPlaying(false)
-          });
-        }
-      });
-      setIsPlaying(true);
+      await startPlaybackForMode(playbackSource);
     }
   };
 
-  const handleRestart = () => {
-    if (!audioRef.current) return;
-    audioRef.current.currentTime = 0;
+  const handleRestart = async () => {
     setCurrentTime(0);
-    audioRef.current.play().then(() => setIsPlaying(true));
+    if (soundscapeAudioRef.current) soundscapeAudioRef.current.currentTime = 0;
+    if (voiceAudioRef.current) voiceAudioRef.current.currentTime = 0;
+    await startPlaybackForMode(playbackSource);
   };
 
   const handleSeek = (time: number) => {
-    if (!audioRef.current) return;
-    audioRef.current.currentTime = time;
     setCurrentTime(time);
+    if (soundscapeAudioRef.current && isFinite(soundscapeAudioRef.current.duration) && soundscapeAudioRef.current.duration > 0) {
+      soundscapeAudioRef.current.currentTime = time % soundscapeAudioRef.current.duration;
+    }
+    if (voiceAudioRef.current && isFinite(voiceAudioRef.current.duration) && voiceAudioRef.current.duration > 0) {
+      voiceAudioRef.current.currentTime = Math.min(time, voiceAudioRef.current.duration);
+    }
   };
 
   const handleMasterVolumeChange = (v: number) => {
     setMasterVolume(v);
-    if (audioRef.current) audioRef.current.volume = v;
     setIsMuted(v === 0);
-  };
-
-  const toggleMute = () => {
-    if (!audioRef.current) return;
-    if (isMuted) {
-      audioRef.current.volume = masterVolume || 0.85;
-      setIsMuted(false);
-    } else {
-      audioRef.current.volume = 0;
-      setIsMuted(true);
+    if (soundscapeAudioRef.current) {
+      soundscapeAudioRef.current.volume = v * Math.min(1, (natureVolumePct + musicVolumePct) / 100);
+    }
+    if (voiceAudioRef.current) {
+      voiceAudioRef.current.volume = v * (narrationVolumePct / 100);
     }
   };
 
+  const toggleMute = () => {
+    if (isMuted) {
+      setIsMuted(false);
+      if (soundscapeAudioRef.current) {
+        soundscapeAudioRef.current.volume = masterVolume * Math.min(1, (natureVolumePct + musicVolumePct) / 100);
+      }
+      if (voiceAudioRef.current) {
+        voiceAudioRef.current.volume = masterVolume * (narrationVolumePct / 100);
+      }
+    } else {
+      setIsMuted(true);
+      if (soundscapeAudioRef.current) soundscapeAudioRef.current.volume = 0;
+      if (voiceAudioRef.current) voiceAudioRef.current.volume = 0;
+    }
+  };
+
+  // Progress timer for UI playback progression
   useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const updateTime = () => setCurrentTime(audio.currentTime);
-    const updateDuration = () => setTotalDuration(audio.duration || 0);
-    const handleEnded = () => setIsPlaying(false);
-
-    audio.addEventListener('timeupdate', updateTime);
-    audio.addEventListener('loadedmetadata', updateDuration);
-    audio.addEventListener('ended', handleEnded);
-
+    if (isPlaying) {
+      progressTimerRef.current = window.setInterval(() => {
+        setCurrentTime((prev) => {
+          if (prev >= (totalDuration || 300)) {
+            return prev;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+    } else if (progressTimerRef.current) {
+      clearInterval(progressTimerRef.current);
+      progressTimerRef.current = null;
+    }
     return () => {
-      audio.removeEventListener('timeupdate', updateTime);
-      audio.removeEventListener('loadedmetadata', updateDuration);
-      audio.removeEventListener('ended', handleEnded);
+      if (progressTimerRef.current) clearInterval(progressTimerRef.current);
+    };
+  }, [isPlaying, totalDuration]);
+
+  // Pre-load soundscape on mount
+  useEffect(() => {
+    prepareSoundscapeAudio();
+    return () => {
+      stopIndonesianNarration();
     };
   }, []);
+
+  // Update soundscape when nature sound or ambient music or their volumes change
+  useEffect(() => {
+    prepareSoundscapeAudio(natureSound, ambientMusic, natureVolumePct, musicVolumePct);
+  }, [natureSound, ambientMusic, natureVolumePct, musicVolumePct]);
 
   const formatTime = (secs: number) => {
     if (isNaN(secs)) return '00:00';
@@ -675,8 +810,10 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
 
   return (
     <div className="p-4 md:p-6 max-w-6xl mx-auto space-y-6 text-stone-100">
-      <audio ref={audioRef} />
-      <audio ref={previewAudioRef} />
+      {/* Dedicated audio streams */}
+      <audio ref={soundscapeAudioRef} loop preload="auto" />
+      <audio ref={voiceAudioRef} preload="auto" />
+      <audio ref={previewAudioRef} preload="auto" />
 
       {/* Header Banner */}
       <div className="bg-stone-900/90 border border-stone-800 p-5 md:p-6 rounded-3xl space-y-4 shadow-xl">
@@ -729,7 +866,7 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
               <span>Prinsip Akustik LEGA (Latar Tidak Mengalahkan Narasi):</span>
             </div>
             <p className="text-stone-400 leading-relaxed">
-              Musik ambient dan suara alam dirancang khusus berada pada rentang volume 15–28% dengan auto-ducking halus, memastikan vokal narasi Bahasa Indonesia tetap terdengar hangat, intim, dan jernih.
+              Musik ambient dan suara alam dirancang khusus berada pada rentang volume seimbang dengan auto-ducking halus, memastikan vokal narasi Bahasa Indonesia tetap terdengar hangat, intim, dan jernih.
             </p>
           </div>
 
@@ -741,6 +878,123 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
             <p className="text-stone-400 leading-relaxed">
               Audio LEGA adalah media relaksasi dan kesadaran diri mandiri, bukan pengganti diagnosis psikoterapi klinis. Bila Anda dalam kondisi krisis akut, silakan hubungi saluran bantuan.
             </p>
+          </div>
+        </div>
+      </div>
+
+      {/* 🌊 Hutan Pagi Quick Action Hero Banner */}
+      <div className="bg-gradient-to-r from-emerald-950/80 via-stone-900 to-sky-950/80 border border-emerald-700/60 p-4 md:p-5 rounded-3xl space-y-3.5 shadow-xl">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">🌊</span>
+              <h3 className="text-lg md:text-xl font-bold text-emerald-100">Hutan Pagi</h3>
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-900/80 text-emerald-300 border border-emerald-700 font-mono">
+                Durasi: 15 menit
+              </span>
+            </div>
+            <p className="text-xs text-stone-300 leading-relaxed max-w-2xl">
+              Lanskap relaksasi fajar multi-layer: aliran sungai jernih, kicauan burung pagi, semilir angin pepohonan, serta alunan piano ambient lembut berfrekuensi 432Hz.
+            </p>
+          </div>
+
+          {/* Big Play Button */}
+          <button
+            onClick={handleStartHutanPagiSession}
+            disabled={isGenerating}
+            className="px-5 py-3.5 bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-stone-950 font-extrabold text-xs sm:text-sm rounded-2xl transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/80 shrink-0"
+          >
+            <Play className="w-4 h-4 fill-stone-950" />
+            <span>▶ Mulai Sesi Hutan Pagi</span>
+          </button>
+        </div>
+
+        {/* Backsound Checkboxes & Volume Meters */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-emerald-900/50 text-xs">
+          {/* Backsound Layers */}
+          <div className="bg-stone-950/80 p-3 rounded-2xl border border-emerald-900/40 space-y-2">
+            <div className="text-[11px] font-bold text-emerald-300 flex items-center gap-1.5">
+              <Layers className="w-3.5 h-3.5" /> Backsound Aktif:
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => toggleNatureSound('aliran-sungai')}
+                className={`px-2.5 py-1.5 rounded-xl border text-left flex items-center gap-2 transition text-xs ${
+                  selectedNatureSounds.includes('aliran-sungai')
+                    ? 'bg-emerald-950 border-emerald-500 text-emerald-200 font-bold ring-1 ring-emerald-500/50'
+                    : 'bg-stone-900/80 border-stone-800 text-stone-400'
+                }`}
+              >
+                <CheckSquare className={`w-3.5 h-3.5 ${selectedNatureSounds.includes('aliran-sungai') ? 'text-emerald-400' : 'text-stone-600'}`} />
+                <span>Sungai</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => toggleNatureSound('burung-pagi')}
+                className={`px-2.5 py-1.5 rounded-xl border text-left flex items-center gap-2 transition text-xs ${
+                  selectedNatureSounds.includes('burung-pagi')
+                    ? 'bg-emerald-950 border-emerald-500 text-emerald-200 font-bold ring-1 ring-emerald-500/50'
+                    : 'bg-stone-900/80 border-stone-800 text-stone-400'
+                }`}
+              >
+                <CheckSquare className={`w-3.5 h-3.5 ${selectedNatureSounds.includes('burung-pagi') ? 'text-emerald-400' : 'text-stone-600'}`} />
+                <span>Burung</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => toggleNatureSound('angin-pepohonan')}
+                className={`px-2.5 py-1.5 rounded-xl border text-left flex items-center gap-2 transition text-xs ${
+                  selectedNatureSounds.includes('angin-pepohonan')
+                    ? 'bg-emerald-950 border-emerald-500 text-emerald-200 font-bold ring-1 ring-emerald-500/50'
+                    : 'bg-stone-900/80 border-stone-800 text-stone-400'
+                }`}
+              >
+                <CheckSquare className={`w-3.5 h-3.5 ${selectedNatureSounds.includes('angin-pepohonan') ? 'text-emerald-400' : 'text-stone-600'}`} />
+                <span>Angin</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setAmbientMusic('piano-lembut');
+                  prepareSoundscapeAudio(selectedNatureSounds, 'piano-lembut', natureVolumePct, musicVolumePct);
+                }}
+                className={`px-2.5 py-1.5 rounded-xl border text-left flex items-center gap-2 transition text-xs ${
+                  ambientMusic === 'piano-lembut'
+                    ? 'bg-indigo-950 border-indigo-500 text-indigo-200 font-bold ring-1 ring-indigo-500/50'
+                    : 'bg-stone-900/80 border-stone-800 text-stone-400'
+                }`}
+              >
+                <CheckSquare className={`w-3.5 h-3.5 ${ambientMusic === 'piano-lembut' ? 'text-indigo-400' : 'text-stone-600'}`} />
+                <span>Piano Ambient</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Volume Meter Bars */}
+          <div className="bg-stone-950/80 p-3 rounded-2xl border border-emerald-900/40 space-y-1.5 font-mono text-[11px]">
+            <div className="text-[11px] font-bold font-sans text-sky-300 flex items-center justify-between">
+              <span className="flex items-center gap-1.5"><SlidersHorizontal className="w-3.5 h-3.5" /> Kalibrasi Volume:</span>
+              <span className="text-[10px] text-stone-400 font-mono">Preset Hutan Pagi</span>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <span className="text-stone-300 font-sans">Volume Narasi</span>
+              <span className="text-sky-400 font-bold tracking-wider">{renderAsciiVolumeMeter(narrationVolumePct)} <span className="text-[10px] text-stone-300 font-sans ml-1">{narrationVolumePct}%</span></span>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <span className="text-stone-300 font-sans">Volume Alam</span>
+              <span className="text-emerald-400 font-bold tracking-wider">{renderAsciiVolumeMeter(natureVolumePct)} <span className="text-[10px] text-stone-300 font-sans ml-1">{natureVolumePct}%</span></span>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <span className="text-stone-300 font-sans">Volume Musik</span>
+              <span className="text-indigo-400 font-bold tracking-wider">{renderAsciiVolumeMeter(musicVolumePct)} <span className="text-[10px] text-stone-300 font-sans ml-1">{musicVolumePct}%</span></span>
+            </div>
           </div>
         </div>
       </div>
@@ -811,26 +1065,28 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
             </div>
           </div>
 
-          {/* 3. 7 Pilihan Backsound Suara Alam Sesuai Tema */}
+          {/* 3. 7 Pilihan Backsound Suara Alam Sesuai Tema (Multi-Layer Supported) */}
           <div className="space-y-2.5 pt-2 border-t border-stone-800">
             <div className="flex items-center justify-between">
               <label className="text-xs font-semibold text-stone-300 flex items-center gap-1.5">
                 <Trees className="w-3.5 h-3.5 text-emerald-400" /> 2. Rekomendasi Backsound Suara Alam:
               </label>
-              <span className="text-[10px] text-stone-400">7 Lanskap Alami</span>
+              <span className="text-[10px] text-emerald-400 font-mono">
+                {selectedNatureSounds.length} Layer Aktif
+              </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {NATURE_OPTIONS.map((opt) => {
                 const IconComp = opt.icon;
-                const isSelected = natureSound === opt.id;
+                const isSelected = selectedNatureSounds.includes(opt.id);
                 const isPreviewing = previewingSound === opt.id;
 
                 return (
                   <div
                     key={opt.id}
                     onClick={() => {
-                      setNatureSound(opt.id);
+                      toggleNatureSound(opt.id);
                       updateMetadataForSelection(selectedCategory.name, selectedSubcategory, opt.id, ambientMusic);
                     }}
                     className={`p-2.5 rounded-xl border cursor-pointer transition flex items-start justify-between gap-2 ${
@@ -844,7 +1100,10 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
                         <IconComp className="w-3.5 h-3.5" />
                       </div>
                       <div className="min-w-0">
-                        <div className="text-xs font-bold text-stone-200 truncate">{opt.name}</div>
+                        <div className="text-xs font-bold text-stone-200 truncate flex items-center gap-1.5">
+                          <span>{opt.name}</span>
+                          {isSelected && <Check className="w-3 h-3 text-emerald-400 shrink-0" />}
+                        </div>
                         <div className="text-[10px] text-stone-400 line-clamp-1">{opt.desc}</div>
                       </div>
                     </div>
@@ -887,6 +1146,7 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
                     key={amb.id}
                     onClick={() => {
                       setAmbientMusic(amb.id);
+                      prepareSoundscapeAudio(selectedNatureSounds, amb.id, natureVolumePct, musicVolumePct);
                       updateMetadataForSelection(selectedCategory.name, selectedSubcategory, natureSound, amb.id);
                     }}
                     className={`p-2.5 rounded-xl border cursor-pointer transition flex flex-col justify-between ${
@@ -934,9 +1194,12 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
                   <span className="text-stone-300 font-medium">Vol Narasi (Utama):</span>
                   <span className="font-bold text-sky-400">{narrationVolumePct}%</span>
                 </div>
+                <div className="text-[10px] font-mono text-sky-400 tracking-wider">
+                  {renderAsciiVolumeMeter(narrationVolumePct)}
+                </div>
                 <input
                   type="range"
-                  min={50}
+                  min={40}
                   max={100}
                   step={5}
                   value={narrationVolumePct}
@@ -955,16 +1218,20 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
                   <span className="text-stone-300 font-medium">Vol Suara Alam:</span>
                   <span className="font-bold text-emerald-400">{natureVolumePct}%</span>
                 </div>
+                <div className="text-[10px] font-mono text-emerald-400 tracking-wider">
+                  {renderAsciiVolumeMeter(natureVolumePct)}
+                </div>
                 <input
                   type="range"
-                  min={5}
-                  max={50}
-                  step={1}
+                  min={0}
+                  max={100}
+                  step={5}
                   value={natureVolumePct}
                   onChange={(e) => {
                     const val = parseInt(e.target.value);
                     setNatureVolumePct(val);
                     setActiveMetadata((prev) => ({ ...prev, natureVolume: val }));
+                    prepareSoundscapeAudio(selectedNatureSounds, ambientMusic, val, musicVolumePct);
                   }}
                   className="w-full accent-emerald-500 cursor-pointer h-1.5 bg-stone-800 rounded-lg"
                 />
@@ -976,16 +1243,20 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
                   <span className="text-stone-300 font-medium">Vol Musik Ambient:</span>
                   <span className="font-bold text-indigo-400">{musicVolumePct}%</span>
                 </div>
+                <div className="text-[10px] font-mono text-indigo-400 tracking-wider">
+                  {renderAsciiVolumeMeter(musicVolumePct)}
+                </div>
                 <input
                   type="range"
-                  min={5}
-                  max={40}
-                  step={1}
+                  min={0}
+                  max={100}
+                  step={5}
                   value={musicVolumePct}
                   onChange={(e) => {
                     const val = parseInt(e.target.value);
                     setMusicVolumePct(val);
                     setActiveMetadata((prev) => ({ ...prev, musicVolume: val }));
+                    prepareSoundscapeAudio(selectedNatureSounds, ambientMusic, natureVolumePct, val);
                   }}
                   className="w-full accent-indigo-500 cursor-pointer h-1.5 bg-stone-800 rounded-lg"
                 />
@@ -1143,40 +1414,49 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
             </div>
 
             {/* Audio Engine Mode Selection */}
-            <div className="bg-stone-950 p-2 rounded-xl border border-stone-800 space-y-1">
-              <label className="text-[10px] font-semibold text-stone-400 flex items-center gap-1">
-                <Music className="w-3 h-3 text-sky-400" /> Mode Engine Audio:
-              </label>
-              <div className="grid grid-cols-3 gap-1">
+            <div className="bg-stone-950 p-2.5 rounded-xl border border-stone-800 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="text-[10px] font-semibold text-stone-300 flex items-center gap-1">
+                  <Music className="w-3 h-3 text-sky-400" /> Mode Engine Audio:
+                </label>
+                <span className="text-[9px] text-sky-400 font-mono">Klik untuk ganti instan</span>
+              </div>
+              <div className="grid grid-cols-3 gap-1.5">
                 <button
-                  onClick={() => setPlaybackSource('gemini_tts')}
-                  className={`py-1 px-1.5 rounded-lg text-[10px] font-medium transition text-center truncate ${
+                  onClick={() => handleSelectPlaybackSource('gemini_tts')}
+                  className={`py-1.5 px-2 rounded-lg text-[10px] font-medium transition text-center truncate flex flex-col items-center justify-center ${
                     playbackSource === 'gemini_tts'
-                      ? 'bg-sky-950 border border-sky-500 text-sky-200 font-bold'
-                      : 'bg-stone-900 text-stone-400 hover:text-stone-300'
+                      ? 'bg-sky-950 border border-sky-500 text-sky-200 font-bold shadow-sm'
+                      : 'bg-stone-900 border border-stone-800/80 text-stone-400 hover:text-stone-300 hover:border-stone-700'
                   }`}
+                  title="Vokal AI Gemini + Suara Alam & Musik"
                 >
-                  Gemini TTS
+                  <span className="truncate">Gemini TTS</span>
+                  <span className="text-[8px] opacity-75 font-normal truncate">AI Voice</span>
                 </button>
                 <button
-                  onClick={() => setPlaybackSource('web_speech')}
-                  className={`py-1 px-1.5 rounded-lg text-[10px] font-medium transition text-center truncate ${
+                  onClick={() => handleSelectPlaybackSource('web_speech')}
+                  className={`py-1.5 px-2 rounded-lg text-[10px] font-medium transition text-center truncate flex flex-col items-center justify-center ${
                     playbackSource === 'web_speech'
-                      ? 'bg-sky-950 border border-sky-500 text-sky-200 font-bold'
-                      : 'bg-stone-900 text-stone-400 hover:text-stone-300'
+                      ? 'bg-sky-950 border border-sky-500 text-sky-200 font-bold shadow-sm'
+                      : 'bg-stone-900 border border-stone-800/80 text-stone-400 hover:text-stone-300 hover:border-stone-700'
                   }`}
+                  title="Narasi Suara Indonesia Hangat + Suara Alam"
                 >
-                  Narasi + Alam
+                  <span className="truncate">Narasi + Alam</span>
+                  <span className="text-[8px] opacity-75 font-normal truncate">Vokal & Alam</span>
                 </button>
                 <button
-                  onClick={() => setPlaybackSource('ambient_music')}
-                  className={`py-1 px-1.5 rounded-lg text-[10px] font-medium transition text-center truncate ${
+                  onClick={() => handleSelectPlaybackSource('ambient_music')}
+                  className={`py-1.5 px-2 rounded-lg text-[10px] font-medium transition text-center truncate flex flex-col items-center justify-center ${
                     playbackSource === 'ambient_music'
-                      ? 'bg-sky-950 border border-sky-500 text-sky-200 font-bold'
-                      : 'bg-stone-900 text-stone-400 hover:text-stone-300'
+                      ? 'bg-sky-950 border border-sky-500 text-sky-200 font-bold shadow-sm'
+                      : 'bg-stone-900 border border-stone-800/80 text-stone-400 hover:text-stone-300 hover:border-stone-700'
                   }`}
+                  title="Hanya Suara Alam Alami & Musik Ambient (Tanpa Suara Bicara)"
                 >
-                  Hanya Soundscape
+                  <span className="truncate">Hanya Soundscape</span>
+                  <span className="text-[8px] opacity-75 font-normal truncate">Tanpa Suara</span>
                 </button>
               </div>
             </div>

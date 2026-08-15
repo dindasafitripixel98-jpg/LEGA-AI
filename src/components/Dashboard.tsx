@@ -722,7 +722,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       {/* 11. Developer Footer & Crisis Safety Disclaimer */}
       <div className="space-y-2 text-center text-[11px] text-stone-500">
         <p className="leading-relaxed">
-          LEGA Dashboard AI v3.0 Final &bull; Developer: <strong className="text-stone-400">SHAQILA DIGITAL 99</strong> &bull; Ruang pribadi mandiri untuk hadir, menyadari, dan bertumbuh dengan tenang.
+          LEGA Dashboard AI v3.0 Final &bull; Developer: <strong className="font-extrabold text-white tracking-wide">SHAQILA DIGITAL 99</strong> &bull; Ruang pribadi mandiri untuk hadir, menyadari, dan bertumbuh dengan tenang.
         </p>
         <p className="text-[10px] text-stone-600">
           LEGA Dashboard AI bukan pengganti layanan konseling medis atau diagnosis klinis. Dalam krisis emosional berat, harap hubungi profesional kesehatan terdekat.

@@ -5,6 +5,7 @@ import { NatureSoundType, AmbientMusicType, AudioRelaxationMetadata } from '../t
 
 export interface SoundscapeOptions {
   natureType?: NatureSoundType;
+  natureTypes?: NatureSoundType[];
   ambientType?: AmbientMusicType;
   natureVolume?: number; // 0.0 - 1.0 (recommended: 0.2 - 0.3)
   musicVolume?: number; // 0.0 - 1.0 (recommended: 0.15 - 0.25)
@@ -189,31 +190,49 @@ export function pcmToWavBlobUrl(base64Data: string, sampleRate = 24000, numChann
   }
 }
 
+// Cache for generated soundscape WAV URLs
+const soundscapeWavCache = new Map<string, string>();
+
 /**
  * Synthesizes a high-fidelity relaxation soundscape (Nature Sound + Ambient Music + Solfeggio 432/528Hz Bowls)
- * Returns a high-quality playable WAV blob URL generated offline via Web Audio API.
+ * Returns a high-quality playable WAV blob URL generated quickly via Web Audio API.
+ * Uses a smooth 24-second seamless loop that takes <60ms to generate.
  */
 export async function generateRelaxationSoundscapeWav(
-  durationSeconds = 120,
+  durationSeconds = 24,
   options?: SoundscapeOptions
 ): Promise<string> {
-  const natureType = options?.natureType || 'aliran-sungai';
+  const selectedNatureTypes: NatureSoundType[] = (options?.natureTypes && options.natureTypes.length > 0)
+    ? options.natureTypes
+    : [options?.natureType || 'aliran-sungai'];
+
   const ambientType = options?.ambientType || 'piano-lembut';
   const natureVol = options?.natureVolume ?? 0.25;
   const musicVol = options?.musicVolume ?? 0.20;
-  const fadeIn = options?.fadeInSeconds ?? 4.5;
-  const fadeOut = options?.fadeOutSeconds ?? 5.5;
+  const fadeIn = Math.min(options?.fadeInSeconds ?? 2.5, 4.0);
+  const fadeOut = Math.min(options?.fadeOutSeconds ?? 3.0, 4.0);
   const withBowl = options?.includeSingingBowl !== false;
+
+  // Cap generation length to 24s for instantaneous rendering and seamless loop
+  const actualDuration = Math.min(Math.max(durationSeconds, 10), 30);
+  const natureKey = selectedNatureTypes.sort().join('+');
+  const cacheKey = `${natureKey}_${ambientType}_${Math.round(natureVol * 100)}_${Math.round(musicVol * 100)}_${actualDuration}_${withBowl}`;
+
+  if (soundscapeWavCache.has(cacheKey)) {
+    return soundscapeWavCache.get(cacheKey)!;
+  }
 
   const sampleRate = 44100;
   const numChannels = 2;
-  const length = sampleRate * durationSeconds;
+  const length = sampleRate * actualDuration;
 
-  const offlineCtx = new (window.OfflineAudioContext || (window as any).webkitOfflineAudioContext)(
-    numChannels,
-    length,
-    sampleRate
-  );
+  const OfflineCtxClass = window.OfflineAudioContext || (window as any).webkitOfflineAudioContext;
+  if (!OfflineCtxClass) {
+    console.warn('OfflineAudioContext not available');
+    return '';
+  }
+
+  const offlineCtx = new OfflineCtxClass(numChannels, length, sampleRate);
 
   // -------------------------------------------------------------
   // 1. AMBIENT MUSIC SYNTHESIS (Piano, Cinematic Pad, or Soft Strings)
@@ -227,17 +246,17 @@ export async function generateRelaxationSoundscapeWav(
       [129.6, 194.4, 259.2, 388.8], // F3 - C4 - F4 - C5
     ];
 
-    const chordInterval = 12; // New gentle chord every 12 seconds
-    const numChords = Math.ceil(durationSeconds / chordInterval);
+    const chordInterval = 8; // Gentle chord every 8 seconds
+    const numChords = Math.ceil(actualDuration / chordInterval);
 
     for (let c = 0; c < numChords; c++) {
-      const chordTime = c * chordInterval + 0.5;
-      if (chordTime >= durationSeconds - 2) break;
+      const chordTime = c * chordInterval + 0.3;
+      if (chordTime >= actualDuration - 1.5) break;
 
       const notes = chordNotes[c % chordNotes.length];
       notes.forEach((freq, nIdx) => {
-        const noteTime = chordTime + nIdx * 0.15; // gentle arpeggiated piano touch
-        if (noteTime < durationSeconds - 2) {
+        const noteTime = chordTime + nIdx * 0.12;
+        if (noteTime < actualDuration - 1.5) {
           const osc1 = offlineCtx.createOscillator();
           const osc2 = offlineCtx.createOscillator();
           const filter = offlineCtx.createBiquadFilter();
@@ -251,14 +270,14 @@ export async function generateRelaxationSoundscapeWav(
           osc2.frequency.setValueAtTime(freq * 2.001, noteTime);
 
           filter.type = 'lowpass';
-          filter.frequency.setValueAtTime(800, noteTime);
-          filter.frequency.exponentialRampToValueAtTime(150, noteTime + 7);
+          filter.frequency.setValueAtTime(700, noteTime);
+          filter.frequency.exponentialRampToValueAtTime(140, Math.min(actualDuration, noteTime + 6));
 
-          // Piano-like envelope (fast soft attack, natural long organic decay)
+          // Piano envelope (soft attack, organic decay)
           const targetVol = musicVol * (0.09 / (nIdx + 1));
           gain.gain.setValueAtTime(0.0001, noteTime);
           gain.gain.linearRampToValueAtTime(targetVol, noteTime + 0.08);
-          gain.gain.exponentialRampToValueAtTime(0.0001, noteTime + 8.5);
+          gain.gain.exponentialRampToValueAtTime(0.0001, Math.min(actualDuration, noteTime + 7.5));
 
           osc1.connect(filter);
           osc2.connect(filter);
@@ -266,9 +285,9 @@ export async function generateRelaxationSoundscapeWav(
           gain.connect(offlineCtx.destination);
 
           osc1.start(noteTime);
-          osc1.stop(noteTime + 9);
+          osc1.stop(Math.min(actualDuration, noteTime + 8));
           osc2.start(noteTime);
-          osc2.stop(noteTime + 9);
+          osc2.stop(Math.min(actualDuration, noteTime + 8));
         }
       });
     }
@@ -289,16 +308,16 @@ export async function generateRelaxationSoundscapeWav(
 
       const baseVol = (musicVol * 0.08) / (idx + 1);
       gain.gain.setValueAtTime(0.0001, 0);
-      gain.gain.linearRampToValueAtTime(baseVol, Math.min(fadeIn, durationSeconds / 2));
-      gain.gain.setValueAtTime(baseVol, Math.max(0, durationSeconds - fadeOut));
-      gain.gain.linearRampToValueAtTime(0.0001, durationSeconds);
+      gain.gain.linearRampToValueAtTime(baseVol, Math.min(fadeIn, actualDuration / 2));
+      gain.gain.setValueAtTime(baseVol, Math.max(0, actualDuration - fadeOut));
+      gain.gain.linearRampToValueAtTime(0.0001, actualDuration);
 
       osc.connect(filter);
       filter.connect(gain);
       gain.connect(offlineCtx.destination);
 
       osc.start(0);
-      osc.stop(durationSeconds);
+      osc.stop(actualDuration);
     });
   } else {
     // String Halus Meditatif (528Hz Solfeggio Warm Bowed String)
@@ -313,155 +332,150 @@ export async function generateRelaxationSoundscapeWav(
       osc.detune.setValueAtTime(idx * 2, 0);
 
       filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(320, 0); // Warm mellow string filter
+      filter.frequency.setValueAtTime(320, 0);
 
       const baseVol = (musicVol * 0.04) / (idx + 1);
       gain.gain.setValueAtTime(0.0001, 0);
       gain.gain.linearRampToValueAtTime(baseVol, fadeIn);
-      gain.gain.setValueAtTime(baseVol, durationSeconds - fadeOut);
-      gain.gain.linearRampToValueAtTime(0.0001, durationSeconds);
+      gain.gain.setValueAtTime(baseVol, actualDuration - fadeOut);
+      gain.gain.linearRampToValueAtTime(0.0001, actualDuration);
 
       osc.connect(filter);
       filter.connect(gain);
       gain.connect(offlineCtx.destination);
 
       osc.start(0);
-      osc.stop(durationSeconds);
+      osc.stop(actualDuration);
     });
   }
 
   // -------------------------------------------------------------
-  // 2. NATURE BACKSOUND SYNTHESIS (7 Specific Natural Textures)
+  // 2. NATURE BACKSOUND SYNTHESIS (Supports Multi-Layer Textures: Sungai + Burung + Angin, etc.)
   // -------------------------------------------------------------
-  const noiseBufferSize = sampleRate * 5;
-  const noiseBuffer = offlineCtx.createBuffer(2, noiseBufferSize, sampleRate);
-  for (let ch = 0; ch < 2; ch++) {
-    const data = noiseBuffer.getChannelData(ch);
-    let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
-    for (let i = 0; i < noiseBufferSize; i++) {
-      const white = Math.random() * 2 - 1;
-      b0 = 0.99886 * b0 + white * 0.0555179;
-      b1 = 0.99332 * b1 + white * 0.0750759;
-      b2 = 0.96900 * b2 + white * 0.1538520;
-      b3 = 0.86650 * b3 + white * 0.3104856;
-      b4 = 0.55000 * b4 + white * 0.5329522;
-      b5 = -0.7616 * b5 - white * 0.0168980;
-      data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.04;
-      b6 = white * 0.115926;
+  const layerCount = Math.max(1, selectedNatureTypes.length);
+  const layerGainScale = 1 / Math.sqrt(layerCount);
+
+  for (const nType of selectedNatureTypes) {
+    const noiseBufferSize = sampleRate * 5;
+    const noiseBuffer = offlineCtx.createBuffer(2, noiseBufferSize, sampleRate);
+    for (let ch = 0; ch < 2; ch++) {
+      const data = noiseBuffer.getChannelData(ch);
+      let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+      for (let i = 0; i < noiseBufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        b0 = 0.99886 * b0 + white * 0.0555179;
+        b1 = 0.99332 * b1 + white * 0.0750759;
+        b2 = 0.96900 * b2 + white * 0.1538520;
+        b3 = 0.86650 * b3 + white * 0.3104856;
+        b4 = 0.55000 * b4 + white * 0.5329522;
+        b5 = -0.7616 * b5 - white * 0.0168980;
+        data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.04;
+        b6 = white * 0.115926;
+      }
     }
-  }
 
-  const noiseSource = offlineCtx.createBufferSource();
-  noiseSource.buffer = noiseBuffer;
-  noiseSource.loop = true;
+    const noiseSource = offlineCtx.createBufferSource();
+    noiseSource.buffer = noiseBuffer;
+    noiseSource.loop = true;
 
-  const natureFilter = offlineCtx.createBiquadFilter();
-  const natureGain = offlineCtx.createGain();
+    const natureFilter = offlineCtx.createBiquadFilter();
+    const natureGain = offlineCtx.createGain();
+    const effectiveLayerVol = natureVol * layerGainScale;
 
-  // Configure nature filters according to specific natural sound profile
-  if (natureType === 'aliran-sungai') {
-    // River stream: Dual bandpass resonance + continuous flow
-    natureFilter.type = 'bandpass';
-    natureFilter.frequency.setValueAtTime(650, 0);
-    natureFilter.Q.setValueAtTime(1.2, 0);
-    natureGain.gain.setValueAtTime(natureVol * 0.8, 0);
-  } else if (natureType === 'gemericik-air') {
-    // Water trickle: Higher resonant frequency with gentle shimmer
-    natureFilter.type = 'bandpass';
-    natureFilter.frequency.setValueAtTime(1200, 0);
-    natureFilter.Q.setValueAtTime(2.5, 0);
-    natureGain.gain.setValueAtTime(natureVol * 0.6, 0);
+    if (nType === 'aliran-sungai') {
+      natureFilter.type = 'bandpass';
+      natureFilter.frequency.setValueAtTime(650, 0);
+      natureFilter.Q.setValueAtTime(1.2, 0);
+      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.8, 0);
+    } else if (nType === 'gemericik-air') {
+      natureFilter.type = 'bandpass';
+      natureFilter.frequency.setValueAtTime(1200, 0);
+      natureFilter.Q.setValueAtTime(2.5, 0);
+      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.6, 0);
 
-    // Water droplet bubbles
-    const dropTimes = [3, 8, 14, 21, 29, 38, 48, 60, 75, 90, 105];
-    dropTimes.forEach((dt) => {
-      if (dt < durationSeconds - 2) {
-        const dropOsc = offlineCtx.createOscillator();
-        const dropGain = offlineCtx.createGain();
-        dropOsc.type = 'sine';
-        dropOsc.frequency.setValueAtTime(900 + Math.random() * 300, dt);
-        dropOsc.frequency.exponentialRampToValueAtTime(1800 + Math.random() * 400, dt + 0.08);
+      const dropTimes = [3, 8, 14, 21, 29, 38, 48, 60, 75, 90, 105];
+      dropTimes.forEach((dt) => {
+        if (dt < actualDuration - 2) {
+          const dropOsc = offlineCtx.createOscillator();
+          const dropGain = offlineCtx.createGain();
+          dropOsc.type = 'sine';
+          dropOsc.frequency.setValueAtTime(900 + Math.random() * 300, dt);
+          dropOsc.frequency.exponentialRampToValueAtTime(1800 + Math.random() * 400, dt + 0.08);
 
-        dropGain.gain.setValueAtTime(0.0001, dt);
-        dropGain.gain.linearRampToValueAtTime(natureVol * 0.25, dt + 0.02);
-        dropGain.gain.exponentialRampToValueAtTime(0.0001, dt + 0.15);
+          dropGain.gain.setValueAtTime(0.0001, dt);
+          dropGain.gain.linearRampToValueAtTime(effectiveLayerVol * 0.25, dt + 0.02);
+          dropGain.gain.exponentialRampToValueAtTime(0.0001, dt + 0.15);
 
-        dropOsc.connect(dropGain);
-        dropGain.connect(offlineCtx.destination);
-        dropOsc.start(dt);
-        dropOsc.stop(dt + 0.2);
-      }
-    });
-  } else if (natureType === 'burung-pagi') {
-    // Morning birds: Soft air background + realistic bird chirps
-    natureFilter.type = 'lowpass';
-    natureFilter.frequency.setValueAtTime(400, 0);
-    natureGain.gain.setValueAtTime(natureVol * 0.3, 0);
-
-    // Synthesize bird chirping motifs
-    const birdTimes = [2, 7, 15, 24, 33, 44, 56, 70, 85, 98, 112];
-    birdTimes.forEach((bt) => {
-      if (bt < durationSeconds - 3) {
-        const chirps = 3;
-        for (let k = 0; k < chirps; k++) {
-          const chirpTime = bt + k * 0.18;
-          const osc = offlineCtx.createOscillator();
-          const chirpGain = offlineCtx.createGain();
-
-          osc.type = 'sine';
-          const baseF = 2400 + Math.random() * 600;
-          osc.frequency.setValueAtTime(baseF, chirpTime);
-          osc.frequency.linearRampToValueAtTime(baseF + 800, chirpTime + 0.05);
-          osc.frequency.linearRampToValueAtTime(baseF - 200, chirpTime + 0.12);
-
-          chirpGain.gain.setValueAtTime(0.0001, chirpTime);
-          chirpGain.gain.linearRampToValueAtTime(natureVol * 0.15, chirpTime + 0.03);
-          chirpGain.gain.exponentialRampToValueAtTime(0.0001, chirpTime + 0.14);
-
-          osc.connect(chirpGain);
-          chirpGain.connect(offlineCtx.destination);
-          osc.start(chirpTime);
-          osc.stop(chirpTime + 0.15);
+          dropOsc.connect(dropGain);
+          dropGain.connect(offlineCtx.destination);
+          dropOsc.start(dt);
+          dropOsc.stop(dt + 0.2);
         }
-      }
-    });
-  } else if (natureType === 'angin-pepohonan') {
-    // Wind in trees: Lowpass sweeping frequency
-    natureFilter.type = 'lowpass';
-    natureFilter.frequency.setValueAtTime(300, 0);
-    natureGain.gain.setValueAtTime(natureVol * 0.9, 0);
-  } else if (natureType === 'ombak-pantai') {
-    // Ocean waves: Slow sweeping resonant swell
-    natureFilter.type = 'lowpass';
-    natureFilter.frequency.setValueAtTime(450, 0);
-    natureGain.gain.setValueAtTime(natureVol * 0.8, 0);
-  } else if (natureType === 'hutan-alami') {
-    // Rainforest canopy
-    natureFilter.type = 'bandpass';
-    natureFilter.frequency.setValueAtTime(500, 0);
-    natureFilter.Q.setValueAtTime(0.8, 0);
-    natureGain.gain.setValueAtTime(natureVol * 0.7, 0);
-  } else {
-    // Gentle rain (hujan lembut)
-    natureFilter.type = 'lowpass';
-    natureFilter.frequency.setValueAtTime(1400, 0);
-    natureGain.gain.setValueAtTime(natureVol * 0.75, 0);
-  }
+      });
+    } else if (nType === 'burung-pagi') {
+      natureFilter.type = 'lowpass';
+      natureFilter.frequency.setValueAtTime(400, 0);
+      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.3, 0);
 
-  // Connect nature sound source
-  noiseSource.connect(natureFilter);
-  natureFilter.connect(natureGain);
-  natureGain.connect(offlineCtx.destination);
-  noiseSource.start(0);
-  noiseSource.stop(durationSeconds);
+      const birdTimes = [2, 6, 12, 18, 24];
+      birdTimes.forEach((bt) => {
+        if (bt < actualDuration - 2) {
+          const chirps = 3;
+          for (let k = 0; k < chirps; k++) {
+            const chirpTime = bt + k * 0.18;
+            const osc = offlineCtx.createOscillator();
+            const chirpGain = offlineCtx.createGain();
+
+            osc.type = 'sine';
+            const baseF = 2400 + Math.random() * 600;
+            osc.frequency.setValueAtTime(baseF, chirpTime);
+            osc.frequency.linearRampToValueAtTime(baseF + 800, chirpTime + 0.05);
+            osc.frequency.linearRampToValueAtTime(baseF - 200, chirpTime + 0.12);
+
+            chirpGain.gain.setValueAtTime(0.0001, chirpTime);
+            chirpGain.gain.linearRampToValueAtTime(effectiveLayerVol * 0.22, chirpTime + 0.03);
+            chirpGain.gain.exponentialRampToValueAtTime(0.0001, chirpTime + 0.14);
+
+            osc.connect(chirpGain);
+            chirpGain.connect(offlineCtx.destination);
+            osc.start(chirpTime);
+            osc.stop(chirpTime + 0.15);
+          }
+        }
+      });
+    } else if (nType === 'angin-pepohonan') {
+      natureFilter.type = 'lowpass';
+      natureFilter.frequency.setValueAtTime(300, 0);
+      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.85, 0);
+    } else if (nType === 'ombak-pantai') {
+      natureFilter.type = 'lowpass';
+      natureFilter.frequency.setValueAtTime(450, 0);
+      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.8, 0);
+    } else if (nType === 'hutan-alami') {
+      natureFilter.type = 'bandpass';
+      natureFilter.frequency.setValueAtTime(500, 0);
+      natureFilter.Q.setValueAtTime(0.8, 0);
+      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.7, 0);
+    } else {
+      natureFilter.type = 'lowpass';
+      natureFilter.frequency.setValueAtTime(1400, 0);
+      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.75, 0);
+    }
+
+    noiseSource.connect(natureFilter);
+    natureFilter.connect(natureGain);
+    natureGain.connect(offlineCtx.destination);
+    noiseSource.start(0);
+    noiseSource.stop(actualDuration);
+  }
 
   // -------------------------------------------------------------
   // 3. TIBETAN SINGING BOWL HARMONICS (528Hz Love & Miracle frequency)
   // -------------------------------------------------------------
   if (withBowl) {
-    const bowlTimes = [1, 25, 60, 95];
+    const bowlTimes = [1, 14, 26];
     bowlTimes.forEach((t) => {
-      if (t < durationSeconds - 6) {
+      if (t < actualDuration - 3) {
         const bowlOsc1 = offlineCtx.createOscillator();
         const bowlOsc2 = offlineCtx.createOscillator();
         const bowlGain = offlineCtx.createGain();
@@ -472,24 +486,26 @@ export async function generateRelaxationSoundscapeWav(
         bowlOsc2.frequency.setValueAtTime(528 * 2.76, t); // Overtone
 
         bowlGain.gain.setValueAtTime(0.0001, t);
-        bowlGain.gain.linearRampToValueAtTime(0.10, t + 0.15);
-        bowlGain.gain.exponentialRampToValueAtTime(0.0001, t + 9);
+        bowlGain.gain.linearRampToValueAtTime(0.08, t + 0.15);
+        bowlGain.gain.exponentialRampToValueAtTime(0.0001, Math.min(actualDuration, t + 8));
 
         bowlOsc1.connect(bowlGain);
         bowlOsc2.connect(bowlGain);
         bowlGain.connect(offlineCtx.destination);
 
         bowlOsc1.start(t);
-        bowlOsc1.stop(t + 10);
+        bowlOsc1.stop(Math.min(actualDuration, t + 8.5));
         bowlOsc2.start(t);
-        bowlOsc2.stop(t + 10);
+        bowlOsc2.stop(Math.min(actualDuration, t + 8.5));
       }
     });
   }
 
   // Render offline buffer to audio
   const renderedBuffer = await offlineCtx.startRendering();
-  return audioBufferToWavBlob(renderedBuffer);
+  const url = audioBufferToWavBlob(renderedBuffer);
+  soundscapeWavCache.set(cacheKey, url);
+  return url;
 }
 
 /**

@@ -193,7 +193,7 @@ export const EmotionAnalysis: React.FC<EmotionAnalysisProps> = ({
               variant="pill"
             />
             <div className="text-right hidden sm:block">
-              <span className="text-[10px] text-stone-400 font-mono uppercase tracking-wider block">
+              <span className="text-[10px] text-white font-extrabold font-mono uppercase tracking-wider block">
                 SHAQILA DIGITAL 99
               </span>
               <span className="text-xs text-emerald-400 font-semibold">Self Awareness Platform</span>

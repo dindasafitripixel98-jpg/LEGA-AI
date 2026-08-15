@@ -172,13 +172,14 @@ export type AmbientMusicType =
 
 export interface AudioRelaxationMetadata {
   atmosphereTheme: string; // Tema suasana (e.g. "Ketenangan Senja")
-  natureSoundType: NatureSoundType; // Jenis backsound (e.g. "Gemericik air")
+  natureSoundType: NatureSoundType; // Jenis backsound utama (e.g. "Gemericik air")
+  natureSoundTypes?: NatureSoundType[]; // Multi-layer backsound (e.g. ['aliran-sungai', 'burung-pagi', 'angin-pepohonan'])
   natureSoundLabel: string;
   ambientMusicType: AmbientMusicType; // Jenis musik (e.g. "Pad Sinematik 432Hz")
   ambientMusicLabel: string;
-  narrationVolume: number; // 0-100% (default: 90%)
-  natureVolume: number; // 0-100% (default: 25%)
-  musicVolume: number; // 0-100% (default: 20%)
+  narrationVolume: number; // 0-100% (default: 80-90%)
+  natureVolume: number; // 0-100% (default: 60%)
+  musicVolume: number; // 0-100% (default: 40%)
   fadeInSeconds: number; // e.g. 4.0
   fadeOutSeconds: number; // e.g. 5.5
   loopRecommendation: string; // Rekomendasi loop jika sesi lebih panjang (e.g. "Seamless Crossfade Loop 30 Detik")

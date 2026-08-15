@@ -130,7 +130,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <h1 className="font-bold text-stone-100 tracking-wide text-lg flex items-center gap-1.5">
               LEGA <span className="text-[10px] px-1.5 py-0.5 rounded bg-sky-500/30 text-sky-200 border border-sky-400/30 font-semibold">v1.0</span>
             </h1>
-            <p className="text-[11px] text-stone-400 truncate">SHAQILA DIGITAL 99</p>
+            <p className="text-[11px] font-bold text-white tracking-wide truncate">SHAQILA DIGITAL 99</p>
           </div>
         </div>
         <button
