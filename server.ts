@@ -3,6 +3,7 @@ import path from 'path';
 import dotenv from 'dotenv';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI, Modality } from '@google/genai';
+import { generateLegaContextualChat } from './src/lib/legaChatEngine';
 
 dotenv.config();
 
@@ -14,7 +15,7 @@ app.use(express.json({ limit: '10mb' }));
 // Helper to initialize Gemini SDK safely
 function getGeminiClient() {
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
+  if (!apiKey || apiKey === 'MY_GEMINI_API_KEY') {
     throw new Error('GEMINI_API_KEY tidak dikonfigurasi pada environment.');
   }
   return new GoogleGenAI({
@@ -33,13 +34,13 @@ async function safeGenerateGeminiJSON<T = any>(
   systemInstruction?: string,
   temperature = 0.5,
   fallbackData?: T,
-  preferredModel = 'gemini-flash-latest'
+  preferredModel = 'gemini-3.7-flash'
 ): Promise<T> {
   const candidateModels = [
     preferredModel,
+    'gemini-3.7-flash',
     'gemini-flash-latest',
     'gemini-3.1-flash-lite',
-    'gemini-3.7-flash',
   ].filter((v, i, a) => v && a.indexOf(v) === i);
 
   let lastError: any = null;
@@ -64,11 +65,43 @@ async function safeGenerateGeminiJSON<T = any>(
           } else if (text.startsWith('```')) {
             text = text.replace(/^```\s*/, '').replace(/\s*```$/, '');
           }
+          const firstBrace = text.indexOf('{');
+          const lastBrace = text.lastIndexOf('}');
+          if (firstBrace !== -1 && lastBrace !== -1 && lastBrace >= firstBrace) {
+            text = text.slice(firstBrace, lastBrace + 1);
+          }
           return JSON.parse(text);
         }
       } catch (err: any) {
         lastError = err;
-        // Continue silently to fallback model if quota / rate limit / 503 / 429
+        // If JSON mimeType failed, try plain text generation and extract JSON
+        try {
+          const textRes = await ai.models.generateContent({
+            model,
+            contents: `${prompt}\n\nIMPORTANT: Tanggapi HANYA dalam format JSON yang valid.`,
+            config: {
+              systemInstruction,
+              temperature,
+            },
+          });
+          let rawText = textRes.text || '';
+          if (rawText) {
+            rawText = rawText.trim();
+            if (rawText.startsWith('```json')) {
+              rawText = rawText.replace(/^```json\s*/i, '').replace(/\s*```$/, '');
+            } else if (rawText.startsWith('```')) {
+              rawText = rawText.replace(/^```\s*/, '').replace(/\s*```$/, '');
+            }
+            const firstB = rawText.indexOf('{');
+            const lastB = rawText.lastIndexOf('}');
+            if (firstB !== -1 && lastB !== -1 && lastB >= firstB) {
+              rawText = rawText.slice(firstB, lastB + 1);
+              return JSON.parse(rawText);
+            }
+          }
+        } catch (innerErr) {
+          // continue to next candidate model
+        }
       }
     }
   } catch (clientErr: any) {
@@ -216,51 +249,42 @@ app.post('/api/gemini/chat', async (req, res) => {
       return res.status(400).json({ error: 'Format pesan tidak valid.' });
     }
 
+    const conversationHistory = messages
+      .map((m: any) => `${m.sender === 'user' ? 'Pengguna' : 'LEGA AI'}: ${m.text}`)
+      .join('\n');
+
     const lastUserMessage = messages[messages.length - 1]?.text || 'Halo LEGA';
 
     const promptText = `
 User Profile: ${JSON.stringify(userProfile || { name: 'Teman LEGA' })}
-Riwayat Percakapan Terakhir:
+
+Riwayat Percakapan Lengkap:
+${conversationHistory}
+
+Pesan Pengguna Terakhir:
 ${lastUserMessage}
 
-Berikan tanggapan sesuai instruksi LEGA AI dalam format JSON yang telah ditentukan.
+Tugas:
+Analisis pesan dan riwayat percakapan di atas, lalu berikan tanggapan pendampingan reflektif LEGA AI COACH yang hangat, tenang, dan empatik sesuai instruksi LEGA AI dalam format JSON yang telah ditentukan.
 `;
 
-    const fallbackChat = {
-      replyText: `Terima kasih sudah meluangkan waktu untuk berbagi, ${userProfile?.name || 'Sahabat'}. Saya di sini untuk mendengarkan dan menemani Anda dengan penuh kesadaran. Apa yang sedang paling Anda rasakan di momen saat ini?`,
-      identifiedEmotion: null,
-      reflectiveQuestions: [
-        'Apa satu hal yang paling Anda butuhkan saat ini untuk merasa lebih tenang?',
-        'Bagaimana sensasi napas dan tubuh Anda saat ini?'
-      ],
-      suggestedExercise: {
-        type: 'breathing',
-        title: 'Napas Hadir Saat Ini',
-        description: 'Tarik napas perlahan selama 4 detik, tahan 2 detik, lalu hembuskan lembut 6 detik.'
-      },
-      summaryInsight: 'Mendengarkan pengalaman batin dengan lembut adalah langkah awal pemulihan ketenangan.',
-    };
+    const fallbackChat = generateLegaContextualChat(messages, userProfile);
 
     const parsedData = await safeGenerateGeminiJSON(
       promptText,
       LEGA_SYSTEM_INSTRUCTION,
       0.7,
       fallbackChat,
-      'gemini-flash-latest'
+      'gemini-3.7-flash'
     );
 
     res.json({ success: true, data: parsedData });
   } catch (error: any) {
-    console.warn('Error handled in /api/gemini/chat:', error?.message || error);
+    console.warn('Handled in /api/gemini/chat:', error?.message || error);
+    const dynamicFallback = generateLegaContextualChat(req.body?.messages || [], req.body?.userProfile);
     res.json({
       success: true,
-      data: {
-        replyText: 'Saya mendengarkan apa yang Anda rasakan. Mari tarik napas perlahan sejenak bersama.',
-        identifiedEmotion: null,
-        reflectiveQuestions: ['Apa yang paling Anda butuhkan saat ini?'],
-        suggestedExercise: { type: 'breathing', title: 'LEGA Breathing', description: 'Napas ritmis lembut' },
-        summaryInsight: 'Hadir utuh di saat ini.'
-      }
+      data: dynamicFallback
     });
   }
 });
@@ -3676,3 +3700,6 @@ async function startServer() {
 }
 
 startServer();
+
+export default app;
+export { app };

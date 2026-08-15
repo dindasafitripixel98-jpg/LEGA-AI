@@ -1,3 +1,5 @@
+import { generateLegaContextualChat } from './legaChatEngine';
+
 export async function sendChatMessage(messages: any[], userProfile: any) {
   try {
     const res = await fetch('/api/gemini/chat', {
@@ -6,23 +8,13 @@ export async function sendChatMessage(messages: any[], userProfile: any) {
       body: JSON.stringify({ messages, userProfile }),
     });
     const data = await res.json();
-    if (!res.ok || !data.success) {
-      throw new Error(data.error || 'Gagal tersambung dengan LEGA AI.');
+    if (res.ok && data.success && data.data) {
+      return data.data;
     }
-    return data.data;
+    throw new Error(data.error || 'Gagal tersambung dengan LEGA AI.');
   } catch (err: any) {
-    console.error('sendChatMessage error:', err);
-    return {
-      replyText: 'Maaf, saat ini terjadi kendala koneksi ke LEGA AI. Tetaplah bernapas dengan tenang.',
-      identifiedEmotion: null,
-      reflectiveQuestions: ['Apa yang sedang kamu rasakan paling kuat saat ini?'],
-      suggestedExercise: {
-        type: 'breathing',
-        title: 'Napas Penghening',
-        description: 'Tarik napas 4 detik, tahan 4 detik, buang 4 detik.',
-      },
-      summaryInsight: 'Momen jeda selalu membantu kita kembali sadar.',
-    };
+    console.warn('sendChatMessage falling back to contextual engine:', err?.message || err);
+    return generateLegaContextualChat(messages, userProfile);
   }
 }
 

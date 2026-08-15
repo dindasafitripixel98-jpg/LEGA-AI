@@ -151,7 +151,21 @@ export const INITIAL_AUDIO_TRACKS: AudioTrack[] = [
     category: 'guided',
     duration: '5 Menit',
     description: 'Panduan audio lembut untuk meredakan ketegangan setelah beraktivitas seharian.',
-    isAiGenerated: true
+    isAiGenerated: true,
+    metadata: {
+      atmosphereTheme: 'Pelepasan Ketegangan Senja & Hening Malam',
+      natureSoundType: 'aliran-sungai',
+      natureSoundLabel: 'Aliran Sungai Alami',
+      ambientMusicType: 'piano-lembut',
+      ambientMusicLabel: 'Piano Lembut Akustik (432Hz)',
+      narrationVolume: 90,
+      natureVolume: 25,
+      musicVolume: 20,
+      fadeInSeconds: 4.5,
+      fadeOutSeconds: 6.0,
+      loopRecommendation: 'Seamless Organic Crossfade Loop (30 Detik)',
+      voiceWarmthDescription: 'Suara Bahasa Indonesia hangat, lembut, artikulasi tenang, dan ritme perlahan.'
+    }
   },
   {
     id: 'aud-2',
@@ -159,7 +173,21 @@ export const INITIAL_AUDIO_TRACKS: AudioTrack[] = [
     category: 'nature',
     duration: '10 Menit',
     description: 'Suara alami deburan ombak pantai yang menenangkan gelombang otak.',
-    audioUrl: 'https://cdn.pixabay.com/download/audio/2022/05/16/audio_db6591201e.mp3'
+    audioUrl: 'https://cdn.pixabay.com/download/audio/2022/05/16/audio_db6591201e.mp3',
+    metadata: {
+      atmosphereTheme: 'Relaksasi Pesisir Pantai & Penyelarasan Napas',
+      natureSoundType: 'ombak-pantai',
+      natureSoundLabel: 'Ombak Pantai',
+      ambientMusicType: 'pad-sinematik',
+      ambientMusicLabel: 'Pad Sinematik Mengalun (432Hz)',
+      narrationVolume: 90,
+      natureVolume: 28,
+      musicVolume: 18,
+      fadeInSeconds: 5.0,
+      fadeOutSeconds: 6.5,
+      loopRecommendation: 'Tidal Wave Dynamic Loop (20 Detik)',
+      voiceWarmthDescription: 'Suara Bahasa Indonesia hangat, lembut, artikulasi tenang, dan ritme perlahan.'
+    }
   },
   {
     id: 'aud-3',
@@ -167,15 +195,43 @@ export const INITIAL_AUDIO_TRACKS: AudioTrack[] = [
     category: 'nature',
     duration: '15 Menit',
     description: 'Gemericik air hujan di dedaunan rindang untuk fokus dan penerimaan.',
-    audioUrl: 'https://cdn.pixabay.com/download/audio/2021/09/06/audio_34d1a1b15a.mp3'
+    audioUrl: 'https://cdn.pixabay.com/download/audio/2021/09/06/audio_34d1a1b15a.mp3',
+    metadata: {
+      atmosphereTheme: 'Hujan Pembasuh Kelelahan & Kenyamanan Batin',
+      natureSoundType: 'hujan-lembut',
+      natureSoundLabel: 'Hujan Lembut',
+      ambientMusicType: 'piano-lembut',
+      ambientMusicLabel: 'Piano Lembut Akustik (432Hz)',
+      narrationVolume: 90,
+      natureVolume: 26,
+      musicVolume: 18,
+      fadeInSeconds: 4.0,
+      fadeOutSeconds: 6.0,
+      loopRecommendation: 'Continuous White/Pink Rain Loop (30 Detik)',
+      voiceWarmthDescription: 'Suara Bahasa Indonesia hangat, lembut, artikulasi tenang, dan ritme perlahan.'
+    }
   },
   {
     id: 'aud-4',
-    title: 'Refleksi Pelepasan Beban AI',
+    title: 'Refleksi Pelepasan Beban Batin',
     category: 'tts',
     duration: '3 Menit',
     description: 'Sintesis narasi AI LEGA untuk membimbing Anda melepaskan ekspektasi berlebih.',
-    isAiGenerated: true
+    isAiGenerated: true,
+    metadata: {
+      atmosphereTheme: 'Keberanian Melepaskan & Kasih Sayang Diri',
+      natureSoundType: 'angin-pepohonan',
+      natureSoundLabel: 'Angin di Pepohonan',
+      ambientMusicType: 'string-halus',
+      ambientMusicLabel: 'String Halus Meditatif (528Hz)',
+      narrationVolume: 90,
+      natureVolume: 24,
+      musicVolume: 20,
+      fadeInSeconds: 4.5,
+      fadeOutSeconds: 5.5,
+      loopRecommendation: 'Atmospheric Breeze Cycle (30 Detik)',
+      voiceWarmthDescription: 'Suara Bahasa Indonesia hangat, lembut, artikulasi tenang, dan ritme perlahan.'
+    }
   }
 ];
 

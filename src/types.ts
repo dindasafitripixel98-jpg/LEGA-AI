@@ -156,6 +156,35 @@ export interface Article {
   updatedAt?: string;
 }
 
+export type NatureSoundType =
+  | 'aliran-sungai'
+  | 'gemericik-air'
+  | 'burung-pagi'
+  | 'angin-pepohonan'
+  | 'ombak-pantai'
+  | 'hutan-alami'
+  | 'hujan-lembut';
+
+export type AmbientMusicType =
+  | 'piano-lembut'
+  | 'pad-sinematik'
+  | 'string-halus';
+
+export interface AudioRelaxationMetadata {
+  atmosphereTheme: string; // Tema suasana (e.g. "Ketenangan Senja")
+  natureSoundType: NatureSoundType; // Jenis backsound (e.g. "Gemericik air")
+  natureSoundLabel: string;
+  ambientMusicType: AmbientMusicType; // Jenis musik (e.g. "Pad Sinematik 432Hz")
+  ambientMusicLabel: string;
+  narrationVolume: number; // 0-100% (default: 90%)
+  natureVolume: number; // 0-100% (default: 25%)
+  musicVolume: number; // 0-100% (default: 20%)
+  fadeInSeconds: number; // e.g. 4.0
+  fadeOutSeconds: number; // e.g. 5.5
+  loopRecommendation: string; // Rekomendasi loop jika sesi lebih panjang (e.g. "Seamless Crossfade Loop 30 Detik")
+  voiceWarmthDescription?: string;
+}
+
 export interface AudioTrack {
   id: string;
   title: string;
@@ -164,6 +193,7 @@ export interface AudioTrack {
   description: string;
   audioUrl?: string;
   isAiGenerated?: boolean;
+  metadata?: AudioRelaxationMetadata;
 }
 
 export interface MindBodySensation {

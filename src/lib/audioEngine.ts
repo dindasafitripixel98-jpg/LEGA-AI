@@ -1,12 +1,148 @@
-// LEGA Audio Engine - Advanced Soundscape, Gemini TTS Decoder & Web Audio Synthesizer
+// LEGA Audio Engine - Premium Relaxation Soundscapes & Ambient Synthesizer
 // SHAQILA DIGITAL 99 - LEGA v3.0
+
+import { NatureSoundType, AmbientMusicType, AudioRelaxationMetadata } from '../types';
+
+export interface SoundscapeOptions {
+  natureType?: NatureSoundType;
+  ambientType?: AmbientMusicType;
+  natureVolume?: number; // 0.0 - 1.0 (recommended: 0.2 - 0.3)
+  musicVolume?: number; // 0.0 - 1.0 (recommended: 0.15 - 0.25)
+  fadeInSeconds?: number;
+  fadeOutSeconds?: number;
+  includeSingingBowl?: boolean;
+}
+
+export const NATURE_SOUND_DEFINITIONS: Record<NatureSoundType, {
+  name: string;
+  description: string;
+  recommendedTheme: string;
+  defaultNatureVolume: number;
+  defaultMusicVolume: number;
+  defaultAmbient: AmbientMusicType;
+  loopRecommendation: string;
+}> = {
+  'aliran-sungai': {
+    name: 'Aliran Sungai Alami',
+    description: 'Gemericik arus air sungai pegunungan yang jernih dan mengalir konstan membawa keheningan.',
+    recommendedTheme: 'Pelepasan Beban Pikiran & Ketenangan Mengalir',
+    defaultNatureVolume: 0.26,
+    defaultMusicVolume: 0.20,
+    defaultAmbient: 'piano-lembut',
+    loopRecommendation: 'Seamless Organic Crossfade Loop (30 Detik)'
+  },
+  'gemericik-air': {
+    name: 'Gemericik Air',
+    description: 'Tetesan dan percikan air lembut di atas bebatuan alami yang menyegarkan batin.',
+    recommendedTheme: 'Kehadiran Momen Ini & Kejernihan Jiwa',
+    defaultNatureVolume: 0.24,
+    defaultMusicVolume: 0.20,
+    defaultAmbient: 'piano-lembut',
+    loopRecommendation: 'Granular Ripple Loop (25 Detik)'
+  },
+  'burung-pagi': {
+    name: 'Burung Pagi',
+    description: 'Kicauan burung fajar di taman yang tenang dengan embun dan semilir udara segar.',
+    recommendedTheme: 'Optimisme & Memulai Hari dengan Hati Lapang',
+    defaultNatureVolume: 0.22,
+    defaultMusicVolume: 0.18,
+    defaultAmbient: 'string-halus',
+    loopRecommendation: 'Randomized Melody Cycle (45 Detik)'
+  },
+  'angin-pepohonan': {
+    name: 'Angin di Pepohonan',
+    description: 'Semilir hembusan angin sejuk yang menggerakkan dedaunan rimbun dengan ritme lambat.',
+    recommendedTheme: 'Pelepasan Ketegangan Fisik & Pengheningan',
+    defaultNatureVolume: 0.25,
+    defaultMusicVolume: 0.20,
+    defaultAmbient: 'pad-sinematik',
+    loopRecommendation: 'Atmospheric Breeze Cycle (30 Detik)'
+  },
+  'ombak-pantai': {
+    name: 'Ombak Pantai',
+    description: 'Deburan ombak laut yang lembut dan berirama menyelaraskan napas dengan ritme alam.',
+    recommendedTheme: 'Relaksasi Mendalam & Penyelarasan Napas',
+    defaultNatureVolume: 0.28,
+    defaultMusicVolume: 0.18,
+    defaultAmbient: 'pad-sinematik',
+    loopRecommendation: 'Tidal Wave Dynamic Loop (20 Detik)'
+  },
+  'hutan-alami': {
+    name: 'Hutan Alami',
+    description: 'Suasana kanopi hutan alami tropis yang damai, hangat, dan menaungi jiwa.',
+    recommendedTheme: 'Grounding Batin & Rasa Terhubung dengan Alam',
+    defaultNatureVolume: 0.25,
+    defaultMusicVolume: 0.22,
+    defaultAmbient: 'string-halus',
+    loopRecommendation: 'Deep Rainforest Continuous Loop (40 Detik)'
+  },
+  'hujan-lembut': {
+    name: 'Hujan Lembut',
+    description: 'Rintik hujan tenang di atas dedaunan yang membasuh kecemasan dan mengantar istirahat.',
+    recommendedTheme: 'Kenyamanan Emosional & Pengantar Tidur Nyenyak',
+    defaultNatureVolume: 0.26,
+    defaultMusicVolume: 0.18,
+    defaultAmbient: 'piano-lembut',
+    loopRecommendation: 'Continuous White/Pink Rain Loop (30 Detik)'
+  }
+};
+
+export const AMBIENT_MUSIC_DEFINITIONS: Record<AmbientMusicType, {
+  name: string;
+  description: string;
+  character: string;
+}> = {
+  'piano-lembut': {
+    name: 'Piano Lembut Akustik (432Hz)',
+    description: 'Sentuhan tuts piano hangat bernada pentatonik lembut yang menenangkan sistem saraf.',
+    character: 'Hangat, Jernih, Lembut & Menenteramkan'
+  },
+  'pad-sinematik': {
+    name: 'Pad Sinematik Mengalun (432Hz)',
+    description: 'Lapisan suara pad analog yang mengambang perlahan memberi rasa aman dan ruang batin luas.',
+    character: 'Mendalam, Melayang, Luas & Memeluk'
+  },
+  'string-halus': {
+    name: 'String Halus Meditatif (528Hz)',
+    description: 'Gesekan dawai senar orkestra halus dengan resonansi panjang yang meredakan emosi.',
+    character: 'Elegan, Menghanyutkan, Teduh & Damai'
+  }
+};
+
+/**
+ * Builds standard relaxation metadata based on category / selected sounds
+ */
+export function buildAudioRelaxationMetadata(
+  themeTitle: string,
+  nature: NatureSoundType = 'aliran-sungai',
+  ambient: AmbientMusicType = 'piano-lembut',
+  customOverrides?: Partial<AudioRelaxationMetadata>
+): AudioRelaxationMetadata {
+  const natDef = NATURE_SOUND_DEFINITIONS[nature] || NATURE_SOUND_DEFINITIONS['aliran-sungai'];
+  const ambDef = AMBIENT_MUSIC_DEFINITIONS[ambient] || AMBIENT_MUSIC_DEFINITIONS['piano-lembut'];
+
+  return {
+    atmosphereTheme: themeTitle || natDef.recommendedTheme,
+    natureSoundType: nature,
+    natureSoundLabel: natDef.name,
+    ambientMusicType: ambient,
+    ambientMusicLabel: ambDef.name,
+    narrationVolume: 90, // Narasi 90% (Jernih & Utama)
+    natureVolume: Math.round(natDef.defaultNatureVolume * 100), // Suara alam 22-28%
+    musicVolume: Math.round(natDef.defaultMusicVolume * 100), // Musik ambient 18-22%
+    fadeInSeconds: 4.5,
+    fadeOutSeconds: 6.0,
+    loopRecommendation: natDef.loopRecommendation,
+    voiceWarmthDescription: 'Suara Bahasa Indonesia hangat, lembut, artikulasi tenang, dan ritme perlahan.',
+    ...customOverrides
+  };
+}
 
 /**
  * Converts a raw 16-bit linear PCM base64 string or binary buffer into a playable WAV Blob URL.
  */
 export function pcmToWavBlobUrl(base64Data: string, sampleRate = 24000, numChannels = 1, bitsPerSample = 16): string {
   try {
-    // Check if it already has a data URL header
     const cleanBase64 = base64Data.includes('base64,') ? base64Data.split('base64,')[1] : base64Data;
     const binaryString = atob(cleanBase64);
     const len = binaryString.length;
@@ -15,13 +151,11 @@ export function pcmToWavBlobUrl(base64Data: string, sampleRate = 24000, numChann
       pcmBytes[i] = binaryString.charCodeAt(i);
     }
 
-    // Check if it already contains a 'RIFF' header
     if (len >= 4 && binaryString.slice(0, 4) === 'RIFF') {
       const blob = new Blob([pcmBytes], { type: 'audio/wav' });
       return URL.createObjectURL(blob);
     }
 
-    // Otherwise, construct a 44-byte RIFF/WAVE header
     const headerBuffer = new ArrayBuffer(44);
     const view = new DataView(headerBuffer);
 
@@ -30,42 +164,21 @@ export function pcmToWavBlobUrl(base64Data: string, sampleRate = 24000, numChann
     const dataSize = pcmBytes.length;
 
     // "RIFF"
-    view.setUint8(0, 0x52);
-    view.setUint8(1, 0x49);
-    view.setUint8(2, 0x46);
-    view.setUint8(3, 0x46);
-    // File size - 8
+    view.setUint8(0, 0x52); view.setUint8(1, 0x49); view.setUint8(2, 0x46); view.setUint8(3, 0x46);
     view.setUint32(4, 36 + dataSize, true);
     // "WAVE"
-    view.setUint8(8, 0x57);
-    view.setUint8(9, 0x41);
-    view.setUint8(10, 0x56);
-    view.setUint8(11, 0x45);
+    view.setUint8(8, 0x57); view.setUint8(9, 0x41); view.setUint8(10, 0x56); view.setUint8(11, 0x45);
     // "fmt "
-    view.setUint8(12, 0x66);
-    view.setUint8(13, 0x6d);
-    view.setUint8(14, 0x74);
-    view.setUint8(15, 0x20);
-    // Subchunk1Size (16 for PCM)
+    view.setUint8(12, 0x66); view.setUint8(13, 0x6d); view.setUint8(14, 0x74); view.setUint8(15, 0x20);
     view.setUint32(16, 16, true);
-    // AudioFormat (1 for PCM)
-    view.setUint16(20, 1, true);
-    // NumChannels
+    view.setUint16(20, 1, true); // PCM
     view.setUint16(22, numChannels, true);
-    // SampleRate
     view.setUint32(24, sampleRate, true);
-    // ByteRate
     view.setUint32(28, byteRate, true);
-    // BlockAlign
     view.setUint16(32, blockAlign, true);
-    // BitsPerSample
     view.setUint16(34, bitsPerSample, true);
     // "data"
-    view.setUint8(36, 0x64);
-    view.setUint8(37, 0x61);
-    view.setUint8(38, 0x74);
-    view.setUint8(39, 0x61);
-    // Data size
+    view.setUint8(36, 0x64); view.setUint8(37, 0x61); view.setUint8(38, 0x74); view.setUint8(39, 0x61);
     view.setUint32(40, dataSize, true);
 
     const wavBlob = new Blob([headerBuffer, pcmBytes], { type: 'audio/wav' });
@@ -77,10 +190,21 @@ export function pcmToWavBlobUrl(base64Data: string, sampleRate = 24000, numChann
 }
 
 /**
- * Synthesizes a calming meditation soundscape (Singing Bowl + 432Hz ambient chord + ocean breathing wave)
- * Returns a high-fidelity WAV blob URL generated offline via Web Audio API.
+ * Synthesizes a high-fidelity relaxation soundscape (Nature Sound + Ambient Music + Solfeggio 432/528Hz Bowls)
+ * Returns a high-quality playable WAV blob URL generated offline via Web Audio API.
  */
-export async function generateMeditationAmbientWav(durationSeconds = 120): Promise<string> {
+export async function generateRelaxationSoundscapeWav(
+  durationSeconds = 120,
+  options?: SoundscapeOptions
+): Promise<string> {
+  const natureType = options?.natureType || 'aliran-sungai';
+  const ambientType = options?.ambientType || 'piano-lembut';
+  const natureVol = options?.natureVolume ?? 0.25;
+  const musicVol = options?.musicVolume ?? 0.20;
+  const fadeIn = options?.fadeInSeconds ?? 4.5;
+  const fadeOut = options?.fadeOutSeconds ?? 5.5;
+  const withBowl = options?.includeSingingBowl !== false;
+
   const sampleRate = 44100;
   const numChannels = 2;
   const length = sampleRate * durationSeconds;
@@ -91,100 +215,295 @@ export async function generateMeditationAmbientWav(durationSeconds = 120): Promi
     sampleRate
   );
 
-  // 1. Root Harmonic Drone (432 Hz, warm peaceful tone)
-  const rootFreqs = [108, 216, 432, 648]; // Natural harmonics
-  rootFreqs.forEach((freq, idx) => {
-    const osc = offlineCtx.createOscillator();
-    const gain = offlineCtx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(freq, 0);
+  // -------------------------------------------------------------
+  // 1. AMBIENT MUSIC SYNTHESIS (Piano, Cinematic Pad, or Soft Strings)
+  // -------------------------------------------------------------
+  if (ambientType === 'piano-lembut') {
+    // Warm Pentatonic Piano chords at 432Hz tuning (C, D, E, G, A, C)
+    const chordNotes = [
+      [129.6, 216, 259.2, 324],     // C3 - E3 - G3 - B3 / D4
+      [144, 216, 288, 360],         // D3 - F#3 - A3 - C#4
+      [108, 162, 216, 324],         // A2 - E3 - A3 - E4
+      [129.6, 194.4, 259.2, 388.8], // F3 - C4 - F4 - C5
+    ];
 
-    // Subtle detune for lush binaural warmth
-    osc.detune.setValueAtTime((idx % 2 === 0 ? 1 : -1) * 3, 0);
+    const chordInterval = 12; // New gentle chord every 12 seconds
+    const numChords = Math.ceil(durationSeconds / chordInterval);
 
-    const baseVol = 0.08 / (idx + 1);
-    gain.gain.setValueAtTime(0.001, 0);
-    gain.gain.linearRampToValueAtTime(baseVol, 4); // 4s fade in
-    gain.gain.setValueAtTime(baseVol, durationSeconds - 5);
-    gain.gain.linearRampToValueAtTime(0.001, durationSeconds); // 5s fade out
+    for (let c = 0; c < numChords; c++) {
+      const chordTime = c * chordInterval + 0.5;
+      if (chordTime >= durationSeconds - 2) break;
 
-    osc.connect(gain);
-    gain.connect(offlineCtx.destination);
-    osc.start(0);
-    osc.stop(durationSeconds);
-  });
+      const notes = chordNotes[c % chordNotes.length];
+      notes.forEach((freq, nIdx) => {
+        const noteTime = chordTime + nIdx * 0.15; // gentle arpeggiated piano touch
+        if (noteTime < durationSeconds - 2) {
+          const osc1 = offlineCtx.createOscillator();
+          const osc2 = offlineCtx.createOscillator();
+          const filter = offlineCtx.createBiquadFilter();
+          const gain = offlineCtx.createGain();
 
-  // 2. Periodic Singing Bowl Bells (every 15-20 seconds)
-  const bowlTimes = [1, 20, 45, 75, 100];
-  bowlTimes.forEach((t) => {
-    if (t < durationSeconds - 5) {
-      const bowlOsc1 = offlineCtx.createOscillator();
-      const bowlOsc2 = offlineCtx.createOscillator();
-      const bowlGain = offlineCtx.createGain();
+          osc1.type = 'sine';
+          osc1.frequency.setValueAtTime(freq, noteTime);
 
-      bowlOsc1.type = 'sine';
-      bowlOsc1.frequency.setValueAtTime(528, t); // Love/Miracle frequency
-      bowlOsc2.type = 'sine';
-      bowlOsc2.frequency.setValueAtTime(528 * 2.76, t); // Bell overtone
+          // Piano overtone
+          osc2.type = 'triangle';
+          osc2.frequency.setValueAtTime(freq * 2.001, noteTime);
 
-      bowlGain.gain.setValueAtTime(0.001, t);
-      bowlGain.gain.linearRampToValueAtTime(0.12, t + 0.1);
-      bowlGain.gain.exponentialRampToValueAtTime(0.0001, t + 12); // Long resonant decay
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(800, noteTime);
+          filter.frequency.exponentialRampToValueAtTime(150, noteTime + 7);
 
-      bowlOsc1.connect(bowlGain);
-      bowlOsc2.connect(bowlGain);
-      bowlGain.connect(offlineCtx.destination);
+          // Piano-like envelope (fast soft attack, natural long organic decay)
+          const targetVol = musicVol * (0.09 / (nIdx + 1));
+          gain.gain.setValueAtTime(0.0001, noteTime);
+          gain.gain.linearRampToValueAtTime(targetVol, noteTime + 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.0001, noteTime + 8.5);
 
-      bowlOsc1.start(t);
-      bowlOsc1.stop(t + 13);
-      bowlOsc2.start(t);
-      bowlOsc2.stop(t + 13);
+          osc1.connect(filter);
+          osc2.connect(filter);
+          filter.connect(gain);
+          gain.connect(offlineCtx.destination);
+
+          osc1.start(noteTime);
+          osc1.stop(noteTime + 9);
+          osc2.start(noteTime);
+          osc2.stop(noteTime + 9);
+        }
+      });
     }
-  });
+  } else if (ambientType === 'pad-sinematik') {
+    // Lush Analog Warm Pad Drone (432Hz Solfeggio Harmonics)
+    const padFreqs = [108, 216, 324, 432, 648];
+    padFreqs.forEach((freq, idx) => {
+      const osc = offlineCtx.createOscillator();
+      const filter = offlineCtx.createBiquadFilter();
+      const gain = offlineCtx.createGain();
 
-  // 3. Gentle Ocean / Breath Waves (Pink Noise LFO)
-  const bufferSize = sampleRate * 4;
-  const noiseBuffer = offlineCtx.createBuffer(1, bufferSize, sampleRate);
-  const output = noiseBuffer.getChannelData(0);
-  let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
-  for (let i = 0; i < bufferSize; i++) {
-    const white = Math.random() * 2 - 1;
-    b0 = 0.99886 * b0 + white * 0.0555179;
-    b1 = 0.99332 * b1 + white * 0.0750759;
-    b2 = 0.96900 * b2 + white * 0.1538520;
-    b3 = 0.86650 * b3 + white * 0.3104856;
-    b4 = 0.55000 * b4 + white * 0.5329522;
-    b5 = -0.7616 * b5 - white * 0.0168980;
-    output[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.03;
-    b6 = white * 0.115926;
+      osc.type = idx % 2 === 0 ? 'sine' : 'triangle';
+      osc.frequency.setValueAtTime(freq, 0);
+      osc.detune.setValueAtTime((idx % 2 === 0 ? 3 : -3), 0);
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(450, 0);
+
+      const baseVol = (musicVol * 0.08) / (idx + 1);
+      gain.gain.setValueAtTime(0.0001, 0);
+      gain.gain.linearRampToValueAtTime(baseVol, Math.min(fadeIn, durationSeconds / 2));
+      gain.gain.setValueAtTime(baseVol, Math.max(0, durationSeconds - fadeOut));
+      gain.gain.linearRampToValueAtTime(0.0001, durationSeconds);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(offlineCtx.destination);
+
+      osc.start(0);
+      osc.stop(durationSeconds);
+    });
+  } else {
+    // String Halus Meditatif (528Hz Solfeggio Warm Bowed String)
+    const stringFreqs = [132, 264, 396, 528];
+    stringFreqs.forEach((freq, idx) => {
+      const osc = offlineCtx.createOscillator();
+      const gain = offlineCtx.createGain();
+      const filter = offlineCtx.createBiquadFilter();
+
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(freq, 0);
+      osc.detune.setValueAtTime(idx * 2, 0);
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(320, 0); // Warm mellow string filter
+
+      const baseVol = (musicVol * 0.04) / (idx + 1);
+      gain.gain.setValueAtTime(0.0001, 0);
+      gain.gain.linearRampToValueAtTime(baseVol, fadeIn);
+      gain.gain.setValueAtTime(baseVol, durationSeconds - fadeOut);
+      gain.gain.linearRampToValueAtTime(0.0001, durationSeconds);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(offlineCtx.destination);
+
+      osc.start(0);
+      osc.stop(durationSeconds);
+    });
+  }
+
+  // -------------------------------------------------------------
+  // 2. NATURE BACKSOUND SYNTHESIS (7 Specific Natural Textures)
+  // -------------------------------------------------------------
+  const noiseBufferSize = sampleRate * 5;
+  const noiseBuffer = offlineCtx.createBuffer(2, noiseBufferSize, sampleRate);
+  for (let ch = 0; ch < 2; ch++) {
+    const data = noiseBuffer.getChannelData(ch);
+    let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+    for (let i = 0; i < noiseBufferSize; i++) {
+      const white = Math.random() * 2 - 1;
+      b0 = 0.99886 * b0 + white * 0.0555179;
+      b1 = 0.99332 * b1 + white * 0.0750759;
+      b2 = 0.96900 * b2 + white * 0.1538520;
+      b3 = 0.86650 * b3 + white * 0.3104856;
+      b4 = 0.55000 * b4 + white * 0.5329522;
+      b5 = -0.7616 * b5 - white * 0.0168980;
+      data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.04;
+      b6 = white * 0.115926;
+    }
   }
 
   const noiseSource = offlineCtx.createBufferSource();
   noiseSource.buffer = noiseBuffer;
   noiseSource.loop = true;
 
-  const filter = offlineCtx.createBiquadFilter();
-  filter.type = 'lowpass';
-  filter.frequency.setValueAtTime(350, 0);
+  const natureFilter = offlineCtx.createBiquadFilter();
+  const natureGain = offlineCtx.createGain();
 
-  const noiseGain = offlineCtx.createGain();
-  noiseGain.gain.setValueAtTime(0.03, 0);
+  // Configure nature filters according to specific natural sound profile
+  if (natureType === 'aliran-sungai') {
+    // River stream: Dual bandpass resonance + continuous flow
+    natureFilter.type = 'bandpass';
+    natureFilter.frequency.setValueAtTime(650, 0);
+    natureFilter.Q.setValueAtTime(1.2, 0);
+    natureGain.gain.setValueAtTime(natureVol * 0.8, 0);
+  } else if (natureType === 'gemericik-air') {
+    // Water trickle: Higher resonant frequency with gentle shimmer
+    natureFilter.type = 'bandpass';
+    natureFilter.frequency.setValueAtTime(1200, 0);
+    natureFilter.Q.setValueAtTime(2.5, 0);
+    natureGain.gain.setValueAtTime(natureVol * 0.6, 0);
 
-  noiseSource.connect(filter);
-  filter.connect(noiseGain);
-  noiseGain.connect(offlineCtx.destination);
+    // Water droplet bubbles
+    const dropTimes = [3, 8, 14, 21, 29, 38, 48, 60, 75, 90, 105];
+    dropTimes.forEach((dt) => {
+      if (dt < durationSeconds - 2) {
+        const dropOsc = offlineCtx.createOscillator();
+        const dropGain = offlineCtx.createGain();
+        dropOsc.type = 'sine';
+        dropOsc.frequency.setValueAtTime(900 + Math.random() * 300, dt);
+        dropOsc.frequency.exponentialRampToValueAtTime(1800 + Math.random() * 400, dt + 0.08);
+
+        dropGain.gain.setValueAtTime(0.0001, dt);
+        dropGain.gain.linearRampToValueAtTime(natureVol * 0.25, dt + 0.02);
+        dropGain.gain.exponentialRampToValueAtTime(0.0001, dt + 0.15);
+
+        dropOsc.connect(dropGain);
+        dropGain.connect(offlineCtx.destination);
+        dropOsc.start(dt);
+        dropOsc.stop(dt + 0.2);
+      }
+    });
+  } else if (natureType === 'burung-pagi') {
+    // Morning birds: Soft air background + realistic bird chirps
+    natureFilter.type = 'lowpass';
+    natureFilter.frequency.setValueAtTime(400, 0);
+    natureGain.gain.setValueAtTime(natureVol * 0.3, 0);
+
+    // Synthesize bird chirping motifs
+    const birdTimes = [2, 7, 15, 24, 33, 44, 56, 70, 85, 98, 112];
+    birdTimes.forEach((bt) => {
+      if (bt < durationSeconds - 3) {
+        const chirps = 3;
+        for (let k = 0; k < chirps; k++) {
+          const chirpTime = bt + k * 0.18;
+          const osc = offlineCtx.createOscillator();
+          const chirpGain = offlineCtx.createGain();
+
+          osc.type = 'sine';
+          const baseF = 2400 + Math.random() * 600;
+          osc.frequency.setValueAtTime(baseF, chirpTime);
+          osc.frequency.linearRampToValueAtTime(baseF + 800, chirpTime + 0.05);
+          osc.frequency.linearRampToValueAtTime(baseF - 200, chirpTime + 0.12);
+
+          chirpGain.gain.setValueAtTime(0.0001, chirpTime);
+          chirpGain.gain.linearRampToValueAtTime(natureVol * 0.15, chirpTime + 0.03);
+          chirpGain.gain.exponentialRampToValueAtTime(0.0001, chirpTime + 0.14);
+
+          osc.connect(chirpGain);
+          chirpGain.connect(offlineCtx.destination);
+          osc.start(chirpTime);
+          osc.stop(chirpTime + 0.15);
+        }
+      }
+    });
+  } else if (natureType === 'angin-pepohonan') {
+    // Wind in trees: Lowpass sweeping frequency
+    natureFilter.type = 'lowpass';
+    natureFilter.frequency.setValueAtTime(300, 0);
+    natureGain.gain.setValueAtTime(natureVol * 0.9, 0);
+  } else if (natureType === 'ombak-pantai') {
+    // Ocean waves: Slow sweeping resonant swell
+    natureFilter.type = 'lowpass';
+    natureFilter.frequency.setValueAtTime(450, 0);
+    natureGain.gain.setValueAtTime(natureVol * 0.8, 0);
+  } else if (natureType === 'hutan-alami') {
+    // Rainforest canopy
+    natureFilter.type = 'bandpass';
+    natureFilter.frequency.setValueAtTime(500, 0);
+    natureFilter.Q.setValueAtTime(0.8, 0);
+    natureGain.gain.setValueAtTime(natureVol * 0.7, 0);
+  } else {
+    // Gentle rain (hujan lembut)
+    natureFilter.type = 'lowpass';
+    natureFilter.frequency.setValueAtTime(1400, 0);
+    natureGain.gain.setValueAtTime(natureVol * 0.75, 0);
+  }
+
+  // Connect nature sound source
+  noiseSource.connect(natureFilter);
+  natureFilter.connect(natureGain);
+  natureGain.connect(offlineCtx.destination);
   noiseSource.start(0);
   noiseSource.stop(durationSeconds);
 
-  // Render to AudioBuffer
-  const renderedBuffer = await offlineCtx.startRendering();
+  // -------------------------------------------------------------
+  // 3. TIBETAN SINGING BOWL HARMONICS (528Hz Love & Miracle frequency)
+  // -------------------------------------------------------------
+  if (withBowl) {
+    const bowlTimes = [1, 25, 60, 95];
+    bowlTimes.forEach((t) => {
+      if (t < durationSeconds - 6) {
+        const bowlOsc1 = offlineCtx.createOscillator();
+        const bowlOsc2 = offlineCtx.createOscillator();
+        const bowlGain = offlineCtx.createGain();
 
-  // Convert AudioBuffer to WAV Blob URL
+        bowlOsc1.type = 'sine';
+        bowlOsc1.frequency.setValueAtTime(528, t);
+        bowlOsc2.type = 'sine';
+        bowlOsc2.frequency.setValueAtTime(528 * 2.76, t); // Overtone
+
+        bowlGain.gain.setValueAtTime(0.0001, t);
+        bowlGain.gain.linearRampToValueAtTime(0.10, t + 0.15);
+        bowlGain.gain.exponentialRampToValueAtTime(0.0001, t + 9);
+
+        bowlOsc1.connect(bowlGain);
+        bowlOsc2.connect(bowlGain);
+        bowlGain.connect(offlineCtx.destination);
+
+        bowlOsc1.start(t);
+        bowlOsc1.stop(t + 10);
+        bowlOsc2.start(t);
+        bowlOsc2.stop(t + 10);
+      }
+    });
+  }
+
+  // Render offline buffer to audio
+  const renderedBuffer = await offlineCtx.startRendering();
   return audioBufferToWavBlob(renderedBuffer);
 }
 
 /**
- * Converts AudioBuffer to WAV Blob
+ * Backward compatibility alias for generateMeditationAmbientWav
+ */
+export async function generateMeditationAmbientWav(durationSeconds = 120): Promise<string> {
+  return generateRelaxationSoundscapeWav(durationSeconds, {
+    natureType: 'aliran-sungai',
+    ambientType: 'piano-lembut'
+  });
+}
+
+/**
+ * Converts AudioBuffer to WAV Blob URL
  */
 function audioBufferToWavBlob(audioBuffer: AudioBuffer): string {
   const numChannels = audioBuffer.numberOfChannels;
@@ -193,7 +512,7 @@ function audioBufferToWavBlob(audioBuffer: AudioBuffer): string {
   const buffer = new ArrayBuffer(44 + length);
   const view = new DataView(buffer);
 
-  // RIFF identifier
+  // RIFF header
   writeString(view, 0, 'RIFF');
   view.setUint32(4, 36 + length, true);
   writeString(view, 8, 'WAVE');
@@ -230,7 +549,7 @@ function writeString(view: DataView, offset: number, string: string) {
 }
 
 /**
- * Spoken Indonesian Speech Narration via Web Speech API
+ * Spoken Indonesian Speech Narration via Web Speech API with calm pacing
  */
 let cachedVoices: SpeechSynthesisVoice[] = [];
 
@@ -265,7 +584,7 @@ export function speakIndonesianNarration(
   }
 
   try {
-    window.speechSynthesis.cancel(); // Stop any previous speech
+    window.speechSynthesis.cancel();
     if (window.speechSynthesis.paused) {
       window.speechSynthesis.resume();
     }
@@ -284,12 +603,11 @@ export function speakIndonesianNarration(
   if (!cleanText) return null;
 
   const utterance = new SpeechSynthesisUtterance(cleanText);
-  utterance.rate = options?.rate ?? 0.88; // Gentle, slower pace for meditation
-  utterance.pitch = options?.pitch ?? 0.95; // Soft warm pitch
-  utterance.volume = options?.volume ?? 1.0;
+  utterance.rate = options?.rate ?? 0.82; // Warm, peaceful, slower tempo
+  utterance.pitch = options?.pitch ?? 0.95; // Warm soothing pitch
+  utterance.volume = options?.volume ?? 0.95;
   utterance.lang = 'id-ID';
 
-  // Find Indonesian voice if available
   const voices = cachedVoices.length > 0 ? cachedVoices : (window.speechSynthesis.getVoices() || []);
   const idVoice = voices.find((v) => v.lang.startsWith('id') || v.lang.includes('ID') || v.name.toLowerCase().includes('indonesia'));
   if (idVoice) {
@@ -309,7 +627,7 @@ export function speakIndonesianNarration(
 }
 
 /**
- * Play a crystal-clear harmonic chime or Tibetan singing bowl bell using Web Audio API
+ * Play harmonic chime or bell
  */
 let sharedAudioCtx: AudioContext | null = null;
 
@@ -326,7 +644,6 @@ export function playCalmMeditationChime(type: 'inhale' | 'exhale' | 'hold' | 'be
     const now = ctx.currentTime;
 
     if (type === 'inhale') {
-      // Warm ascending harmonic tone
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sine';
@@ -339,7 +656,6 @@ export function playCalmMeditationChime(type: 'inhale' | 'exhale' | 'hold' | 'be
       osc.start(now);
       osc.stop(now + 0.7);
     } else if (type === 'exhale') {
-      // Soft descending soothing tone
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sine';
@@ -352,7 +668,6 @@ export function playCalmMeditationChime(type: 'inhale' | 'exhale' | 'hold' | 'be
       osc.start(now);
       osc.stop(now + 0.8);
     } else if (type === 'hold') {
-      // Steady gentle harmonic chime
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sine';
@@ -364,7 +679,6 @@ export function playCalmMeditationChime(type: 'inhale' | 'exhale' | 'hold' | 'be
       osc.start(now);
       osc.stop(now + 0.6);
     } else {
-      // Resonant Tibetan Singing Bowl Bell (528 Hz Love Frequency + 1457 Hz overtone)
       const osc1 = ctx.createOscillator();
       const osc2 = ctx.createOscillator();
       const gain = ctx.createGain();
