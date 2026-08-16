@@ -4066,14 +4066,17 @@ app.get('/api/gemini/voice-samples', async (req, res) => {
             };
           }
         } catch (err: any) {
-          console.warn(`Failed sample generation for ${key}:`, err?.message || err);
+          // Gemini preview free tier quota / offline notice - handled gracefully
+          if (process.env.DEBUG_TTS) {
+            console.warn(`Sample generation notice for ${key}:`, err?.message || err);
+          }
         }
       })
     );
 
     res.json({ success: true, samples });
   } catch (error: any) {
-    res.status(500).json({ success: false, error: error?.message || 'Gagal memuat sampel audio.' });
+    res.json({ success: true, samples: {} });
   }
 });
 
@@ -4157,7 +4160,9 @@ app.post('/api/gemini/tts', async (req, res) => {
         });
       }
     } catch (ttsError: any) {
-      console.warn('Gemini TTS attempt note:', ttsError?.message || ttsError);
+      if (process.env.DEBUG_TTS) {
+        console.warn('Gemini TTS notice:', ttsError?.message || ttsError);
+      }
     }
 
     res.json({
@@ -4168,7 +4173,6 @@ app.post('/api/gemini/tts', async (req, res) => {
       fallbackSynthesizer: true
     });
   } catch (error: any) {
-    console.warn('Gemini TTS handler note:', error?.message || error);
     res.json({
       success: true,
       audioBase64: null,

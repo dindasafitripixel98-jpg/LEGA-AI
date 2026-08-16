@@ -32,7 +32,8 @@ import {
   Moon,
   Smartphone,
   Download,
-  GitFork
+  GitFork,
+  LogOut
 } from 'lucide-react';
 import { ModuleType } from '../types';
 
@@ -43,6 +44,7 @@ interface SidebarProps {
   onToggleMobile: () => void;
   onOpenCrisis: () => void;
   onOpenPwaModal?: () => void;
+  onLogout?: () => void;
 }
 
 interface NavItem {
@@ -59,6 +61,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onToggleMobile,
   onOpenCrisis,
   onOpenPwaModal,
+  onLogout,
 }) => {
   const categories: { title: string; items: NavItem[] }[] = [
     {
@@ -204,6 +207,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <PhoneCall className="w-3.5 h-3.5 text-rose-400" />
           <span>Bantuan Krisis 119</span>
         </button>
+        {onLogout && (
+          <button
+            onClick={() => {
+              if (isOpenMobile) onToggleMobile();
+              onLogout();
+            }}
+            className="w-full py-2 px-3 bg-stone-800/80 hover:bg-rose-950/40 text-stone-400 hover:text-rose-300 border border-stone-700/60 hover:border-rose-800/50 rounded-xl text-xs font-medium flex items-center justify-center gap-2 transition active:scale-95"
+            title="Keluar dari sesi aplikasi dan kembali ke Landing Page"
+          >
+            <LogOut className="w-3.5 h-3.5 text-rose-400" />
+            <span>Keluar Aplikasi</span>
+          </button>
+        )}
         <p className="text-[10px] text-center text-stone-400 font-semibold">
           LEGA SHAQILA DIGITAL 99
         </p>

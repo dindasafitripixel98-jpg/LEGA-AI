@@ -281,7 +281,7 @@ export const VOICE_CHARACTERS: VoiceCharacterProfile[] = [
     badge: 'Damai & Teduh',
     gender: 'female',
     tone: 'Feminin Lembut & Mengayomi',
-    pitch: 1.02,
+    pitch: 1.15,
     rate: 0.78,
     description: 'Vokal feminin yang sangat tenang, damai, dan mengayomi. Artikulasi lembut menyejukkan batin, cocok untuk meditasi, kesadaran diri, dan refleksi mendalam.',
     samplePhrase: 'Selamat datang di ruang tenang LEGA. Tarik napas lembut... izinkan tubuh dan pikiran Anda beristirahat dalam kedamaian.'
@@ -295,8 +295,8 @@ export const VOICE_CHARACTERS: VoiceCharacterProfile[] = [
     badge: 'Hangat & Ramah',
     gender: 'female',
     tone: 'Hangat, Bersahabat & Merangkul',
-    pitch: 1.10,
-    rate: 0.84,
+    pitch: 0.98,
+    rate: 0.92,
     description: 'Vokal hangat, bersahabat, dan penuh penerimaan. Seperti teman terpercaya yang mendengarkan tanpa menghakimi.',
     samplePhrase: 'Mari berhenti sejenak. Sadari apa yang sedang Anda rasakan saat ini dengan jujur, hangat, dan lapang dada.'
   },
@@ -309,8 +309,8 @@ export const VOICE_CHARACTERS: VoiceCharacterProfile[] = [
     badge: 'Welas Asih & Hening',
     gender: 'female',
     tone: 'Sangat Lembut, Welas Asih & Hening',
-    pitch: 0.95,
-    rate: 0.74,
+    pitch: 1.32,
+    rate: 0.68,
     description: 'Vokal sangat lembut dan welas asih dengan tempo mengalir lambat. Ideal untuk latihan penerimaan diri, memaafkan, dan pengantar tidur.',
     samplePhrase: 'Tarik napas perlahan... rasakan kelembutan udara yang mengalir, izinkan seluruh ketegangan batin Anda melunak.'
   },
@@ -323,8 +323,8 @@ export const VOICE_CHARACTERS: VoiceCharacterProfile[] = [
     badge: 'Natural & Bersahaja',
     gender: 'male',
     tone: 'Alami, Bersahaja & Santai',
-    pitch: 0.90,
-    rate: 0.85,
+    pitch: 0.80,
+    rate: 0.86,
     description: 'Vokal alami maskulin bersahaja yang mengalir rileks dan organik, mengarahkan perhatian tanpa terasa menggurui.',
     samplePhrase: 'Dengarkan suara alami di sekitar Anda. Anda tidak perlu terburu-buru, hadir seutuhnya di momen saat ini.'
   },
@@ -337,8 +337,8 @@ export const VOICE_CHARACTERS: VoiceCharacterProfile[] = [
     badge: 'Jernih & Fokus',
     gender: 'female',
     tone: 'Jernih, Segar & Teratur',
-    pitch: 1.16,
-    rate: 0.82,
+    pitch: 1.08,
+    rate: 1.02,
     description: 'Vokal artikulasi jernih, terang, dan teratur yang membangkitkan kesegaran batin, fokus belajar/bekerja, dan mengurai overthinking.',
     samplePhrase: 'Perhatikan setiap kejernihan pikiran Anda. Setiap tarikan napas membawa kesegaran baru bagi tubuh dan pikiran Anda.'
   },
@@ -351,8 +351,8 @@ export const VOICE_CHARACTERS: VoiceCharacterProfile[] = [
     badge: 'Grounded & Berjangkar',
     gender: 'male',
     tone: 'Bariton Rendah, Mantap & Berjangkar',
-    pitch: 0.70,
-    rate: 0.76,
+    pitch: 0.52,
+    rate: 0.72,
     description: 'Resonansi vokal bariton rendah yang kuat, stabil, dan berjangkar. Sangat efektif untuk meredakan kepanikan, kecemasan tinggi, dan grounding tubuh.',
     samplePhrase: 'Rasakan pijakan Anda yang kokoh dan berjangkar kuat. Napas Anda aman. Saat ini Anda berada dalam ruang perlindungan yang tenang.'
   }

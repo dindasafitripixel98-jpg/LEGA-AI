@@ -231,9 +231,16 @@ export interface SelfDiscoveryItem {
 
 export interface UserProfile {
   name: string;
+  email?: string;
+  avatar?: string;
+  bio?: string;
   age?: number;
   reflectionGoal: string;
   preferredTone: 'hangat' | 'tenang' | 'fokus';
+  preferredVoice?: string;
+  primaryEmotionFocus?: string;
+  dailyReminderTime?: string;
+  enableSoundscapes?: boolean;
   streakDays: number;
   totalReflections: number;
   registeredDate: string;

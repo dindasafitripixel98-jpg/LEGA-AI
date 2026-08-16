@@ -48,8 +48,32 @@ import { AdminPanel } from './components/AdminPanel';
 import { PwaInstallModal } from './components/PwaInstallModal';
 import { PwaNotificationBanner } from './components/PwaNotificationBanner';
 import { GlobalVoiceBar } from './components/GlobalVoiceBar';
+import { LuxuryLandingPage } from './components/LuxuryLandingPage';
+import { LuxuryLoginView } from './components/LuxuryLoginView';
+import { LuxuryOnboardingView } from './components/LuxuryOnboardingView';
+import { useDemoAuth } from './lib/demoAuthManager';
+import { DemoBanner } from './components/DemoBanner';
+import { DemoAuthModal } from './components/DemoAuthModal';
+import { DemoExpirationScreen } from './components/DemoExpirationScreen';
+import { setStoredVoiceName } from './lib/voiceService';
+
+export type AppFlowStage = 'landing' | 'login' | 'onboarding' | 'app';
 
 export default function App() {
+  const getInitialFlowStage = (): AppFlowStage => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const stageParam = params.get('stage');
+      if (stageParam && ['landing', 'login', 'onboarding', 'app'].includes(stageParam)) {
+        return stageParam as AppFlowStage;
+      }
+      if (params.get('module')) {
+        return 'app';
+      }
+    }
+    return 'landing';
+  };
+
   const getInitialModule = (): ModuleType => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
@@ -59,19 +83,47 @@ export default function App() {
     return 'dashboard';
   };
 
+  const [flowStage, setFlowStage] = useState<AppFlowStage>(getInitialFlowStage);
   const [currentModule, setCurrentModule] = useState<ModuleType>(getInitialModule);
   const [isOpenMobile, setIsOpenMobile] = useState<boolean>(false);
   const [isCrisisOpen, setIsCrisisOpen] = useState<boolean>(false);
   const [isPwaModalOpen, setIsPwaModalOpen] = useState<boolean>(false);
+  const [isDemoModalOpen, setIsDemoModalOpen] = useState<boolean>(false);
 
-  const [userProfile, setUserProfile] = useState<UserProfile>({
-    name: 'Teman LEGA',
-    reflectionGoal: 'Mengenal diri lebih dalam, mengelola cemas kerja, dan membangun ketenangan batin.',
-    preferredTone: 'tenang',
-    streakDays: 4,
-    totalReflections: 12,
-    registeredDate: new Date().toISOString().split('T')[0],
-  });
+  // Demo Account 24-Hour Auth Hook
+  const demoState = useDemoAuth();
+
+  const getInitialProfile = (): UserProfile => {
+    const defaultProfile: UserProfile = {
+      name: 'Teman LEGA',
+      email: 'teman@lega.app',
+      avatar: 'lotus',
+      bio: 'Menemukan keheningan di tengah riuh dunia, menyayangi diri seutuhnya.',
+      reflectionGoal: 'Mengenal diri lebih dalam, mengelola cemas kerja, dan membangun ketenangan batin.',
+      preferredTone: 'tenang',
+      preferredVoice: 'Suara Tenang',
+      primaryEmotionFocus: 'overthinking',
+      dailyReminderTime: '21:00',
+      enableSoundscapes: true,
+      streakDays: 4,
+      totalReflections: 12,
+      registeredDate: new Date().toISOString().split('T')[0],
+    };
+
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('lega_user_profile');
+        if (stored) {
+          return { ...defaultProfile, ...JSON.parse(stored) };
+        }
+      } catch (err) {
+        console.warn('Profile parse notice:', err);
+      }
+    }
+    return defaultProfile;
+  };
+
+  const [userProfile, setUserProfile] = useState<UserProfile>(getInitialProfile);
 
   const [emotionLogs, setEmotionLogs] = useState<EmotionLog[]>(INITIAL_EMOTION_LOGS);
   const [journals, setJournals] = useState<JournalEntry[]>(INITIAL_JOURNALS);
@@ -310,6 +362,8 @@ export default function App() {
           <ProfileView
             userProfile={userProfile}
             onUpdateProfile={(p) => setUserProfile(p)}
+            onLogout={() => setFlowStage('landing')}
+            demoState={demoState}
           />
         );
       case 'settings':
@@ -330,8 +384,67 @@ export default function App() {
     }
   };
 
+  // Render based on top-level user journey flow: Landing -> Login -> Onboarding -> App
+  if (flowStage === 'landing') {
+    return (
+      <LuxuryLandingPage
+        onGetStarted={() => setFlowStage('login')}
+        onLoginClick={() => setFlowStage('login')}
+        onDirectAppAccess={() => setFlowStage('app')}
+      />
+    );
+  }
+
+  if (flowStage === 'login') {
+    return (
+      <LuxuryLoginView
+        onLoginSuccess={(userData) => {
+          if (userData?.name) {
+            setUserProfile((prev) => ({ ...prev, name: userData.name }));
+          }
+          demoState.quickStartDemo(userData?.name, userData?.email);
+          setFlowStage('onboarding');
+        }}
+        onBackToLanding={() => setFlowStage('landing')}
+      />
+    );
+  }
+
+  if (flowStage === 'onboarding') {
+    return (
+      <LuxuryOnboardingView
+        initialUserName={userProfile.name}
+        onCompleteOnboarding={(customData) => {
+          setUserProfile((prev) => ({
+            ...prev,
+            name: customData.name || prev.name,
+            reflectionGoal: customData.reflectionGoal || prev.reflectionGoal,
+            preferredTone: customData.preferredTone || prev.preferredTone,
+          }));
+          if (customData.selectedVoice) {
+            setStoredVoiceName(customData.selectedVoice);
+          }
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('lega_has_completed_onboarding', 'true');
+          }
+          setFlowStage('app');
+        }}
+        onBackToLogin={() => setFlowStage('login')}
+      />
+    );
+  }
+
+  // 4. MAIN CORE APPLICATION
   return (
     <div className="flex h-screen bg-stone-950 font-sans text-stone-100 overflow-hidden antialiased">
+      {/* 24-Hour Expiration Blocker */}
+      {demoState.isExpired && (
+        <DemoExpirationScreen
+          onRenewDemo={() => demoState.resetDemoSession()}
+          onOpenLoginModal={() => setIsDemoModalOpen(true)}
+        />
+      )}
+
       {/* Sidebar */}
       <Sidebar
         currentModule={currentModule}
@@ -340,10 +453,17 @@ export default function App() {
         onToggleMobile={() => setIsOpenMobile(!isOpenMobile)}
         onOpenCrisis={() => setIsCrisisOpen(true)}
         onOpenPwaModal={() => setIsPwaModalOpen(true)}
+        onLogout={() => setFlowStage('landing')}
       />
 
       {/* Main Content Viewport */}
       <div className="flex-1 flex flex-col h-screen overflow-y-auto min-w-0 bg-stone-950">
+        {/* Top 24-Hour Demo Notification Status Bar */}
+        <DemoBanner
+          demoState={demoState}
+          onOpenModal={() => setIsDemoModalOpen(true)}
+        />
+
         <Header
           currentModule={currentModule}
           userProfile={userProfile}
@@ -351,10 +471,21 @@ export default function App() {
           onOpenCrisis={() => setIsCrisisOpen(true)}
           onSelectModule={(mod) => setCurrentModule(mod)}
           onOpenPwaModal={() => setIsPwaModalOpen(true)}
+          demoState={demoState}
+          onOpenDemoModal={() => setIsDemoModalOpen(true)}
+          onNavigateLanding={() => setFlowStage('landing')}
+          onLogout={() => setFlowStage('landing')}
         />
 
         <main className="flex-1 pb-12">{renderModuleView()}</main>
       </div>
+
+      {/* 24-Hour Demo Account Modal */}
+      <DemoAuthModal
+        isOpen={isDemoModalOpen}
+        onClose={() => setIsDemoModalOpen(false)}
+        demoState={demoState}
+      />
 
       {/* Crisis Psychological Support Modal */}
       <CrisisModal isOpen={isCrisisOpen} onClose={() => setIsCrisisOpen(false)} />

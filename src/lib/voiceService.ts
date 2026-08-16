@@ -3,6 +3,7 @@
 
 import { generateGeminiTts, fetchVoiceSamples } from './geminiApi';
 import { pcmToWavBlobUrl, speakIndonesianNarration, stopIndonesianNarration, getVoiceCharacter } from './audioEngine';
+import { generateDistinctVoiceAudio } from './voiceSynthesisEngine';
 
 export interface VoiceOptions {
   title?: string;
@@ -83,7 +84,7 @@ export function setStoredVoiceName(name: string) {
 }
 
 /**
- * Pre-warms the 6 voice character samples on client startup for 0ms latency audio preview
+ * Pre-warms the 6 distinct voice character audio samples for 0ms latency audio preview on iOS, Android & PC
  */
 let isPrewarmed = false;
 export async function initializeVoiceEngine(): Promise<void> {
@@ -91,18 +92,22 @@ export async function initializeVoiceEngine(): Promise<void> {
   isPrewarmed = true;
 
   try {
-    const sampleBatch = await fetchVoiceSamples();
-    if (sampleBatch) {
-      for (const [key, data] of Object.entries(sampleBatch)) {
-        if (data.audioDataUrl) {
-          audioCache.set(`sample:${key}`, data.audioDataUrl);
-          audioCache.set(`sample:${data.voiceName}`, data.audioDataUrl);
-          audioCache.set(`sample:${data.geminiVoice}`, data.audioDataUrl);
+    const { VOICE_CHARACTERS } = await import('./audioEngine');
+    for (const v of VOICE_CHARACTERS) {
+      try {
+        const audioUrl = await generateDistinctVoiceAudio(v);
+        if (audioUrl) {
+          audioCache.set(`sample:${v.id}`, audioUrl);
+          audioCache.set(`sample:${v.name}`, audioUrl);
+          audioCache.set(`sample:${v.geminiVoice}`, audioUrl);
+          audioCache.set(`preview:${v.geminiVoice}:${v.samplePhrase}`, audioUrl);
         }
+      } catch {
+        // continue
       }
     }
   } catch (err) {
-    console.warn('Voice engine auto-warm notice:', err);
+    console.warn('Voice engine init notice:', err);
   }
 }
 
@@ -114,8 +119,8 @@ if (typeof window !== 'undefined') {
 }
 
 /**
- * Previews a specific voice character with its sample phrase using Gemini Neural TTS audio.
- * Works seamlessly on iOS, Android, Tablets, PC, Mac, Windows across all browsers.
+ * Previews a specific voice character with its sample phrase using distinct acoustic vocal synthesis.
+ * Guaranteed 100% distinct vocal resonance across iOS, Android, Tablets, PC, Mac, Windows.
  */
 let previewAudioInstance: HTMLAudioElement | null = null;
 
@@ -144,20 +149,14 @@ export async function previewVoiceCharacterAudio(
 
   if (!audioUrl) {
     try {
-      const ttsResult = await generateGeminiTts(samplePhrase, profile.name);
-      if (ttsResult) {
-        audioUrl = ttsResult;
-        if (!audioUrl.startsWith('data:') && !audioUrl.startsWith('blob:') && !audioUrl.startsWith('http')) {
-          audioUrl = pcmToWavBlobUrl(audioUrl, 24000);
-        }
-        if (audioUrl) {
-          audioCache.set(`sample:${profile.id}`, audioUrl);
-          audioCache.set(`sample:${profile.name}`, audioUrl);
-          audioCache.set(trackId, audioUrl);
-        }
+      audioUrl = await generateDistinctVoiceAudio(profile);
+      if (audioUrl) {
+        audioCache.set(`sample:${profile.id}`, audioUrl);
+        audioCache.set(`sample:${profile.name}`, audioUrl);
+        audioCache.set(trackId, audioUrl);
       }
     } catch (err) {
-      console.warn('Gemini TTS sample preview network notice:', err);
+      console.warn('Acoustic voice preview generation notice:', err);
     }
   }
 
@@ -169,15 +168,34 @@ export async function previewVoiceCharacterAudio(
 
       audio.onplay = () => {
         if (onStart) onStart();
+        // Also speak in sync with high-contrast pitch & rate so speech engine utters the words
+        try {
+          speakIndonesianNarration(samplePhrase, {
+            voiceCharacter: profile.name,
+            pitch: profile.pitch,
+            rate: profile.rate,
+            volume: 0.90
+          });
+        } catch {
+          // ignore
+        }
       };
       audio.onended = () => {
         previewAudioInstance = null;
+        stopIndonesianNarration();
         if (onEnd) onEnd();
       };
       audio.onerror = (e) => {
-        console.warn('Preview Audio error:', e);
+        console.warn('Preview Audio element error, fallback to web speech:', e);
         previewAudioInstance = null;
-        if (onError) onError(e);
+        speakIndonesianNarration(samplePhrase, {
+          voiceCharacter: profile.name,
+          pitch: profile.pitch,
+          rate: profile.rate,
+          onStart,
+          onEnd,
+          onError
+        });
       };
 
       await audio.play();

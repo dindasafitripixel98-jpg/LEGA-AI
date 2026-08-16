@@ -1,5 +1,5 @@
 import React from 'react';
-import { Menu, PhoneCall, Sparkles, Flame, User, Smartphone, Wifi, WifiOff, Clock, Key } from 'lucide-react';
+import { Menu, PhoneCall, Sparkles, Flame, User, Smartphone, Wifi, WifiOff, Clock, Key, LogOut } from 'lucide-react';
 import { ModuleType, UserProfile } from '../types';
 import { usePwa } from '../lib/pwaManager';
 import { useDemoAuth } from '../lib/demoAuthManager';
@@ -13,6 +13,8 @@ interface HeaderProps {
   onOpenPwaModal?: () => void;
   demoState?: ReturnType<typeof useDemoAuth>;
   onOpenDemoModal?: () => void;
+  onNavigateLanding?: () => void;
+  onLogout?: () => void;
 }
 
 const MODULE_TITLES: Record<ModuleType, { title: string; subtitle: string }> = {
@@ -59,6 +61,8 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenPwaModal,
   demoState,
   onOpenDemoModal,
+  onNavigateLanding,
+  onLogout,
 }) => {
   const { isOnline, isInstalled } = usePwa();
 
@@ -88,6 +92,18 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       <div className="flex items-center gap-2">
+        {/* Luxury Landing Page Link */}
+        {onNavigateLanding && (
+          <button
+            onClick={onNavigateLanding}
+            className="px-2.5 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-semibold flex items-center gap-1.5 transition active:scale-95 shadow-sm"
+            title="Lihat Landing Page & Info Aplikasi"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <span className="hidden lg:inline text-[11px]">Landing Page</span>
+          </button>
+        )}
+
         {/* 24-Hour Demo Account Quick Status / Trigger Button */}
         {onOpenDemoModal && (
           <button
@@ -168,6 +184,17 @@ export const Header: React.FC<HeaderProps> = ({
         >
           <User className="w-4 h-4 text-emerald-400" />
         </button>
+
+        {/* Quick Logout Button */}
+        {onLogout && (
+          <button
+            onClick={onLogout}
+            className="p-2 rounded-xl bg-rose-950/30 hover:bg-rose-900/50 border border-rose-800/40 text-rose-300 transition flex items-center justify-center active:scale-95"
+            title="Keluar dari Aplikasi (Kembali ke Landing Page)"
+          >
+            <LogOut className="w-4 h-4 text-rose-400" />
+          </button>
+        )}
       </div>
     </header>
   );
