@@ -575,7 +575,7 @@ export async function generateRelaxationSoundscapeWav(
       [129.6, 194.4, 259.2, 388.8],  // F3 - C4 - F4 - G4
     ];
 
-    const chordInterval = 8.5; // Very slow, stable pacing
+    const chordInterval = 6.0; // Steady gentle pacing
     const numChords = Math.ceil(actualDuration / chordInterval);
 
     for (let c = 0; c < numChords; c++) {
@@ -600,14 +600,14 @@ export async function generateRelaxationSoundscapeWav(
           osc2.frequency.setValueAtTime(freq * 2.001, noteTime);
 
           filter.type = 'lowpass';
-          filter.frequency.setValueAtTime(ambientType === 'piano-hangat' ? 520 : 620, noteTime);
-          filter.frequency.exponentialRampToValueAtTime(160, Math.min(actualDuration, noteTime + 6.0));
+          filter.frequency.setValueAtTime(ambientType === 'piano-hangat' ? 680 : 780, noteTime);
+          filter.frequency.exponentialRampToValueAtTime(220, Math.min(actualDuration, noteTime + 5.5));
 
-          // Extremely soft, delicate envelope
-          const targetVol = musicVol * (0.07 / (nIdx + 1));
+          // Rich, clearly audible warm acoustic piano
+          const targetVol = musicVol * (0.55 / (nIdx + 1));
           gain.gain.setValueAtTime(0.0001, noteTime);
-          gain.gain.linearRampToValueAtTime(targetVol, noteTime + 0.18);
-          gain.gain.exponentialRampToValueAtTime(0.0001, Math.min(actualDuration, noteTime + 7.5));
+          gain.gain.linearRampToValueAtTime(targetVol, noteTime + 0.12);
+          gain.gain.exponentialRampToValueAtTime(0.0001, Math.min(actualDuration, noteTime + 6.0));
 
           osc1.connect(filter);
           osc2.connect(filter);
@@ -615,9 +615,9 @@ export async function generateRelaxationSoundscapeWav(
           gain.connect(offlineCtx.destination);
 
           osc1.start(noteTime);
-          osc1.stop(Math.min(actualDuration, noteTime + 8));
+          osc1.stop(Math.min(actualDuration, noteTime + 6.5));
           osc2.start(noteTime);
-          osc2.stop(Math.min(actualDuration, noteTime + 8));
+          osc2.stop(Math.min(actualDuration, noteTime + 6.5));
         }
       });
     }
@@ -631,14 +631,14 @@ export async function generateRelaxationSoundscapeWav(
       [108, 162, 216, 270],          // A2 - E3 - A3 - C#4
     ];
 
-    const pickInterval = 1.35; // Slow, steady acoustic plucking rhythm
+    const pickInterval = 1.1; // Steady acoustic plucking rhythm
     let currentChordIdx = 0;
     let t = 0.6;
 
     while (t < actualDuration - 2.0) {
       const currentChord = guitarPatterns[currentChordIdx % guitarPatterns.length];
       for (let pIdx = 0; pIdx < currentChord.length; pIdx++) {
-        const noteT = t + pIdx * 0.42;
+        const noteT = t + pIdx * 0.38;
         if (noteT >= actualDuration - 1.5) break;
 
         const freq = currentChord[pIdx];
@@ -655,13 +655,13 @@ export async function generateRelaxationSoundscapeWav(
         subOsc.frequency.setValueAtTime(freq * 0.5, noteT);
 
         filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(750, noteT);
-        filter.frequency.exponentialRampToValueAtTime(220, noteT + 2.8);
+        filter.frequency.setValueAtTime(850, noteT);
+        filter.frequency.exponentialRampToValueAtTime(280, noteT + 2.5);
 
-        const pluckVol = musicVol * (pIdx === 0 ? 0.08 : 0.055);
+        const pluckVol = musicVol * (pIdx === 0 ? 0.60 : 0.45);
         gain.gain.setValueAtTime(0.0001, noteT);
-        gain.gain.linearRampToValueAtTime(pluckVol, noteT + 0.035);
-        gain.gain.exponentialRampToValueAtTime(0.0001, Math.min(actualDuration, noteT + 3.8));
+        gain.gain.linearRampToValueAtTime(pluckVol, noteT + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.0001, Math.min(actualDuration, noteT + 3.2));
 
         osc.connect(filter);
         subOsc.connect(filter);
@@ -669,11 +669,11 @@ export async function generateRelaxationSoundscapeWav(
         gain.connect(offlineCtx.destination);
 
         osc.start(noteT);
-        osc.stop(Math.min(actualDuration, noteT + 4.0));
+        osc.stop(Math.min(actualDuration, noteT + 3.5));
         subOsc.start(noteT);
-        subOsc.stop(Math.min(actualDuration, noteT + 4.0));
+        subOsc.stop(Math.min(actualDuration, noteT + 3.5));
       }
-      t += currentChord.length * 0.42 + pickInterval;
+      t += currentChord.length * 0.38 + pickInterval;
       currentChordIdx++;
     }
   } else if (ambientType === 'akustik-hangat') {
@@ -686,16 +686,16 @@ export async function generateRelaxationSoundscapeWav(
       [129.6, 194.4, 259.2, 388.8],  // F3 - C4 - F4 - C5
     ];
 
-    const warmInterval = 7.0;
+    const warmInterval = 5.5;
     const numSets = Math.ceil(actualDuration / warmInterval);
 
     for (let s = 0; s < numSets; s++) {
-      const setTime = s * warmInterval + 0.8;
+      const setTime = s * warmInterval + 0.6;
       if (setTime >= actualDuration - 1.8) break;
 
       const chord = warmNotes[s % warmNotes.length];
       chord.forEach((freq, idx) => {
-        const noteTime = setTime + idx * 0.28;
+        const noteTime = setTime + idx * 0.24;
         if (noteTime < actualDuration - 1.5) {
           const osc = offlineCtx.createOscillator();
           const bodyOsc = offlineCtx.createOscillator();
@@ -709,13 +709,13 @@ export async function generateRelaxationSoundscapeWav(
           bodyOsc.frequency.setValueAtTime(freq * 1.5, noteTime);
 
           filter.type = 'lowpass';
-          filter.frequency.setValueAtTime(540, noteTime);
-          filter.frequency.exponentialRampToValueAtTime(180, noteTime + 5.0);
+          filter.frequency.setValueAtTime(680, noteTime);
+          filter.frequency.exponentialRampToValueAtTime(220, noteTime + 4.5);
 
-          const vol = musicVol * (0.065 / (idx + 1));
+          const vol = musicVol * (0.55 / (idx + 1));
           gain.gain.setValueAtTime(0.0001, noteTime);
-          gain.gain.linearRampToValueAtTime(vol, noteTime + 0.25);
-          gain.gain.exponentialRampToValueAtTime(0.0001, Math.min(actualDuration, noteTime + 6.8));
+          gain.gain.linearRampToValueAtTime(vol, noteTime + 0.18);
+          gain.gain.exponentialRampToValueAtTime(0.0001, Math.min(actualDuration, noteTime + 5.5));
 
           osc.connect(filter);
           bodyOsc.connect(filter);
@@ -723,9 +723,9 @@ export async function generateRelaxationSoundscapeWav(
           gain.connect(offlineCtx.destination);
 
           osc.start(noteTime);
-          osc.stop(Math.min(actualDuration, noteTime + 7.0));
+          osc.stop(Math.min(actualDuration, noteTime + 5.8));
           bodyOsc.start(noteTime);
-          bodyOsc.stop(Math.min(actualDuration, noteTime + 7.0));
+          bodyOsc.stop(Math.min(actualDuration, noteTime + 5.8));
         }
       });
     }
@@ -733,34 +733,40 @@ export async function generateRelaxationSoundscapeWav(
     // 🪕 KALIMBA & HARPA LEMBUT MENENANGKAN (Khusus Cemas)
     // Nada-nada stabil, halus, konsisten, hindari perubahan suara mendadak
     const harpNotes = [162, 216, 270, 324, 378, 432]; // Pentatonik lembut 432Hz
-    const step = 0.75;
-    let t = 0.5;
+    const step = 0.65;
+    let t = 0.4;
     let noteIdx = 0;
 
     while (t < actualDuration - 1.5) {
       const freq = harpNotes[noteIdx % harpNotes.length];
       const osc = offlineCtx.createOscillator();
+      const subOsc = offlineCtx.createOscillator();
       const filter = offlineCtx.createBiquadFilter();
       const gain = offlineCtx.createGain();
 
       osc.type = 'sine';
       osc.frequency.setValueAtTime(freq, t);
 
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(680, t);
+      subOsc.type = 'triangle';
+      subOsc.frequency.setValueAtTime(freq * 2, t);
 
-      // Sangat halus & stabil tanpa dinamika tajam
-      const targetVol = musicVol * 0.045;
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(850, t);
+
+      const targetVol = musicVol * 0.45;
       gain.gain.setValueAtTime(0.0001, t);
-      gain.gain.linearRampToValueAtTime(targetVol, t + 0.06);
-      gain.gain.exponentialRampToValueAtTime(0.0001, Math.min(actualDuration, t + 2.4));
+      gain.gain.linearRampToValueAtTime(targetVol, t + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.0001, Math.min(actualDuration, t + 2.0));
 
       osc.connect(filter);
+      subOsc.connect(filter);
       filter.connect(gain);
       gain.connect(offlineCtx.destination);
 
       osc.start(t);
-      osc.stop(Math.min(actualDuration, t + 2.5));
+      osc.stop(Math.min(actualDuration, t + 2.2));
+      subOsc.start(t);
+      subOsc.stop(Math.min(actualDuration, t + 2.2));
 
       t += step;
       noteIdx++;
@@ -775,16 +781,16 @@ export async function generateRelaxationSoundscapeWav(
       [129.6, 194.4, 259.2, 388.8],  // Cmaj7
     ];
 
-    const refInterval = 7.5;
+    const refInterval = 6.0;
     const numC = Math.ceil(actualDuration / refInterval);
 
     for (let i = 0; i < numC; i++) {
-      const chordT = i * refInterval + 0.6;
+      const chordT = i * refInterval + 0.5;
       if (chordT >= actualDuration - 1.5) break;
 
       const chord = refChords[i % refChords.length];
       chord.forEach((freq, idx) => {
-        const nT = chordT + idx * 0.22;
+        const nT = chordT + idx * 0.24;
         if (nT < actualDuration - 1.5) {
           const osc = offlineCtx.createOscillator();
           const filter = offlineCtx.createBiquadFilter();
@@ -794,20 +800,20 @@ export async function generateRelaxationSoundscapeWav(
           osc.frequency.setValueAtTime(freq, nT);
 
           filter.type = 'lowpass';
-          filter.frequency.setValueAtTime(460, nT);
-          filter.frequency.exponentialRampToValueAtTime(160, nT + 4.5);
+          filter.frequency.setValueAtTime(650, nT);
+          filter.frequency.exponentialRampToValueAtTime(220, nT + 4.0);
 
-          const vol = musicVol * (0.055 / (idx + 1));
+          const vol = musicVol * (0.55 / (idx + 1));
           gain.gain.setValueAtTime(0.0001, nT);
-          gain.gain.linearRampToValueAtTime(vol, nT + 0.12);
-          gain.gain.exponentialRampToValueAtTime(0.0001, Math.min(actualDuration, nT + 5.5));
+          gain.gain.linearRampToValueAtTime(vol, nT + 0.10);
+          gain.gain.exponentialRampToValueAtTime(0.0001, Math.min(actualDuration, nT + 4.8));
 
           osc.connect(filter);
           filter.connect(gain);
           gain.connect(offlineCtx.destination);
 
           osc.start(nT);
-          osc.stop(Math.min(actualDuration, nT + 6.0));
+          osc.stop(Math.min(actualDuration, nT + 5.0));
         }
       });
     }
@@ -824,12 +830,12 @@ export async function generateRelaxationSoundscapeWav(
       osc.frequency.setValueAtTime(freq, 0);
 
       filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(360, 0);
+      filter.frequency.setValueAtTime(450, 0);
 
       // Slow deep breathing cycle
-      const baseVol = (musicVol * 0.05) / (idx + 1);
+      const baseVol = (musicVol * 0.48) / (idx + 1);
       gain.gain.setValueAtTime(0.0001, 0);
-      gain.gain.linearRampToValueAtTime(baseVol, fadeIn + 2.0);
+      gain.gain.linearRampToValueAtTime(baseVol, fadeIn + 1.5);
       gain.gain.setValueAtTime(baseVol, actualDuration - fadeOut);
       gain.gain.linearRampToValueAtTime(0.0001, actualDuration);
 
@@ -854,11 +860,11 @@ export async function generateRelaxationSoundscapeWav(
       osc.detune.setValueAtTime(idx * 0.5, 0);
 
       filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(220, 0); // Sangat hangat & bebas distorsi
+      filter.frequency.setValueAtTime(320, 0);
 
-      const baseVol = (musicVol * 0.038) / (idx + 1);
+      const baseVol = (musicVol * 0.42) / (idx + 1);
       gain.gain.setValueAtTime(0.0001, 0);
-      gain.gain.linearRampToValueAtTime(baseVol, fadeIn + 3.0);
+      gain.gain.linearRampToValueAtTime(baseVol, fadeIn + 2.0);
       gain.gain.setValueAtTime(baseVol, actualDuration - fadeOut);
       gain.gain.linearRampToValueAtTime(0.0001, actualDuration);
 
@@ -882,9 +888,9 @@ export async function generateRelaxationSoundscapeWav(
       osc.detune.setValueAtTime((idx % 2 === 0 ? 2 : -2), 0);
 
       filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(380, 0);
+      filter.frequency.setValueAtTime(480, 0);
 
-      const baseVol = (musicVol * 0.06) / (idx + 1);
+      const baseVol = (musicVol * 0.50) / (idx + 1);
       gain.gain.setValueAtTime(0.0001, 0);
       gain.gain.linearRampToValueAtTime(baseVol, Math.min(fadeIn, actualDuration / 2));
       gain.gain.setValueAtTime(baseVol, Math.max(0, actualDuration - fadeOut));
@@ -898,9 +904,8 @@ export async function generateRelaxationSoundscapeWav(
       osc.stop(actualDuration);
     });
   } else if (ambientType === 'ambient-minimal') {
-    // 🍃 ULTRA-MINIMAL PURE SINE (Khusus Overthinking & Presence - Suara Alam Dominan)
-    // Sederhana, stabil, tidak banyak melodi agar pikiran tidak ramai
-    const minFreqs = [108, 216, 432];
+    // 🍃 ULTRA-MINIMAL PURE SINE (Khusus Overthinking & Presence)
+    const minFreqs = [108, 216, 324, 432];
     minFreqs.forEach((freq, idx) => {
       const osc = offlineCtx.createOscillator();
       const gain = offlineCtx.createGain();
@@ -910,9 +915,9 @@ export async function generateRelaxationSoundscapeWav(
       osc.frequency.setValueAtTime(freq, 0);
 
       filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(240, 0);
+      filter.frequency.setValueAtTime(360, 0);
 
-      const baseVol = (musicVol * 0.035) / (idx + 1);
+      const baseVol = (musicVol * 0.38) / (idx + 1);
       gain.gain.setValueAtTime(0.0001, 0);
       gain.gain.linearRampToValueAtTime(baseVol, fadeIn);
       gain.gain.setValueAtTime(baseVol, actualDuration - fadeOut);
@@ -929,11 +934,11 @@ export async function generateRelaxationSoundscapeWav(
     // 🎋 SULING BAMBU ZEN & GENTA KUIL HENING (432Hz Shakuhachi & Temple Chime)
     const fluteNotes = [216, 243, 288, 324, 384, 432, 486, 576];
     const melodySteps = [
-      { noteIdx: 0, delay: 0.8, dur: 4.2 },
-      { noteIdx: 2, delay: 5.5, dur: 3.8 },
-      { noteIdx: 3, delay: 9.8, dur: 4.5 },
-      { noteIdx: 5, delay: 15.0, dur: 4.0 },
-      { noteIdx: 4, delay: 19.5, dur: 4.2 },
+      { noteIdx: 0, delay: 0.8, dur: 3.8 },
+      { noteIdx: 2, delay: 5.0, dur: 3.5 },
+      { noteIdx: 3, delay: 9.2, dur: 4.0 },
+      { noteIdx: 5, delay: 14.0, dur: 3.8 },
+      { noteIdx: 4, delay: 18.5, dur: 4.0 },
     ];
 
     melodySteps.forEach(({ noteIdx, delay, dur }) => {
@@ -953,14 +958,14 @@ export async function generateRelaxationSoundscapeWav(
         subOsc.frequency.setValueAtTime(freq * 2.0, delay);
 
         filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(680, delay);
-        filter.frequency.exponentialRampToValueAtTime(320, delay + dur);
+        filter.frequency.setValueAtTime(780, delay);
+        filter.frequency.exponentialRampToValueAtTime(380, delay + dur);
 
-        const fluteVol = musicVol * 0.07;
+        const fluteVol = musicVol * 0.52;
         gain.gain.setValueAtTime(0.0001, delay);
-        gain.gain.linearRampToValueAtTime(fluteVol, delay + 0.6);
-        gain.gain.setValueAtTime(fluteVol, delay + dur - 0.8);
-        gain.gain.exponentialRampToValueAtTime(0.0001, Math.min(actualDuration, delay + dur + 1.2));
+        gain.gain.linearRampToValueAtTime(fluteVol, delay + 0.4);
+        gain.gain.setValueAtTime(fluteVol, delay + dur - 0.6);
+        gain.gain.exponentialRampToValueAtTime(0.0001, Math.min(actualDuration, delay + dur + 1.0));
 
         osc.connect(filter);
         subOsc.connect(filter);
@@ -968,25 +973,25 @@ export async function generateRelaxationSoundscapeWav(
         gain.connect(offlineCtx.destination);
 
         osc.start(delay);
-        osc.stop(Math.min(actualDuration, delay + dur + 1.5));
+        osc.stop(Math.min(actualDuration, delay + dur + 1.2));
         subOsc.start(delay);
-        subOsc.stop(Math.min(actualDuration, delay + dur + 1.5));
+        subOsc.stop(Math.min(actualDuration, delay + dur + 1.2));
       }
     });
 
-    [2.0, 14.0].forEach((chimeTime) => {
+    [1.5, 12.0].forEach((chimeTime) => {
       if (chimeTime < actualDuration - 3) {
         const bellOsc = offlineCtx.createOscillator();
         const bellGain = offlineCtx.createGain();
         bellOsc.type = 'sine';
         bellOsc.frequency.setValueAtTime(864, chimeTime);
         bellGain.gain.setValueAtTime(0.0001, chimeTime);
-        bellGain.gain.linearRampToValueAtTime(musicVol * 0.05, chimeTime + 0.08);
-        bellGain.gain.exponentialRampToValueAtTime(0.0001, Math.min(actualDuration, chimeTime + 7.0));
+        bellGain.gain.linearRampToValueAtTime(musicVol * 0.35, chimeTime + 0.06);
+        bellGain.gain.exponentialRampToValueAtTime(0.0001, Math.min(actualDuration, chimeTime + 6.0));
         bellOsc.connect(bellGain);
         bellGain.connect(offlineCtx.destination);
         bellOsc.start(chimeTime);
-        bellOsc.stop(Math.min(actualDuration, chimeTime + 7.5));
+        bellOsc.stop(Math.min(actualDuration, chimeTime + 6.5));
       }
     });
   } else if (ambientType === 'solfeggio-528hz-healing') {
@@ -1002,11 +1007,11 @@ export async function generateRelaxationSoundscapeWav(
       osc.detune.setValueAtTime((idx % 2 === 0 ? 1.5 : -1.5), 0);
 
       filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(460, 0);
+      filter.frequency.setValueAtTime(560, 0);
 
-      const baseVol = (musicVol * 0.055) / (idx + 1);
+      const baseVol = (musicVol * 0.48) / (idx + 1);
       gain.gain.setValueAtTime(0.0001, 0);
-      gain.gain.linearRampToValueAtTime(baseVol, fadeIn + 2.0);
+      gain.gain.linearRampToValueAtTime(baseVol, fadeIn + 1.5);
       gain.gain.setValueAtTime(baseVol, actualDuration - fadeOut);
       gain.gain.linearRampToValueAtTime(0.0001, actualDuration);
 
@@ -1039,9 +1044,9 @@ export async function generateRelaxationSoundscapeWav(
     padOsc.frequency.setValueAtTime(baseF * 1.5, 0);
 
     filter.type = 'lowpass';
-    filter.frequency.setValueAtTime(320, 0);
+    filter.frequency.setValueAtTime(420, 0);
 
-    const bVol = musicVol * 0.045;
+    const bVol = musicVol * 0.45;
     gainL.gain.setValueAtTime(0.0001, 0);
     gainL.gain.linearRampToValueAtTime(bVol, fadeIn);
     gainL.gain.setValueAtTime(bVol, actualDuration - fadeOut);
@@ -1053,17 +1058,18 @@ export async function generateRelaxationSoundscapeWav(
     gainR.gain.linearRampToValueAtTime(0.0001, actualDuration);
 
     padGain.gain.setValueAtTime(0.0001, 0);
-    padGain.gain.linearRampToValueAtTime(bVol * 0.7, fadeIn + 2.0);
-    padGain.gain.setValueAtTime(bVol * 0.7, actualDuration - fadeOut);
+    padGain.gain.linearRampToValueAtTime(bVol * 0.6, fadeIn);
+    padGain.gain.setValueAtTime(bVol * 0.6, actualDuration - fadeOut);
     padGain.gain.linearRampToValueAtTime(0.0001, actualDuration);
 
     oscL.connect(gainL);
+    gainL.connect(offlineCtx.destination);
+
     oscR.connect(gainR);
+    gainR.connect(offlineCtx.destination);
+
     padOsc.connect(filter);
     filter.connect(padGain);
-
-    gainL.connect(offlineCtx.destination);
-    gainR.connect(offlineCtx.destination);
     padGain.connect(offlineCtx.destination);
 
     oscL.start(0);
@@ -1084,7 +1090,7 @@ export async function generateRelaxationSoundscapeWav(
     oscDeltaR.type = 'sine';
     oscDeltaR.frequency.setValueAtTime(deltaF + 3.2, 0);
 
-    const dVol = musicVol * 0.04;
+    const dVol = musicVol * 0.40;
     deltaGain.gain.setValueAtTime(0.0001, 0);
     deltaGain.gain.linearRampToValueAtTime(dVol, fadeIn + 2.0);
     deltaGain.gain.setValueAtTime(dVol, actualDuration - fadeOut);
@@ -1104,9 +1110,9 @@ export async function generateRelaxationSoundscapeWav(
       [129.6, 194.4, 259.2],
       [108, 162, 216, 270],
     ];
-    const sInterval = 9.0;
+    const sInterval = 7.0;
     for (let sc = 0; sc < Math.ceil(actualDuration / sInterval); sc++) {
-      const scTime = sc * sInterval + 1.0;
+      const scTime = sc * sInterval + 0.8;
       if (scTime >= actualDuration - 2.0) break;
       const notes = sleepChords[sc % sleepChords.length];
       notes.forEach((freq, nIdx) => {
@@ -1119,19 +1125,19 @@ export async function generateRelaxationSoundscapeWav(
           pOsc.type = 'sine';
           pOsc.frequency.setValueAtTime(freq, nTime);
           pFilt.type = 'lowpass';
-          pFilt.frequency.setValueAtTime(280, nTime);
+          pFilt.frequency.setValueAtTime(360, nTime);
 
-          const pVol = musicVol * (0.05 / (nIdx + 1));
+          const pVol = musicVol * (0.45 / (nIdx + 1));
           pGain.gain.setValueAtTime(0.0001, nTime);
-          pGain.gain.linearRampToValueAtTime(pVol, nTime + 0.3);
-          pGain.gain.exponentialRampToValueAtTime(0.0001, Math.min(actualDuration, nTime + 8.0));
+          pGain.gain.linearRampToValueAtTime(pVol, nTime + 0.2);
+          pGain.gain.exponentialRampToValueAtTime(0.0001, Math.min(actualDuration, nTime + 6.5));
 
           pOsc.connect(pFilt);
           pFilt.connect(pGain);
           pGain.connect(offlineCtx.destination);
 
           pOsc.start(nTime);
-          pOsc.stop(Math.min(actualDuration, nTime + 8.2));
+          pOsc.stop(Math.min(actualDuration, nTime + 6.8));
         }
       });
     }
@@ -1150,7 +1156,7 @@ export async function generateRelaxationSoundscapeWav(
         cOsc.frequency.setValueAtTime(freq, ct);
 
         cGain.gain.setValueAtTime(0.0001, ct);
-        cGain.gain.linearRampToValueAtTime(musicVol * 0.03, ct + 0.04);
+        cGain.gain.linearRampToValueAtTime(musicVol * 0.28, ct + 0.04);
         cGain.gain.exponentialRampToValueAtTime(0.0001, Math.min(actualDuration, ct + 3.8));
 
         cOsc.connect(cGain);
@@ -1170,7 +1176,7 @@ export async function generateRelaxationSoundscapeWav(
       dFilter.type = 'lowpass';
       dFilter.frequency.setValueAtTime(260, 0);
 
-      const dVol = (musicVol * 0.04) / (dIdx + 1);
+      const dVol = (musicVol * 0.35) / (dIdx + 1);
       dGain.gain.setValueAtTime(0.0001, 0);
       dGain.gain.linearRampToValueAtTime(dVol, fadeIn);
       dGain.gain.setValueAtTime(dVol, actualDuration - fadeOut);
@@ -1190,13 +1196,13 @@ export async function generateRelaxationSoundscapeWav(
       [194.4, 243, 291.6, 388.8],
       [108, 162, 216, 270, 324],
     ];
-    const gInterval = 7.0;
+    const gInterval = 5.5;
     for (let gc = 0; gc < Math.ceil(actualDuration / gInterval); gc++) {
-      const gTime = gc * gInterval + 0.8;
+      const gTime = gc * gInterval + 0.6;
       if (gTime >= actualDuration - 1.8) break;
       const notes = glassChords[gc % glassChords.length];
       notes.forEach((freq, idx) => {
-        const nt = gTime + idx * 0.22;
+        const nt = gTime + idx * 0.20;
         if (nt < actualDuration - 1.5) {
           const osc1 = offlineCtx.createOscillator();
           const osc2 = offlineCtx.createOscillator();
@@ -1210,13 +1216,13 @@ export async function generateRelaxationSoundscapeWav(
           osc2.frequency.setValueAtTime(freq * 2.0, nt);
 
           filt.type = 'lowpass';
-          filt.frequency.setValueAtTime(540, nt);
-          filt.frequency.exponentialRampToValueAtTime(160, nt + 5.0);
+          filt.frequency.setValueAtTime(680, nt);
+          filt.frequency.exponentialRampToValueAtTime(220, nt + 4.5);
 
-          const vol = musicVol * (0.065 / (idx + 1));
+          const vol = musicVol * (0.55 / (idx + 1));
           gain.gain.setValueAtTime(0.0001, nt);
-          gain.gain.linearRampToValueAtTime(vol, nt + 0.14);
-          gain.gain.exponentialRampToValueAtTime(0.0001, Math.min(actualDuration, nt + 6.5));
+          gain.gain.linearRampToValueAtTime(vol, nt + 0.12);
+          gain.gain.exponentialRampToValueAtTime(0.0001, Math.min(actualDuration, nt + 5.5));
 
           osc1.connect(filt);
           osc2.connect(filt);
@@ -1224,9 +1230,9 @@ export async function generateRelaxationSoundscapeWav(
           gain.connect(offlineCtx.destination);
 
           osc1.start(nt);
-          osc1.stop(Math.min(actualDuration, nt + 7.0));
+          osc1.stop(Math.min(actualDuration, nt + 5.8));
           osc2.start(nt);
-          osc2.stop(Math.min(actualDuration, nt + 7.0));
+          osc2.stop(Math.min(actualDuration, nt + 5.8));
         }
       });
     }
@@ -1243,9 +1249,9 @@ export async function generateRelaxationSoundscapeWav(
       osc.detune.setValueAtTime(idx * 1.5, 0);
 
       filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(280, 0);
+      filter.frequency.setValueAtTime(380, 0);
 
-      const baseVol = (musicVol * 0.035) / (idx + 1);
+      const baseVol = (musicVol * 0.42) / (idx + 1);
       gain.gain.setValueAtTime(0.0001, 0);
       gain.gain.linearRampToValueAtTime(baseVol, fadeIn);
       gain.gain.setValueAtTime(baseVol, actualDuration - fadeOut);
@@ -1616,8 +1622,8 @@ export const LEGA_EMOTION_PRESETS: Record<string, EmotionalAudioPreset> = {
     narrationPromptTone: 'Suara tenang, stabil, memberi ruang aman tanpa menghakimi, membantu meredakan gelora amarah.',
     suggestedGeminiVoice: 'Suara Tenang',
     sampleScript: 'Sadari rasa marah yang sedang hadir di dalam diri Anda. Anda tidak perlu melawannya atau menekannya. Izinkan napas Anda mengalir perlahan... Dengarkan semilir angin yang menaungi pepohonan dan arus air yang senantiasa mengalir. Bersama setiap hembusan napas, lepaskan ketegangan di rahang, leher, dan dada Anda. Anda aman di sini.',
-    natureVolume: 0.34,
-    musicVolume: 0.11,
+    natureVolume: 0.55,
+    musicVolume: 0.50,
     narrationVolume: 0.90
   },
   'sedih': {
@@ -1631,8 +1637,8 @@ export const LEGA_EMOTION_PRESETS: Record<string, EmotionalAudioPreset> = {
     narrationPromptTone: 'Suara hangat dan lembut, penuh welas asih, merangkul tanpa terburu-buru menghibur.',
     suggestedGeminiVoice: 'Suara Hangat',
     sampleScript: 'Izinkan diri Anda merasakan apa pun yang sedang hadir. Kesedihan adalah bukti bahwa ada hal berharga yang Anda pedulikan. Dengarkan rintik hujan lembut yang menyejukkan... Rasakan kehangatan musik yang menemani Anda tanpa menuntut apa pun. Berikan pelukan kasih sayang pada diri Anda sendiri saat ini.',
-    natureVolume: 0.32,
-    musicVolume: 0.11,
+    natureVolume: 0.52,
+    musicVolume: 0.50,
     narrationVolume: 0.90
   },
   'cemas': {
@@ -1646,8 +1652,8 @@ export const LEGA_EMOTION_PRESETS: Record<string, EmotionalAudioPreset> = {
     narrationPromptTone: 'Suara jernih, stabil, dan konsisten, memandu kembali ke pijakan yang nyata.',
     suggestedGeminiVoice: 'Suara Jernih',
     sampleScript: 'Tarik napas perlahan... dan hembuskan dengan lembut. Sadari bahwa saat ini Anda berada di tempat yang aman. Dengarkan aliran air yang mengalir stabil di hadapan Anda... dan petikan nada lembut yang konstan. Pikiran Anda mungkin sedang mengembara ke masa depan, namun tubuh Anda ada di sini, aman dan terlindungi.',
-    natureVolume: 0.34,
-    musicVolume: 0.10,
+    natureVolume: 0.55,
+    musicVolume: 0.48,
     narrationVolume: 0.90
   },
   'takut': {
@@ -1661,8 +1667,8 @@ export const LEGA_EMOTION_PRESETS: Record<string, EmotionalAudioPreset> = {
     narrationPromptTone: 'Suara dalam, kokoh, menenteramkan, dan meyakinkan rasa aman.',
     suggestedGeminiVoice: 'Suara Dalam',
     sampleScript: 'Anda tidak sendirian. Sadari telapak kaki Anda yang menopang ke bumi. Masuki keteduhan kanopi hutan yang kokoh dan melindungi Anda dari segala badai. Rasakan kehangatan nada musik yang menyelimuti tubuh Anda. Ambil napas dalam... di dalam ruang ini, Anda aman dan berdaya.',
-    natureVolume: 0.32,
-    musicVolume: 0.11,
+    natureVolume: 0.52,
+    musicVolume: 0.50,
     narrationVolume: 0.90
   },
   'kecewa': {
@@ -1676,8 +1682,8 @@ export const LEGA_EMOTION_PRESETS: Record<string, EmotionalAudioPreset> = {
     narrationPromptTone: 'Suara lembut dan bijaksana, membimbing penerimaan realitas dengan lapang dada.',
     suggestedGeminiVoice: 'Suara Lembut',
     sampleScript: 'Kekecewaan hadir ketika harapan kita belum sesuai dengan kenyataan. Biarkan diri Anda bernapas bersama rasa ini... Dengarkan petikan gitar reflektif dan air yang mengalir melepaskan bebannya. Apa yang terjadi biarlah berlalu. Saat ini, Anda berhak memulihkan batin Anda kembali.',
-    natureVolume: 0.32,
-    musicVolume: 0.12,
+    natureVolume: 0.52,
+    musicVolume: 0.52,
     narrationVolume: 0.90
   },
   'overthinking': {
@@ -1691,23 +1697,23 @@ export const LEGA_EMOTION_PRESETS: Record<string, EmotionalAudioPreset> = {
     narrationPromptTone: 'Suara natural, santai, memberi jeda hening yang luas tanpa instruksi rumit.',
     suggestedGeminiVoice: 'Suara Natural',
     sampleScript: 'Pikiran Anda telah bekerja sangat keras hari ini. Sekarang adalah waktunya beristirahat. Anda tidak perlu menganalisis atau memecahkan apa pun saat ini. Fokuskan pendengaran Anda hanya pada aliran air yang konstan dan jernih. Setiap kali pikiran muncul, biarkan ia mengalir seperti daun di atas air sungai.',
-    natureVolume: 0.36,
-    musicVolume: 0.08,
+    natureVolume: 0.58,
+    musicVolume: 0.44,
     narrationVolume: 0.88
   },
   'presence': {
     id: 'presence',
     name: 'LEGA — PRESENCE (Hadir Saat Ini)',
     emotionLabel: 'Kesadaran Momen Ini',
-    musicDescription: 'Musik minimalis yang sangat ringan dan natural, membiarkan suara alam menjadi LEBIH dominan daripada musik.',
+    musicDescription: 'Musik minimalis yang sangat ringan dan natural, membiarkan suara alam menjadi harmonis seimbang.',
     natureDescription: 'Suasana alam terbuka, kicau burung alami di kejauhan, dan semilir angin fajar.',
     natureTypes: ['suasana-alam-tenang', 'burung-pagi', 'angin-pepohonan'],
     ambientMusic: 'ambient-minimal',
     narrationPromptTone: 'Suara jernih dan hadir, membimbing panca indra ke saat ini.',
     suggestedGeminiVoice: 'Suara Jernih',
     sampleScript: 'Bawa seluruh kesadaran Anda ke momen ini. Rasakan udara yang menyentuh kulit... dengarkan kicau burung fajar yang bergema di kejauhan... dan semilir angin di padang rumput terbuka. Tidak ada masa lalu, tidak ada masa depan. Hanya ada keheningan dan kehidupan di saat ini.',
-    natureVolume: 0.38,
-    musicVolume: 0.07,
+    natureVolume: 0.58,
+    musicVolume: 0.44,
     narrationVolume: 0.88
   },
   'body-awareness': {
@@ -1721,8 +1727,8 @@ export const LEGA_EMOTION_PRESETS: Record<string, EmotionalAudioPreset> = {
     narrationPromptTone: 'Suara dalam, berakar, dan perlahan, memandu pemindaian tubuh secara bertahap.',
     suggestedGeminiVoice: 'Suara Dalam',
     sampleScript: 'Arahkan perhatian lembut Anda ke seluruh tubuh. Mulai dari ujung jari kaki... naik perlahan ke betis... paha... perut... hingga pundak dan wajah. Rasakan resonansi mangkuk hening dan aliran air yang merelakskan setiap serat otot Anda. Setiap napas masuk membawa ketenangan, setiap napas keluar melepaskan beban.',
-    natureVolume: 0.34,
-    musicVolume: 0.11,
+    natureVolume: 0.54,
+    musicVolume: 0.50,
     narrationVolume: 0.90
   },
   'release': {
@@ -1736,8 +1742,8 @@ export const LEGA_EMOTION_PRESETS: Record<string, EmotionalAudioPreset> = {
     narrationPromptTone: 'Suara tenang dan mantap, memandu proses pelepasan emosi secara tuntas dan aman.',
     suggestedGeminiVoice: 'Suara Tenang',
     sampleScript: 'Tarik napas dalam-dalam memenuhi rongga dada Anda... tahan sejenak... dan hembuskan dengan kelegaan yang utuh melalui mulut. Lepaskan apa pun yang selama ini Anda genggam dengan erat. Dengarkan perpaduan arus air dan angin bebas. Biarkan diri Anda merasa lega, ringan, dan bebas.',
-    natureVolume: 0.35,
-    musicVolume: 0.12,
+    natureVolume: 0.55,
+    musicVolume: 0.52,
     narrationVolume: 0.90
   },
   'tidur': {
@@ -1751,8 +1757,8 @@ export const LEGA_EMOTION_PRESETS: Record<string, EmotionalAudioPreset> = {
     narrationPromptTone: 'Suara sangat lembut, hangat, mengalun perlahan, menidurkan sistem syaraf.',
     suggestedGeminiVoice: 'Suara Lembut',
     sampleScript: 'Hari ini telah usai, dan Anda telah melakukan yang terbaik. Biarkan tubuh Anda tenggelam dalam kelembutan kasur yang nyaman. Dengarkan suara malam yang hening dan rintik hujan yang menentramkan. Pejamkan mata Anda... biarkan pikiran Anda melayang dalam kedamaian... Selamat beristirahat dalam tidur yang lelap.',
-    natureVolume: 0.30,
-    musicVolume: 0.09,
+    natureVolume: 0.48,
+    musicVolume: 0.46,
     narrationVolume: 0.88
   },
   'zen-meditasi': {
@@ -1766,8 +1772,8 @@ export const LEGA_EMOTION_PRESETS: Record<string, EmotionalAudioPreset> = {
     narrationPromptTone: 'Suara tenang dan meditatif, membimbing pemusatan pikiran pada keheningan saat ini.',
     suggestedGeminiVoice: 'Suara Tenang',
     sampleScript: 'Dengarkan nada suling bambu yang mengalun lembut di antara gemericik air dan ketukan bambu taman zen. Rasakan kejernihan yang hadir di sela-sela setiap hembusan napas Anda. Masuki ruang hening batin Anda yang selalu damai dan utuh.',
-    natureVolume: 0.34,
-    musicVolume: 0.13,
+    natureVolume: 0.54,
+    musicVolume: 0.54,
     narrationVolume: 0.88
   },
   'solfeggio-528hz': {
@@ -1781,8 +1787,8 @@ export const LEGA_EMOTION_PRESETS: Record<string, EmotionalAudioPreset> = {
     narrationPromptTone: 'Suara hangat dan mengayomi, mengalirkan rasa cinta kasih dan pemulihan ke seluruh tubuh.',
     suggestedGeminiVoice: 'Suara Hangat',
     sampleScript: 'Biarkan getaran 528Hz ini meresap lembut ke setiap helai napas dan sel tubuh Anda. Frekuensi ini membawa energi pemulihan, cinta, dan ketenangan yang mendalam. Rasakan bahwa Anda sangat layak untuk merasa aman, tenang, dan pulih sepenuhnya.',
-    natureVolume: 0.32,
-    musicVolume: 0.14,
+    natureVolume: 0.52,
+    musicVolume: 0.55,
     narrationVolume: 0.90
   },
   'theta-deep-relax': {
@@ -1796,8 +1802,8 @@ export const LEGA_EMOTION_PRESETS: Record<string, EmotionalAudioPreset> = {
     narrationPromptTone: 'Suara dalam dan menenangkan, membawa kesadaran melayang lembut ke titik relaksasi terdalam.',
     suggestedGeminiVoice: 'Suara Dalam',
     sampleScript: 'Gunakan earphone atau headset untuk merasakan gelombang binaural 6Hz ini. Rasakan ritme ombak samudra malam yang menyelaraskan gelombang otak Anda menuju keadaan relaksasi yang sangat dalam. Tubuh Anda terasa ringan dan mengambang bebas.',
-    natureVolume: 0.35,
-    musicVolume: 0.13,
+    natureVolume: 0.55,
+    musicVolume: 0.52,
     narrationVolume: 0.88
   },
   'hujan-piano': {
@@ -1811,8 +1817,8 @@ export const LEGA_EMOTION_PRESETS: Record<string, EmotionalAudioPreset> = {
     narrationPromptTone: 'Suara lembut bersahaja, menemani jeda santai melepas kepenatan hari.',
     suggestedGeminiVoice: 'Suara Lembut',
     sampleScript: 'Dengarkan rintik hujan yang mengetuk kaca jendela dengan lembut, diiringi alunan nada piano yang hangat. Ruangan ini adalah tempat perlindungan Anda yang aman. Lepaskan seluruh kepenatan hari ini, dan nikmati ketenangan yang teduh ini bersama kami.',
-    natureVolume: 0.33,
-    musicVolume: 0.14,
+    natureVolume: 0.52,
+    musicVolume: 0.55,
     narrationVolume: 0.90
   }
 };

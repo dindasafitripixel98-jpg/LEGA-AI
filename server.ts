@@ -12,9 +12,24 @@ const PORT = 3000;
 
 app.use(express.json({ limit: '10mb' }));
 
-// Helper to initialize Gemini SDK safely
+// Enable CORS for Vercel deployments and cross-origin previews
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, x-api-key');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
+// Helper to initialize Gemini SDK safely with comprehensive environment variable fallback
 function getGeminiClient() {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey =
+    process.env.GEMINI_API_KEY ||
+    process.env.VITE_GEMINI_API_KEY ||
+    process.env.GOOGLE_API_KEY ||
+    process.env.GOOGLE_GENAI_API_KEY;
   if (!apiKey || apiKey === 'MY_GEMINI_API_KEY') {
     throw new Error('GEMINI_API_KEY tidak dikonfigurasi pada environment.');
   }
@@ -4260,7 +4275,14 @@ const NOIZ_VOICE_PROFILES: Record<string, {
 };
 
 function getNoizApiKey(): string {
-  return process.env.NOIZ_AI_API_KEY || 'ZDM2Njk3ZWYtYzdiMS00YzJhLWEwZjUtM2NhMjM1NGM5MDMwJHJpbmFva3Rhdmlhbmkubm92YTk3QGdtYWlsLmNvbQ==';
+  return (
+    process.env.NOIZ_AI_API_KEY ||
+    process.env.NOIZ_API_KEY ||
+    process.env.VITE_NOIZ_AI_API_KEY ||
+    process.env.VITE_NOIZ_API_KEY ||
+    process.env.NOIZ_KEY ||
+    'ZDM2Njk3ZWYtYzdiMS00YzJhLWEwZjUtM2NhMjM1NGM5MDMwJHJpbmFva3Rhdmlhbmkubm92YTk3QGdtYWlsLmNvbQ=='
+  );
 }
 
 function resolveNoizVoice(voiceKey?: string) {
@@ -4531,7 +4553,7 @@ app.post('/api/noiz/sample', async (req, res) => {
   }
 });
 
-// Vite Middleware for dev & static serving for prod
+// Vite Middleware for dev & static serving for standalone prod server
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
@@ -4552,7 +4574,10 @@ async function startServer() {
   });
 }
 
-startServer();
+// Only launch standalone Express server when not running in serverless environment (e.g. Vercel)
+if (!process.env.VERCEL && !process.env.AWS_LAMBDA_FUNCTION_NAME && !process.env.LAMBDA_TASK_ROOT) {
+  startServer();
+}
 
 export default app;
 export { app };

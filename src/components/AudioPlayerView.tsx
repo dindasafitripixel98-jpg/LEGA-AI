@@ -258,7 +258,7 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
     category: 'Universal Relaxation',
     subcategory: 'Kesadaran Diri & Ketenangan Pikiran',
     duration: '15 Menit / Loop Latar',
-    desc: 'Audio relaksasi universal LEGA: Paduan air mengalir lembut, kicau burung natural & jauh, semilir angin pepohonan, serta piano ambient 432Hz hangat yang menjadi latar tipis menenangkan tanpa suara mengejutkan.',
+    desc: 'Audio relaksasi universal LEGA: Paduan air mengalir lembut, kicau burung natural & jauh, semilir angin pepohonan, serta piano ambient 432Hz hangat yang menenangkan.',
     purposes: ['semua', 'musik-tenang', 'latihan-lega', 'istirahat-meditasi', 'menenangkan-pikiran', 'bekerja-belajar', 'menjelang-tidur'],
     purposeLabels: ['Latihan LEGA', 'Menenangkan Pikiran', 'Semua Kebutuhan'],
     tagline: 'Temani dirimu berhenti sejenak, hadir saat ini, dan menikmati ketenangan di pangkuan alam.',
@@ -266,8 +266,8 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
     natureTypes: ['aliran-sungai', 'burung-pagi', 'angin-pepohonan'],
     ambientMusic: 'piano-lembut',
     narrationVolume: 90,
-    natureVolume: 65,
-    musicVolume: 15,
+    natureVolume: 55,
+    musicVolume: 50,
     metadata: buildAudioRelaxationMetadata(
       'LEGA CALM NATURE - Universal Relaxation',
       'aliran-sungai',
@@ -275,8 +275,8 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
       {
         natureSoundTypes: ['aliran-sungai', 'burung-pagi', 'angin-pepohonan'],
         narrationVolume: 90,
-        natureVolume: 65,
-        musicVolume: 15,
+        natureVolume: 55,
+        musicVolume: 50,
         fadeInSeconds: 4.0,
         fadeOutSeconds: 5.5
       }
@@ -297,13 +297,13 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
     natureTypes: ['angin-pepohonan', 'aliran-sungai'],
     ambientMusic: 'petikan-gitar',
     narrationVolume: 90,
-    natureVolume: 65,
-    musicVolume: 12,
+    natureVolume: 55,
+    musicVolume: 50,
     metadata: buildAudioRelaxationMetadata(
       'Pelepasan Marah & Ketenangan Angin',
       'angin-pepohonan',
       'petikan-gitar',
-      { natureSoundTypes: ['angin-pepohonan', 'aliran-sungai'], narrationVolume: 90, natureVolume: 65, musicVolume: 12 }
+      { natureSoundTypes: ['angin-pepohonan', 'aliran-sungai'], narrationVolume: 90, natureVolume: 55, musicVolume: 50 }
     )
   },
   {
@@ -321,13 +321,13 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
     natureTypes: ['hujan-lembut', 'gemericik-air'],
     ambientMusic: 'akustik-hangat',
     narrationVolume: 90,
-    natureVolume: 65,
-    musicVolume: 12,
+    natureVolume: 52,
+    musicVolume: 50,
     metadata: buildAudioRelaxationMetadata(
       'Ruang Hangat Kesedihan & Hujan Ringan',
       'hujan-lembut',
       'akustik-hangat',
-      { natureSoundTypes: ['hujan-lembut', 'gemericik-air'], narrationVolume: 90, natureVolume: 65, musicVolume: 12 }
+      { natureSoundTypes: ['hujan-lembut', 'gemericik-air'], narrationVolume: 90, natureVolume: 52, musicVolume: 50 }
     )
   },
   {
@@ -345,13 +345,13 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
     natureTypes: ['aliran-sungai', 'angin-pepohonan'],
     ambientMusic: 'harp-kalimba',
     narrationVolume: 90,
-    natureVolume: 65,
-    musicVolume: 11,
+    natureVolume: 55,
+    musicVolume: 48,
     metadata: buildAudioRelaxationMetadata(
       'Kestabilan Cemas & Kalimba Harpa',
       'aliran-sungai',
       'harp-kalimba',
-      { natureSoundTypes: ['aliran-sungai', 'angin-pepohonan'], narrationVolume: 90, natureVolume: 65, musicVolume: 11 }
+      { natureSoundTypes: ['aliran-sungai', 'angin-pepohonan'], narrationVolume: 90, natureVolume: 55, musicVolume: 48 }
     )
   },
   {
@@ -369,13 +369,13 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
     natureTypes: ['hutan-alami', 'angin-pepohonan'],
     ambientMusic: 'akustik-hangat',
     narrationVolume: 90,
-    natureVolume: 65,
-    musicVolume: 12,
+    natureVolume: 52,
+    musicVolume: 50,
     metadata: buildAudioRelaxationMetadata(
       'Perlindungan Rasa Aman & Hutan Alami',
       'hutan-alami',
       'akustik-hangat',
-      { natureSoundTypes: ['hutan-alami', 'angin-pepohonan'], narrationVolume: 90, natureVolume: 65, musicVolume: 12 }
+      { natureSoundTypes: ['hutan-alami', 'angin-pepohonan'], narrationVolume: 90, natureVolume: 52, musicVolume: 50 }
     )
   },
   {
@@ -393,13 +393,13 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
     natureTypes: ['aliran-sungai', 'angin-pepohonan'],
     ambientMusic: 'gitar-reflektif',
     narrationVolume: 90,
-    natureVolume: 65,
-    musicVolume: 13,
+    natureVolume: 52,
+    musicVolume: 52,
     metadata: buildAudioRelaxationMetadata(
       'Pelepasan Kecewa & Gitar Reflektif',
       'aliran-sungai',
       'gitar-reflektif',
-      { natureSoundTypes: ['aliran-sungai', 'angin-pepohonan'], narrationVolume: 90, natureVolume: 65, musicVolume: 13 }
+      { natureSoundTypes: ['aliran-sungai', 'angin-pepohonan'], narrationVolume: 90, natureVolume: 52, musicVolume: 52 }
     )
   },
   {
@@ -417,13 +417,13 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
     natureTypes: ['aliran-sungai', 'gemericik-air'],
     ambientMusic: 'ambient-minimal',
     narrationVolume: 88,
-    natureVolume: 70,
-    musicVolume: 10,
+    natureVolume: 58,
+    musicVolume: 44,
     metadata: buildAudioRelaxationMetadata(
       'Meredakan Overthinking & Ambient Minimalis',
       'aliran-sungai',
       'ambient-minimal',
-      { natureSoundTypes: ['aliran-sungai', 'gemericik-air'], narrationVolume: 88, natureVolume: 70, musicVolume: 10 }
+      { natureSoundTypes: ['aliran-sungai', 'gemericik-air'], narrationVolume: 88, natureVolume: 58, musicVolume: 44 }
     )
   },
   {
@@ -434,20 +434,20 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
     category: 'LEGA Presence',
     subcategory: 'Kesadaran Momen Ini & Kejernihan Indrawi',
     duration: '15 Menit',
-    desc: 'Musik minimalis yang sangat ringan dan natural, membiarkan suara alam terbuka, kicau burung alami di kejauhan, dan semilir angin menjadi LEBIH dominan.',
+    desc: 'Musik minimalis yang sangat ringan dan natural, berpadu suara alam terbuka, kicau burung alami di kejauhan, dan semilir angin.',
     purposes: ['semua', 'musik-tenang', 'latihan-lega', 'emosi-spesifik', 'menenangkan-pikiran'],
     purposeLabels: ['Presence', 'Hadir Saat Ini', 'Kejernihan'],
     sampleScript: 'Bawa seluruh kesadaran Anda ke momen ini. Rasakan udara yang menyentuh kulit... dengarkan kicau burung fajar yang bergema di kejauhan... dan semilir angin di padang rumput terbuka. Tidak ada masa lalu, tidak ada masa depan. Hanya ada keheningan dan kehidupan di saat ini.',
     natureTypes: ['suasana-alam-tenang', 'burung-pagi', 'angin-pepohonan'],
     ambientMusic: 'ambient-minimal',
     narrationVolume: 88,
-    natureVolume: 72,
-    musicVolume: 8,
+    natureVolume: 58,
+    musicVolume: 44,
     metadata: buildAudioRelaxationMetadata(
       'Presence Hadir Saat Ini & Alam Terbuka',
       'suasana-alam-tenang',
       'ambient-minimal',
-      { natureSoundTypes: ['suasana-alam-tenang', 'burung-pagi', 'angin-pepohonan'], narrationVolume: 88, natureVolume: 72, musicVolume: 8 }
+      { natureSoundTypes: ['suasana-alam-tenang', 'burung-pagi', 'angin-pepohonan'], narrationVolume: 88, natureVolume: 58, musicVolume: 44 }
     )
   },
   {
@@ -465,13 +465,13 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
     natureTypes: ['aliran-sungai', 'angin-pepohonan'],
     ambientMusic: 'tibetan-bowl-deep',
     narrationVolume: 90,
-    natureVolume: 65,
-    musicVolume: 12,
+    natureVolume: 54,
+    musicVolume: 50,
     metadata: buildAudioRelaxationMetadata(
       'Kesadaran Tubuh & Resonansi Tibet 528Hz',
       'aliran-sungai',
       'tibetan-bowl-deep',
-      { natureSoundTypes: ['aliran-sungai', 'angin-pepohonan'], narrationVolume: 90, natureVolume: 65, musicVolume: 12 }
+      { natureSoundTypes: ['aliran-sungai', 'angin-pepohonan'], narrationVolume: 90, natureVolume: 54, musicVolume: 50 }
     )
   },
   {
@@ -489,13 +489,13 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
     natureTypes: ['aliran-sungai', 'angin-pepohonan', 'ombak-pantai'],
     ambientMusic: 'pad-sinematik',
     narrationVolume: 90,
-    natureVolume: 65,
-    musicVolume: 14,
+    natureVolume: 55,
+    musicVolume: 52,
     metadata: buildAudioRelaxationMetadata(
       'Pelepasan Emosi Paripurna & Pad Dinamis',
       'aliran-sungai',
       'pad-sinematik',
-      { natureSoundTypes: ['aliran-sungai', 'angin-pepohonan', 'ombak-pantai'], narrationVolume: 90, natureVolume: 65, musicVolume: 14 }
+      { natureSoundTypes: ['aliran-sungai', 'angin-pepohonan', 'ombak-pantai'], narrationVolume: 90, natureVolume: 55, musicVolume: 52 }
     )
   },
   {
@@ -513,13 +513,13 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
     natureTypes: ['suasana-malam', 'hujan-lembut'],
     ambientMusic: 'lullaby-malam',
     narrationVolume: 88,
-    natureVolume: 65,
-    musicVolume: 10,
+    natureVolume: 48,
+    musicVolume: 46,
     metadata: buildAudioRelaxationMetadata(
       'Pengantar Tidur Lelap & Lullaby Malam',
       'suasana-malam',
       'lullaby-malam',
-      { natureSoundTypes: ['suasana-malam', 'hujan-lembut'], narrationVolume: 88, natureVolume: 65, musicVolume: 10 }
+      { natureSoundTypes: ['suasana-malam', 'hujan-lembut'], narrationVolume: 88, natureVolume: 48, musicVolume: 46 }
     )
   },
   {
@@ -537,13 +537,13 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
     natureTypes: ['gemericik-bambu-zen', 'angin-pepohonan'],
     ambientMusic: 'zen-flute-432hz',
     narrationVolume: 88,
-    natureVolume: 65,
-    musicVolume: 14,
+    natureVolume: 54,
+    musicVolume: 54,
     metadata: buildAudioRelaxationMetadata(
       'Suling Bambu Zen & Keheningan 432Hz',
       'gemericik-bambu-zen',
       'zen-flute-432hz',
-      { natureSoundTypes: ['gemericik-bambu-zen', 'angin-pepohonan'], narrationVolume: 88, natureVolume: 65, musicVolume: 14 }
+      { natureSoundTypes: ['gemericik-bambu-zen', 'angin-pepohonan'], narrationVolume: 88, natureVolume: 54, musicVolume: 54 }
     )
   },
   {
@@ -561,13 +561,13 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
     natureTypes: ['aliran-sungai', 'burung-pagi'],
     ambientMusic: 'solfeggio-528hz-healing',
     narrationVolume: 90,
-    natureVolume: 65,
-    musicVolume: 15,
+    natureVolume: 52,
+    musicVolume: 55,
     metadata: buildAudioRelaxationMetadata(
       'Solfeggio 528Hz Miracle Healing',
       'aliran-sungai',
       'solfeggio-528hz-healing',
-      { natureSoundTypes: ['aliran-sungai', 'burung-pagi'], narrationVolume: 90, natureVolume: 65, musicVolume: 15 }
+      { natureSoundTypes: ['aliran-sungai', 'burung-pagi'], narrationVolume: 90, natureVolume: 52, musicVolume: 55 }
     )
   },
   {
@@ -585,13 +585,13 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
     natureTypes: ['ombak-samudra-dalam', 'suasana-malam'],
     ambientMusic: 'celestial-binaural-theta',
     narrationVolume: 88,
-    natureVolume: 65,
-    musicVolume: 14,
+    natureVolume: 55,
+    musicVolume: 52,
     metadata: buildAudioRelaxationMetadata(
       'Gelombang Theta Binaural 6Hz Relaksasi Dalam',
       'ombak-samudra-dalam',
       'celestial-binaural-theta',
-      { natureSoundTypes: ['ombak-samudra-dalam', 'suasana-malam'], narrationVolume: 88, natureVolume: 65, musicVolume: 14 }
+      { natureSoundTypes: ['ombak-samudra-dalam', 'suasana-malam'], narrationVolume: 88, natureVolume: 55, musicVolume: 52 }
     )
   },
   {
@@ -609,13 +609,13 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
     natureTypes: ['suasana-malam', 'angin-pepohonan'],
     ambientMusic: 'deep-delta-sleep-wave',
     narrationVolume: 85,
-    natureVolume: 65,
-    musicVolume: 12,
+    natureVolume: 50,
+    musicVolume: 48,
     metadata: buildAudioRelaxationMetadata(
       'Gelombang Delta 3Hz & Piano Tidur Lelap',
       'suasana-malam',
       'deep-delta-sleep-wave',
-      { natureSoundTypes: ['suasana-malam', 'angin-pepohonan'], narrationVolume: 85, natureVolume: 65, musicVolume: 12 }
+      { natureSoundTypes: ['suasana-malam', 'angin-pepohonan'], narrationVolume: 85, natureVolume: 50, musicVolume: 48 }
     )
   },
   {
@@ -633,13 +633,13 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
     natureTypes: ['angin-lembah-gunung', 'burung-pagi'],
     ambientMusic: 'acoustic-meditation-chimes',
     narrationVolume: 88,
-    natureVolume: 65,
-    musicVolume: 13,
+    natureVolume: 54,
+    musicVolume: 52,
     metadata: buildAudioRelaxationMetadata(
       'Lonceng Angin Kristal & Akustik Meditatif',
       'angin-lembah-gunung',
       'acoustic-meditation-chimes',
-      { natureSoundTypes: ['angin-lembah-gunung', 'burung-pagi'], narrationVolume: 88, natureVolume: 65, musicVolume: 13 }
+      { natureSoundTypes: ['angin-lembah-gunung', 'burung-pagi'], narrationVolume: 88, natureVolume: 54, musicVolume: 52 }
     )
   },
   {
@@ -657,13 +657,13 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
     natureTypes: ['hujan-kaca', 'angin-pepohonan'],
     ambientMusic: 'rain-glass-piano',
     narrationVolume: 90,
-    natureVolume: 65,
-    musicVolume: 15,
+    natureVolume: 52,
+    musicVolume: 55,
     metadata: buildAudioRelaxationMetadata(
       'Hujan di Kaca & Piano Teduh 432Hz',
       'hujan-kaca',
       'rain-glass-piano',
-      { natureSoundTypes: ['hujan-kaca', 'angin-pepohonan'], narrationVolume: 90, natureVolume: 65, musicVolume: 15 }
+      { natureSoundTypes: ['hujan-kaca', 'angin-pepohonan'], narrationVolume: 90, natureVolume: 52, musicVolume: 55 }
     )
   }
 ];
@@ -701,8 +701,8 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
   const [natureSound, setNatureSound] = useState<NatureSoundType>('burung-pagi');
   const [ambientMusic, setAmbientMusic] = useState<AmbientMusicType>('piano-lembut');
   const [narrationVolumePct, setNarrationVolumePct] = useState<number>(90); // 90% (█████████░)
-  const [natureVolumePct, setNatureVolumePct] = useState<number>(65); // 65% (███████░░░) - Elemen Utama
-  const [musicVolumePct, setMusicVolumePct] = useState<number>(15); // 15% (██░░░░░░░░) - Latar Sangat Tipis
+  const [natureVolumePct, setNatureVolumePct] = useState<number>(55); // 55% (██████░░░░)
+  const [musicVolumePct, setMusicVolumePct] = useState<number>(50); // 50% (█████░░░░░) - Jelas Terdengar & Harmonis
   const [fadeInSec, setFadeInSec] = useState<number>(3.5);
   const [fadeOutSec, setFadeOutSec] = useState<number>(5.0);
 
@@ -711,8 +711,8 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
     buildAudioRelaxationMetadata('LEGA CALM NATURE - Universal Relaxation', 'aliran-sungai', 'piano-lembut', {
       natureSoundTypes: ['aliran-sungai', 'burung-pagi', 'angin-pepohonan'],
       narrationVolume: 90,
-      natureVolume: 65,
-      musicVolume: 15
+      natureVolume: 55,
+      musicVolume: 50
     })
   );
 
