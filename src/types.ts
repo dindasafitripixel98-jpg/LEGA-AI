@@ -168,6 +168,10 @@ export type NatureSoundType =
   | 'ombak-pantai'
   | 'hutan-alami'
   | 'hujan-lembut'
+  | 'hujan-kaca'
+  | 'gemericik-bambu-zen'
+  | 'ombak-samudra-dalam'
+  | 'angin-lembah-gunung'
   | 'suasana-malam'
   | 'suasana-alam-tenang'
   | 'fajar-tenang';
@@ -183,7 +187,13 @@ export type AmbientMusicType =
   | 'pad-sinematik'
   | 'string-halus'
   | 'piano-hangat'
-  | 'lullaby-malam';
+  | 'lullaby-malam'
+  | 'zen-flute-432hz'
+  | 'solfeggio-528hz-healing'
+  | 'celestial-binaural-theta'
+  | 'deep-delta-sleep-wave'
+  | 'acoustic-meditation-chimes'
+  | 'rain-glass-piano';
 
 export interface AudioRelaxationMetadata {
   atmosphereTheme: string; // Tema suasana (e.g. "Ketenangan Senja")

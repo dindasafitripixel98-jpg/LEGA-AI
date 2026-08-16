@@ -181,9 +181,13 @@ const CATEGORIES: AudioCategory[] = [
 const NATURE_OPTIONS: { id: NatureSoundType; name: string; icon: any; desc: string }[] = [
   { id: 'aliran-sungai', name: 'Air Mengalir Lembut', icon: Droplets, desc: 'Arus air sungai pegunungan jernih yang mengalir stabil & menenangkan' },
   { id: 'hujan-lembut', name: 'Hujan Ringan', icon: CloudRain, desc: 'Rintik air hujan tenang dan sejuk di dedaunan tanpa petir' },
+  { id: 'hujan-kaca', name: 'Hujan di Kaca Jendela', icon: CloudRain, desc: 'Rintik hujan lembut mengetuk kaca jendela kamar yang hangat & damai' },
+  { id: 'gemericik-bambu-zen', name: 'Pancuran Bambu Taman Zen', icon: Droplets, desc: 'Tetesan & ketukan pancuran bambu Shishi-odoshi menjernihkan pikiran' },
   { id: 'angin-pepohonan', name: 'Angin di Pepohonan', icon: Wind, desc: 'Semilir hembusan angin sejuk yang menggerakkan dedaunan rimbun perlahan' },
+  { id: 'angin-lembah-gunung', name: 'Angin Lembah Pegunungan', icon: Wind, desc: 'Semilir hembusan angin sejuk melintasi lembah dan hutan pinus berkabut' },
   { id: 'burung-pagi', name: 'Burung Natural yang Jauh', icon: Bird, desc: 'Kicau burung alami fajar yang damai dan bergema lembut di kejauhan' },
-  { id: 'ombak-pantai', name: 'Ombak Lembut', icon: Waves, desc: 'Deburan riak ombak pantai yang lembut dan berirama menyelaraskan napas' },
+  { id: 'ombak-pantai', name: 'Ombak Pantai Lembut', icon: Waves, desc: 'Deburan riak ombak pantai yang lembut dan berirama menyelaraskan napas' },
+  { id: 'ombak-samudra-dalam', name: 'Ombak Samudra Malam (432Hz)', icon: Waves, desc: 'Deburan ombak laut dalam yang berirama sangat tenang & berakar' },
   { id: 'gemericik-air', name: 'Gemericik Air', icon: Droplets, desc: 'Tetesan dan percikan air sejuk alami di atas bebatuan yang menyegarkan batin' },
   { id: 'hutan-alami', name: 'Suasana Hutan yang Nyaman', icon: Trees, desc: 'Kanopi hutan alami yang hangat, teduh, menaungi, dan damai' },
   { id: 'air-terjun-lembut', name: 'Air Terjun Lembut', icon: Droplets, desc: 'Gemuruh air terjun lembut kejauhan dengan kabut embun sejuk' },
@@ -193,6 +197,13 @@ const NATURE_OPTIONS: { id: NatureSoundType; name: string; icon: any; desc: stri
 ];
 
 const AMBIENT_OPTIONS: { id: AmbientMusicType; name: string; desc: string }[] = [
+  { id: 'zen-flute-432hz', name: 'Suling Bambu Zen & Genta Kuil (432Hz)', desc: 'Melodi suling shakuhachi & lonceng kuil zen bernada 432Hz yang mengheningkan batin' },
+  { id: 'solfeggio-528hz-healing', name: 'Solfeggio 528Hz Miracle Healing (Golden Tone)', desc: 'Frekuensi keemasan 528Hz pemulih harmoni batin & regenerasi sel batin' },
+  { id: 'celestial-binaural-theta', name: 'Gelombang Theta Binaural 6Hz (Relaksasi Dalam)', desc: 'Frekuensi binaural 6Hz penuntun gelombang otak menuju ketenangan meditatif' },
+  { id: 'deep-delta-sleep-wave', name: 'Gelombang Delta 3Hz & Piano Malam (Tidur Lelap)', desc: 'Frekuensi delta 3.2Hz penenang syaraf & chord piano malam bertempo lambat' },
+  { id: 'acoustic-meditation-chimes', name: 'Lonceng Angin Kristal & Akustik (432Hz)', desc: 'Gemerincing lonceng kristal meditatif berpadu petikan dawai peredam stres' },
+  { id: 'rain-glass-piano', name: 'Hujan di Kaca & Piano Teduh (432Hz Neo-Classical)', desc: 'Harmoni progresi tuts piano akustik neo-klasik berpadu rintik hujan jendela kaca' },
+  { id: 'piano-lembut', name: 'Piano Ambient Ringan & Hangat (432Hz)', desc: 'Ringan, hangat, cerah, natural, sederhana, lembut & stabil (latar tipis)' },
   { id: 'petikan-gitar', name: 'Petikan Gitar Akustik Lembut (432Hz)', desc: 'Petikan dawai lembut, stabil, tidak ramai, dan ritme perlahan' },
   { id: 'akustik-hangat', name: 'Instrumen Akustik Hangat (432Hz)', desc: 'Instrumen hangat dan aman, merangkul tanpa membuat suasana berat' },
   { id: 'harp-kalimba', name: 'Kalimba & Harpa Relaksasi (528Hz)', desc: 'Nada kalimba/harpa stabil, ringan, dan menenangkan tanpa kejutan' },
@@ -201,7 +212,6 @@ const AMBIENT_OPTIONS: { id: AmbientMusicType; name: string; desc: string }[] = 
   { id: 'tibetan-bowl-deep', name: 'Mangkuk Tibet & Pad Somatis (528Hz)', desc: 'Resonansi mangkuk Tibet 528Hz dan pad somatis pemindaian tubuh' },
   { id: 'pad-sinematik', name: 'Pad Sinematik Mengalun Lembut (432Hz)', desc: 'Lapisan pad analog hangat mengambang tipis di latar belakang' },
   { id: 'lullaby-malam', name: 'Lullaby Malam Sangat Lembut (432Hz)', desc: 'Alunan pengantar tidur sangat lembut, stabil, dan bertempo lambat' },
-  { id: 'piano-lembut', name: 'Piano Ambient Ringan & Hangat (432Hz)', desc: 'Ringan, hangat, cerah, natural, sederhana, lembut & stabil (latar tipis)' },
   { id: 'piano-hangat', name: 'Piano Teduh Hangat (432Hz)', desc: 'Harmoni piano bernuansa hangat, teduh, sederhana, dan stabil' },
   { id: 'string-halus', name: 'String Akustik Halus & Damai (528Hz)', desc: 'Gesekan dawai orkestra sangat lembut melarutkan beban batin' }
 ];
@@ -212,7 +222,7 @@ const VOICES = VOICE_CHARACTERS;
 
 const EMOTIONS = ['Marah', 'Sedih', 'Cemas', 'Takut', 'Kecewa', 'Overthinking', 'Presence', 'Body Awareness', 'Release', 'Tidur', 'Netral'];
 
-export type AudioPurposeTag = 'semua' | 'latihan-lega' | 'bekerja-belajar' | 'istirahat-meditasi' | 'menjelang-tidur' | 'menenangkan-pikiran' | 'emosi-spesifik';
+export type AudioPurposeTag = 'semua' | 'musik-tenang' | 'gelombang-otak' | 'latihan-lega' | 'bekerja-belajar' | 'istirahat-meditasi' | 'menjelang-tidur' | 'menenangkan-pikiran' | 'emosi-spesifik';
 
 export interface AudioLibraryTrack {
   id: string;
@@ -507,6 +517,150 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
       'lullaby-malam',
       { natureSoundTypes: ['suasana-malam', 'hujan-lembut'], narrationVolume: 88, natureVolume: 65, musicVolume: 10 }
     )
+  },
+  {
+    id: 'track-zen-flute',
+    trackNumber: 11,
+    title: '11. 🌿 LEGA — SULING BAMBU ZEN & GENTA KUIL (432Hz)',
+    subtitle: 'Suling Shakuhachi + Pancuran Bambu & Angin Dedaunan',
+    category: 'LEGA Calm',
+    subcategory: 'Meditasi Hening & Penjernihan Jiwa',
+    duration: '20 Menit / Loop Latar',
+    desc: 'Alunan suling bambu Shakuhachi 432Hz dan resonansi genta kuil zen yang hening berpadu pancuran bambu Shishi-odoshi dan desir angin dedaunan menenangkan pikiran.',
+    purposes: ['semua', 'musik-tenang', 'istirahat-meditasi', 'menenangkan-pikiran', 'bekerja-belajar'],
+    purposeLabels: ['Suling Zen 432Hz', 'Meditasi Hening', 'Pikiran Jernih'],
+    sampleScript: 'Dengarkan nada suling bambu yang mengalun lembut di antara gemericik air dan ketukan bambu taman zen. Rasakan kejernihan yang hadir di sela-sela setiap hembusan napas Anda. Masuki ruang hening batin Anda yang selalu damai dan utuh.',
+    natureTypes: ['gemericik-bambu-zen', 'angin-pepohonan'],
+    ambientMusic: 'zen-flute-432hz',
+    narrationVolume: 88,
+    natureVolume: 65,
+    musicVolume: 14,
+    metadata: buildAudioRelaxationMetadata(
+      'Suling Bambu Zen & Keheningan 432Hz',
+      'gemericik-bambu-zen',
+      'zen-flute-432hz',
+      { natureSoundTypes: ['gemericik-bambu-zen', 'angin-pepohonan'], narrationVolume: 88, natureVolume: 65, musicVolume: 14 }
+    )
+  },
+  {
+    id: 'track-solfeggio-528hz',
+    trackNumber: 12,
+    title: '12. ✨ LEGA — 528Hz SOLFEGGIO MIRACLE HEALING',
+    subtitle: 'Golden Tone 528Hz + Air Sungai Pegunungan & Kicau Burung Fajar',
+    category: 'LEGA Reflection',
+    subcategory: 'Pemulihan Energi & Welas Asih Batin',
+    duration: '20 Menit / Loop Latar',
+    desc: 'Resonansi nada emas Solfeggio 528Hz pemulih harmoni batin dan regenerasi ketenangan jiwa berpadu aliran air pegunungan jernih dan kicau burung fajar yang menyejukkan.',
+    purposes: ['semua', 'musik-tenang', 'istirahat-meditasi', 'menenangkan-pikiran', 'latihan-lega'],
+    purposeLabels: ['Solfeggio 528Hz', 'Self-Healing', 'Welas Asih'],
+    sampleScript: 'Biarkan getaran 528Hz ini meresap lembut ke setiap helai napas dan sel tubuh Anda. Frekuensi ini membawa energi pemulihan, cinta, dan ketenangan yang mendalam. Rasakan bahwa Anda sangat layak untuk merasa aman, tenang, dan pulih sepenuhnya.',
+    natureTypes: ['aliran-sungai', 'burung-pagi'],
+    ambientMusic: 'solfeggio-528hz-healing',
+    narrationVolume: 90,
+    natureVolume: 65,
+    musicVolume: 15,
+    metadata: buildAudioRelaxationMetadata(
+      'Solfeggio 528Hz Miracle Healing',
+      'aliran-sungai',
+      'solfeggio-528hz-healing',
+      { natureSoundTypes: ['aliran-sungai', 'burung-pagi'], narrationVolume: 90, natureVolume: 65, musicVolume: 15 }
+    )
+  },
+  {
+    id: 'track-theta-binaural',
+    trackNumber: 13,
+    title: '13. 🌌 LEGA — GELOMBANG THETA BINAURAL 6Hz',
+    subtitle: 'Gelombang Theta 6Hz + Deburan Ombak Samudra Malam (432Hz)',
+    category: 'LEGA Presence',
+    subcategory: 'Relaksasi Mendalam & Transendental',
+    duration: '30 Menit / Loop Latar',
+    desc: 'Frekuensi binaural 6Hz penuntun gelombang otak theta untuk relaksasi meditatif tingkat lanjut berpadu deburan ombak laut dalam yang berirama sangat lambat dan stabil.',
+    purposes: ['semua', 'gelombang-otak', 'istirahat-meditasi', 'menenangkan-pikiran'],
+    purposeLabels: ['Theta 6Hz', 'Binaural Beat', 'Relaksasi Sangat Dalam'],
+    sampleScript: 'Gunakan earphone atau headset untuk merasakan gelombang binaural 6Hz ini. Rasakan ritme ombak samudra malam yang menyelaraskan gelombang otak Anda menuju keadaan relaksasi yang sangat dalam. Tubuh Anda terasa ringan dan mengambang bebas.',
+    natureTypes: ['ombak-samudra-dalam', 'suasana-malam'],
+    ambientMusic: 'celestial-binaural-theta',
+    narrationVolume: 88,
+    natureVolume: 65,
+    musicVolume: 14,
+    metadata: buildAudioRelaxationMetadata(
+      'Gelombang Theta Binaural 6Hz Relaksasi Dalam',
+      'ombak-samudra-dalam',
+      'celestial-binaural-theta',
+      { natureSoundTypes: ['ombak-samudra-dalam', 'suasana-malam'], narrationVolume: 88, natureVolume: 65, musicVolume: 14 }
+    )
+  },
+  {
+    id: 'track-delta-sleep',
+    trackNumber: 14,
+    title: '14. 💤 LEGA — GELOMBANG DELTA TIDUR LELAP 3Hz & PIANO MALAM',
+    subtitle: 'Delta Wave 3Hz + Piano Malam Sangat Lambat & Angin Malam',
+    category: 'LEGA Calm',
+    subcategory: 'Pengantar Tidur Pulas & Pemulihan Syaraf',
+    duration: '45 Menit / Loop Latar',
+    desc: 'Frekuensi delta 3.2Hz penenang sistem syaraf otonom dipadukan progresi nada tuts piano malam bertempo sangat lambat dan desau angin malam yang menidurkan.',
+    purposes: ['semua', 'gelombang-otak', 'menjelang-tidur', 'istirahat-meditasi'],
+    purposeLabels: ['Delta 3Hz', 'Tidur Pulas', 'Atasi Insomnia'],
+    sampleScript: 'Biarkan alunan gelombang delta 3Hz dan tuts piano malam yang sangat lembut ini meredakan setiap aktivitas pikiran Anda. Lepaskan kendali... biarkan tubuh Anda melayang dan tenggelam ke dalam tidur yang tenang dan lelap.',
+    natureTypes: ['suasana-malam', 'angin-pepohonan'],
+    ambientMusic: 'deep-delta-sleep-wave',
+    narrationVolume: 85,
+    natureVolume: 65,
+    musicVolume: 12,
+    metadata: buildAudioRelaxationMetadata(
+      'Gelombang Delta 3Hz & Piano Tidur Lelap',
+      'suasana-malam',
+      'deep-delta-sleep-wave',
+      { natureSoundTypes: ['suasana-malam', 'angin-pepohonan'], narrationVolume: 85, natureVolume: 65, musicVolume: 12 }
+    )
+  },
+  {
+    id: 'track-zen-chimes',
+    trackNumber: 15,
+    title: '15. 🎋 LEGA — LONCENG ANGIN KRISTAL & AKUSTIK MEDITATIF',
+    subtitle: 'Lonceng Kristal 432Hz + Angin Lembah Pegunungan Berkabut',
+    category: 'LEGA Growth',
+    subcategory: 'Fokus Bekerja/Belajar & Relaksasi Siang Hari',
+    duration: '20 Menit / Loop Latar',
+    desc: 'Gemerincing lonceng angin kristal meditatif yang jernih berpadu petikan dawai akustik dan semilir hembusan angin lembah pegunungan yang menjernihkan suasana.',
+    purposes: ['semua', 'musik-tenang', 'bekerja-belajar', 'istirahat-meditasi'],
+    purposeLabels: ['Lonceng Kristal', 'Fokus & Belajar', 'Kesejukan Jiwa'],
+    sampleScript: 'Dengarkan gemerincing lonceng angin kristal yang berdentang jernih di kejauhan. Rasakan hembusan angin pegunungan yang menyegarkan pikiran dan melarutkan penat. Hadirlah dengan fokus yang tenang dan batin yang lapang.',
+    natureTypes: ['angin-lembah-gunung', 'burung-pagi'],
+    ambientMusic: 'acoustic-meditation-chimes',
+    narrationVolume: 88,
+    natureVolume: 65,
+    musicVolume: 13,
+    metadata: buildAudioRelaxationMetadata(
+      'Lonceng Angin Kristal & Akustik Meditatif',
+      'angin-lembah-gunung',
+      'acoustic-meditation-chimes',
+      { natureSoundTypes: ['angin-lembah-gunung', 'burung-pagi'], narrationVolume: 88, natureVolume: 65, musicVolume: 13 }
+    )
+  },
+  {
+    id: 'track-hujan-piano',
+    trackNumber: 16,
+    title: '16. 🌧️ LEGA — HUJAN DI KACA & PIANO TEDUH 432Hz',
+    subtitle: 'Piano Neo-Klasik 432Hz + Rintik Hujan di Jendela Kaca Kamar',
+    category: 'LEGA Calm',
+    subcategory: 'Kenyamanan Ruang Hangat & Jeda Mental',
+    duration: '20 Menit / Loop Latar',
+    desc: 'Harmonisasi tuts piano akustik neo-klasik 432Hz melankolis lembut berpadu ritme rintik hujan yang mengetuk kaca jendela kamar yang hangat dan menenangkan hati.',
+    purposes: ['semua', 'musik-tenang', 'menenangkan-pikiran', 'istirahat-meditasi', 'bekerja-belajar'],
+    purposeLabels: ['Hujan di Kaca', 'Piano 432Hz', 'Jeda Mental'],
+    sampleScript: 'Dengarkan rintik hujan yang mengetuk kaca jendela dengan lembut, diiringi alunan nada piano yang hangat. Ruangan ini adalah tempat perlindungan Anda yang aman. Lepaskan seluruh kepenatan hari ini, dan nikmati ketenangan yang teduh ini bersama kami.',
+    natureTypes: ['hujan-kaca', 'angin-pepohonan'],
+    ambientMusic: 'rain-glass-piano',
+    narrationVolume: 90,
+    natureVolume: 65,
+    musicVolume: 15,
+    metadata: buildAudioRelaxationMetadata(
+      'Hujan di Kaca & Piano Teduh 432Hz',
+      'hujan-kaca',
+      'rain-glass-piano',
+      { natureSoundTypes: ['hujan-kaca', 'angin-pepohonan'], narrationVolume: 90, natureVolume: 65, musicVolume: 15 }
+    )
   }
 ];
 
@@ -584,6 +738,7 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
   const [previewingSound, setPreviewingSound] = useState<string | null>(null);
   const [previewingVoiceName, setPreviewingVoiceName] = useState<string | null>(null);
   const [showMetadataDrawer, setShowMetadataDrawer] = useState<boolean>(true);
+  const [presetPurposeFilter, setPresetPurposeFilter] = useState<AudioPurposeTag>('semua');
 
   // Audio Engine & Playback Options
   const [playbackSource, setPlaybackSource] = useState<'gemini_tts' | 'web_speech' | 'ambient_music'>('gemini_tts');
@@ -2234,16 +2389,55 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
       </div>
 
       {/* Preset Library Section with Full Relaxation Metadata */}
-      <div className="space-y-3 pt-4 border-t border-stone-800">
+      <div className="space-y-4 pt-4 border-t border-stone-800">
         <div className="flex items-center justify-between flex-wrap gap-2">
-          <h3 className="font-bold text-xs uppercase tracking-wider text-stone-400 flex items-center gap-2">
-            <Headphones className="w-4 h-4 text-sky-400" /> Koleksi Audio Relaksasi Pilihan Langsung Putar:
-          </h3>
-          <span className="text-[11px] text-stone-400">Lengkap dengan konfigurasi backsound & metadata</span>
+          <div className="space-y-0.5">
+            <h3 className="font-bold text-xs uppercase tracking-wider text-stone-300 flex items-center gap-2">
+              <Headphones className="w-4 h-4 text-sky-400" /> Koleksi Audio Relaksasi Tenang & Soundscape Langsung Putar:
+            </h3>
+            <p className="text-[11px] text-stone-400">17 pilihan soundscape akustik 432Hz/528Hz, gelombang otak theta/delta, dan suara alam berkualitas tinggi</p>
+          </div>
+          <span className="text-[10px] px-2.5 py-1 bg-sky-950/80 text-sky-300 border border-sky-800 rounded-full font-mono">
+            {PRESET_LIBRARY.length} Soundscapes Siap Putar
+          </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {PRESET_LIBRARY.map((preset) => (
+        {/* Filter Pills */}
+        <div className="flex flex-wrap items-center gap-1.5 pt-1">
+          {[
+            { id: 'semua', label: 'Semua Koleksi (' + PRESET_LIBRARY.length + ')' },
+            { id: 'musik-tenang', label: '🎵 Musik Relaksasi Tenang' },
+            { id: 'gelombang-otak', label: '🌌 Gelombang Otak Theta & Delta' },
+            { id: 'menenangkan-pikiran', label: '🌿 Menenangkan Pikiran' },
+            { id: 'menjelang-tidur', label: '💤 Menjelang Tidur Nyenyak' },
+            { id: 'bekerja-belajar', label: '💼 Fokus Bekerja & Belajar' },
+            { id: 'latihan-lega', label: '🧘 Latihan Emosi LEGA' }
+          ].map((tab) => {
+            const isTabActive = presetPurposeFilter === tab.id;
+            const count = tab.id === 'semua' ? PRESET_LIBRARY.length : PRESET_LIBRARY.filter(p => p.purposes.includes(tab.id as AudioPurposeTag)).length;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setPresetPurposeFilter(tab.id as AudioPurposeTag)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 border ${
+                  isTabActive
+                    ? 'bg-sky-600 border-sky-500 text-white shadow-md shadow-sky-950/50'
+                    : 'bg-stone-950 border-stone-800 text-stone-400 hover:text-stone-200 hover:border-stone-700'
+                }`}
+              >
+                <span>{tab.label}</span>
+                {tab.id !== 'semua' && (
+                  <span className={`text-[10px] px-1.5 py-0.2 rounded-md ${isTabActive ? 'bg-sky-700 text-white' : 'bg-stone-900 text-stone-400'}`}>
+                    {count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {PRESET_LIBRARY.filter(preset => presetPurposeFilter === 'semua' || preset.purposes.includes(presetPurposeFilter)).map((preset) => (
             <div
               key={preset.id}
               className="p-5 rounded-2xl bg-stone-900 border border-stone-800 space-y-3 hover:border-stone-700 transition flex flex-col justify-between"
@@ -2279,7 +2473,7 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
                 onClick={() => handlePlayPreset(preset)}
                 className="w-full py-2 bg-stone-950 hover:bg-stone-800 border border-stone-800 text-sky-300 hover:text-sky-200 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-2"
               >
-                <Play className="w-3.5 h-3.5" /> Putar Preset
+                <Play className="w-3.5 h-3.5" /> Putar Soundscape
               </button>
             </div>
           ))}

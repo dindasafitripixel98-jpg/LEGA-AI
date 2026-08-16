@@ -176,6 +176,46 @@ export const NATURE_SOUND_DEFINITIONS: Record<NatureSoundType, {
     defaultMusicVolume: 0.12,
     defaultAmbient: 'piano-hangat',
     loopRecommendation: 'Dawn Horizon Cycle (35 Detik)'
+  },
+  'hujan-kaca': {
+    name: 'Rintik Hujan di Kaca Jendela',
+    description: 'Rintik air hujan lembut yang mengetuk kaca jendela kamar yang hangat, menenangkan dan meneduhkan hati.',
+    icon: '🌧️',
+    recommendedTheme: 'Kenyamanan Batin, Melepas Penat & Relaksasi Hening',
+    defaultNatureVolume: 0.32,
+    defaultMusicVolume: 0.12,
+    defaultAmbient: 'rain-glass-piano',
+    loopRecommendation: 'Window Rain Drops Cycle (30 Detik)'
+  },
+  'gemericik-bambu-zen': {
+    name: 'Pancuran Bambu Taman Zen',
+    description: 'Tetesan dan ketukan pancuran bambu Shishi-odoshi di kolam taman zen yang menyucikan dan menjernihkan pikiran.',
+    icon: '🎋',
+    recommendedTheme: 'Keheningan Zen, Meditasi Duduk & Kejernihan Jiwa',
+    defaultNatureVolume: 0.32,
+    defaultMusicVolume: 0.12,
+    defaultAmbient: 'zen-flute-432hz',
+    loopRecommendation: 'Zen Bamboo Stream Cycle (30 Detik)'
+  },
+  'ombak-samudra-dalam': {
+    name: 'Deburan Ombak Samudra Malam (432Hz)',
+    description: 'Alunan deburan ombak laut dalam yang berirama sangat tenang, selaras dengan gelombang pernapasan batin.',
+    icon: '🌊',
+    recommendedTheme: 'Relaksasi Mendalam, Gelombang Napas & Penyelarasan Jiwa',
+    defaultNatureVolume: 0.35,
+    defaultMusicVolume: 0.12,
+    defaultAmbient: 'celestial-binaural-theta',
+    loopRecommendation: 'Deep Ocean Swell Loop (28 Detik)'
+  },
+  'angin-lembah-gunung': {
+    name: 'Angin Lembah Pegunungan Berkabut',
+    description: 'Semilir hembusan angin sejuk melintasi lembah dan puncak pinus berkabut dengan ruang gema luas.',
+    icon: '🏔️',
+    recommendedTheme: 'Kelapangan Jiwa, Melepaskan Tekanan & Kebebasan Batin',
+    defaultNatureVolume: 0.30,
+    defaultMusicVolume: 0.12,
+    defaultAmbient: 'acoustic-meditation-chimes',
+    loopRecommendation: 'Alpine Breeze Horizon Loop (30 Detik)'
   }
 };
 
@@ -250,6 +290,42 @@ export const AMBIENT_MUSIC_DEFINITIONS: Record<AmbientMusicType, {
     description: 'Harmoni tidur hening dengan tempo sangat lambat dan nada-nada lembut yang menghantarkan tubuh dan pikiran menuju tidur lelap.',
     character: 'Sangat Lembut, Stabil, Perlahan & Menidurkan',
     recommendedFor: 'LEGA — TIDUR (Pengantar Tidur Nyenyak)'
+  },
+  'zen-flute-432hz': {
+    name: 'Suling Bambu Zen & Genta Kuil Hening (432Hz)',
+    description: 'Melodi suling shakuhachi bambu dan lonceng kuil zen bernada 432Hz yang mengalir tenang, mengheningkan batin yang resah.',
+    character: 'Hening, Meditatif, Suci, Damai & Berjarak',
+    recommendedFor: 'Meditasi Hening, Mengheningkan Pikiran, Zen Mindfulness'
+  },
+  'solfeggio-528hz-healing': {
+    name: 'Solfeggio 528Hz Miracle Healing & Cinta Kasih',
+    description: 'Resonansi frekuensi 528Hz Solfeggio pemulih harmoni batin dan regenerasi ketenangan jiwa dengan pad hangat mengalun lembut.',
+    character: 'Murni, Menyembuhkan, Hangat, Lapang & Penuh Cinta',
+    recommendedFor: 'Self-Healing, Pemulihan Burnout, Welas Asih Batin'
+  },
+  'celestial-binaural-theta': {
+    name: 'Gelombang Theta Binaural 6Hz & Pad Kosmis',
+    description: 'Frekuensi binaural theta (6Hz) berpadu pad surgawi mengambang tipis, menurunkan gelombang otak menuju ketenangan meditatif dalam.',
+    character: 'Melayang, Relaksasi Dalam, Transendental & Stabil',
+    recommendedFor: 'Relaksasi Sangat Dalam, Melepas Beban Berat, Meditasi Transendental'
+  },
+  'deep-delta-sleep-wave': {
+    name: 'Gelombang Delta Tidur Nyenyak 3Hz & Piano Malam',
+    description: 'Frekuensi delta 3Hz penenang syaraf berpadu melodi tuts piano malam bertempo sangat lambat untuk menghantarkan tidur pulas.',
+    character: 'Sangat Lambat, Mengendur, Hangat & Menidurkan',
+    recommendedFor: 'Pengantar Tidur Pulas, Mengatasi Insomnia, Istirahat Paripurna'
+  },
+  'acoustic-meditation-chimes': {
+    name: 'Lonceng Angin Kristal & Akustik Meditatif',
+    description: 'Gemerincing lonceng angin kristal berpadu petikan dawai akustik meditatif yang melarutkan stres dan menjernihkan suasana.',
+    character: 'Crystalline, Segar, Bersih, Damai & Menyejukkan',
+    recommendedFor: 'Fokus Bekerja/Belajar, Relaksasi Siang Hari, Meditasi Syukur'
+  },
+  'rain-glass-piano': {
+    name: 'Hujan di Kaca & Piano Teduh Menenangkan (432Hz)',
+    description: 'Harmonisasi tuts piano akustik melankolis lembut 432Hz berpadu ritme rintik hujan jendela kaca yang menghangatkan batin.',
+    character: 'Meneduhkan, Reflektif, Hangat, Nostalgik & Damai',
+    recommendedFor: 'Menenangkan Pikiran Kalut, Relaksasi Sore Hari, Jeda Mental'
   }
 };
 
@@ -849,6 +925,311 @@ export async function generateRelaxationSoundscapeWav(
       osc.start(0);
       osc.stop(actualDuration);
     });
+  } else if (ambientType === 'zen-flute-432hz') {
+    // 🎋 SULING BAMBU ZEN & GENTA KUIL HENING (432Hz Shakuhachi & Temple Chime)
+    const fluteNotes = [216, 243, 288, 324, 384, 432, 486, 576];
+    const melodySteps = [
+      { noteIdx: 0, delay: 0.8, dur: 4.2 },
+      { noteIdx: 2, delay: 5.5, dur: 3.8 },
+      { noteIdx: 3, delay: 9.8, dur: 4.5 },
+      { noteIdx: 5, delay: 15.0, dur: 4.0 },
+      { noteIdx: 4, delay: 19.5, dur: 4.2 },
+    ];
+
+    melodySteps.forEach(({ noteIdx, delay, dur }) => {
+      if (delay < actualDuration - 2.0) {
+        const freq = fluteNotes[noteIdx % fluteNotes.length];
+        const osc = offlineCtx.createOscillator();
+        const subOsc = offlineCtx.createOscillator();
+        const filter = offlineCtx.createBiquadFilter();
+        const gain = offlineCtx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, delay);
+        osc.frequency.linearRampToValueAtTime(freq * 1.015, delay + dur * 0.4);
+        osc.frequency.linearRampToValueAtTime(freq, delay + dur);
+
+        subOsc.type = 'triangle';
+        subOsc.frequency.setValueAtTime(freq * 2.0, delay);
+
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(680, delay);
+        filter.frequency.exponentialRampToValueAtTime(320, delay + dur);
+
+        const fluteVol = musicVol * 0.07;
+        gain.gain.setValueAtTime(0.0001, delay);
+        gain.gain.linearRampToValueAtTime(fluteVol, delay + 0.6);
+        gain.gain.setValueAtTime(fluteVol, delay + dur - 0.8);
+        gain.gain.exponentialRampToValueAtTime(0.0001, Math.min(actualDuration, delay + dur + 1.2));
+
+        osc.connect(filter);
+        subOsc.connect(filter);
+        filter.connect(gain);
+        gain.connect(offlineCtx.destination);
+
+        osc.start(delay);
+        osc.stop(Math.min(actualDuration, delay + dur + 1.5));
+        subOsc.start(delay);
+        subOsc.stop(Math.min(actualDuration, delay + dur + 1.5));
+      }
+    });
+
+    [2.0, 14.0].forEach((chimeTime) => {
+      if (chimeTime < actualDuration - 3) {
+        const bellOsc = offlineCtx.createOscillator();
+        const bellGain = offlineCtx.createGain();
+        bellOsc.type = 'sine';
+        bellOsc.frequency.setValueAtTime(864, chimeTime);
+        bellGain.gain.setValueAtTime(0.0001, chimeTime);
+        bellGain.gain.linearRampToValueAtTime(musicVol * 0.05, chimeTime + 0.08);
+        bellGain.gain.exponentialRampToValueAtTime(0.0001, Math.min(actualDuration, chimeTime + 7.0));
+        bellOsc.connect(bellGain);
+        bellGain.connect(offlineCtx.destination);
+        bellOsc.start(chimeTime);
+        bellOsc.stop(Math.min(actualDuration, chimeTime + 7.5));
+      }
+    });
+  } else if (ambientType === 'solfeggio-528hz-healing') {
+    // ✨ SOLFEGGIO 528Hz MIRACLE HEALING & CINTA KASIH
+    const solfeggioFreqs = [132, 264, 528, 792, 1056];
+    solfeggioFreqs.forEach((freq, idx) => {
+      const osc = offlineCtx.createOscillator();
+      const gain = offlineCtx.createGain();
+      const filter = offlineCtx.createBiquadFilter();
+
+      osc.type = idx === 2 ? 'sine' : 'triangle';
+      osc.frequency.setValueAtTime(freq, 0);
+      osc.detune.setValueAtTime((idx % 2 === 0 ? 1.5 : -1.5), 0);
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(460, 0);
+
+      const baseVol = (musicVol * 0.055) / (idx + 1);
+      gain.gain.setValueAtTime(0.0001, 0);
+      gain.gain.linearRampToValueAtTime(baseVol, fadeIn + 2.0);
+      gain.gain.setValueAtTime(baseVol, actualDuration - fadeOut);
+      gain.gain.linearRampToValueAtTime(0.0001, actualDuration);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(offlineCtx.destination);
+
+      osc.start(0);
+      osc.stop(actualDuration);
+    });
+  } else if (ambientType === 'celestial-binaural-theta') {
+    // 🌌 GELOMBANG THETA BINAURAL 6Hz & PAD KOSMIS (216Hz / 222Hz)
+    const baseF = 216;
+    const beatF = 6.0;
+
+    const oscL = offlineCtx.createOscillator();
+    const oscR = offlineCtx.createOscillator();
+    const padOsc = offlineCtx.createOscillator();
+    const gainL = offlineCtx.createGain();
+    const gainR = offlineCtx.createGain();
+    const padGain = offlineCtx.createGain();
+    const filter = offlineCtx.createBiquadFilter();
+
+    oscL.type = 'sine';
+    oscL.frequency.setValueAtTime(baseF, 0);
+    oscR.type = 'sine';
+    oscR.frequency.setValueAtTime(baseF + beatF, 0);
+
+    padOsc.type = 'sine';
+    padOsc.frequency.setValueAtTime(baseF * 1.5, 0);
+
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(320, 0);
+
+    const bVol = musicVol * 0.045;
+    gainL.gain.setValueAtTime(0.0001, 0);
+    gainL.gain.linearRampToValueAtTime(bVol, fadeIn);
+    gainL.gain.setValueAtTime(bVol, actualDuration - fadeOut);
+    gainL.gain.linearRampToValueAtTime(0.0001, actualDuration);
+
+    gainR.gain.setValueAtTime(0.0001, 0);
+    gainR.gain.linearRampToValueAtTime(bVol, fadeIn);
+    gainR.gain.setValueAtTime(bVol, actualDuration - fadeOut);
+    gainR.gain.linearRampToValueAtTime(0.0001, actualDuration);
+
+    padGain.gain.setValueAtTime(0.0001, 0);
+    padGain.gain.linearRampToValueAtTime(bVol * 0.7, fadeIn + 2.0);
+    padGain.gain.setValueAtTime(bVol * 0.7, actualDuration - fadeOut);
+    padGain.gain.linearRampToValueAtTime(0.0001, actualDuration);
+
+    oscL.connect(gainL);
+    oscR.connect(gainR);
+    padOsc.connect(filter);
+    filter.connect(padGain);
+
+    gainL.connect(offlineCtx.destination);
+    gainR.connect(offlineCtx.destination);
+    padGain.connect(offlineCtx.destination);
+
+    oscL.start(0);
+    oscL.stop(actualDuration);
+    oscR.start(0);
+    oscR.stop(actualDuration);
+    padOsc.start(0);
+    padOsc.stop(actualDuration);
+  } else if (ambientType === 'deep-delta-sleep-wave') {
+    // 💤 GELOMBANG DELTA TIDUR NYENYAK 3Hz & PIANO MALAM
+    const deltaF = 108;
+    const oscDeltaL = offlineCtx.createOscillator();
+    const oscDeltaR = offlineCtx.createOscillator();
+    const deltaGain = offlineCtx.createGain();
+
+    oscDeltaL.type = 'sine';
+    oscDeltaL.frequency.setValueAtTime(deltaF, 0);
+    oscDeltaR.type = 'sine';
+    oscDeltaR.frequency.setValueAtTime(deltaF + 3.2, 0);
+
+    const dVol = musicVol * 0.04;
+    deltaGain.gain.setValueAtTime(0.0001, 0);
+    deltaGain.gain.linearRampToValueAtTime(dVol, fadeIn + 2.0);
+    deltaGain.gain.setValueAtTime(dVol, actualDuration - fadeOut);
+    deltaGain.gain.linearRampToValueAtTime(0.0001, actualDuration);
+
+    oscDeltaL.connect(deltaGain);
+    oscDeltaR.connect(deltaGain);
+    deltaGain.connect(offlineCtx.destination);
+
+    oscDeltaL.start(0);
+    oscDeltaL.stop(actualDuration);
+    oscDeltaR.start(0);
+    oscDeltaR.stop(actualDuration);
+
+    const sleepChords = [
+      [144, 216, 270, 324],
+      [129.6, 194.4, 259.2],
+      [108, 162, 216, 270],
+    ];
+    const sInterval = 9.0;
+    for (let sc = 0; sc < Math.ceil(actualDuration / sInterval); sc++) {
+      const scTime = sc * sInterval + 1.0;
+      if (scTime >= actualDuration - 2.0) break;
+      const notes = sleepChords[sc % sleepChords.length];
+      notes.forEach((freq, nIdx) => {
+        const nTime = scTime + nIdx * 0.25;
+        if (nTime < actualDuration - 1.5) {
+          const pOsc = offlineCtx.createOscillator();
+          const pFilt = offlineCtx.createBiquadFilter();
+          const pGain = offlineCtx.createGain();
+
+          pOsc.type = 'sine';
+          pOsc.frequency.setValueAtTime(freq, nTime);
+          pFilt.type = 'lowpass';
+          pFilt.frequency.setValueAtTime(280, nTime);
+
+          const pVol = musicVol * (0.05 / (nIdx + 1));
+          pGain.gain.setValueAtTime(0.0001, nTime);
+          pGain.gain.linearRampToValueAtTime(pVol, nTime + 0.3);
+          pGain.gain.exponentialRampToValueAtTime(0.0001, Math.min(actualDuration, nTime + 8.0));
+
+          pOsc.connect(pFilt);
+          pFilt.connect(pGain);
+          pGain.connect(offlineCtx.destination);
+
+          pOsc.start(nTime);
+          pOsc.stop(Math.min(actualDuration, nTime + 8.2));
+        }
+      });
+    }
+  } else if (ambientType === 'acoustic-meditation-chimes') {
+    // 🎋 LONCENG ANGIN KRISTAL & AKUSTIK MEDITATIF
+    const chimeFreqs = [1728, 2160, 2592, 3456];
+    const chimeTimes = [1.5, 4.8, 9.2, 13.6, 18.0, 22.4];
+
+    chimeTimes.forEach((ct, cIdx) => {
+      if (ct < actualDuration - 2.5) {
+        const freq = chimeFreqs[cIdx % chimeFreqs.length];
+        const cOsc = offlineCtx.createOscillator();
+        const cGain = offlineCtx.createGain();
+
+        cOsc.type = 'sine';
+        cOsc.frequency.setValueAtTime(freq, ct);
+
+        cGain.gain.setValueAtTime(0.0001, ct);
+        cGain.gain.linearRampToValueAtTime(musicVol * 0.03, ct + 0.04);
+        cGain.gain.exponentialRampToValueAtTime(0.0001, Math.min(actualDuration, ct + 3.8));
+
+        cOsc.connect(cGain);
+        cGain.connect(offlineCtx.destination);
+        cOsc.start(ct);
+        cOsc.stop(Math.min(actualDuration, ct + 4.0));
+      }
+    });
+
+    [108, 216, 324].forEach((df, dIdx) => {
+      const dOsc = offlineCtx.createOscillator();
+      const dGain = offlineCtx.createGain();
+      const dFilter = offlineCtx.createBiquadFilter();
+
+      dOsc.type = 'triangle';
+      dOsc.frequency.setValueAtTime(df, 0);
+      dFilter.type = 'lowpass';
+      dFilter.frequency.setValueAtTime(260, 0);
+
+      const dVol = (musicVol * 0.04) / (dIdx + 1);
+      dGain.gain.setValueAtTime(0.0001, 0);
+      dGain.gain.linearRampToValueAtTime(dVol, fadeIn);
+      dGain.gain.setValueAtTime(dVol, actualDuration - fadeOut);
+      dGain.gain.linearRampToValueAtTime(0.0001, actualDuration);
+
+      dOsc.connect(dFilter);
+      dFilter.connect(dGain);
+      dGain.connect(offlineCtx.destination);
+      dOsc.start(0);
+      dOsc.stop(actualDuration);
+    });
+  } else if (ambientType === 'rain-glass-piano') {
+    // 🌧️ HUJAN DI KACA & PIANO TEDUH MENENANGKAN (432Hz)
+    const glassChords = [
+      [172.8, 216, 259.2, 324],
+      [129.6, 194.4, 259.2, 388.8],
+      [194.4, 243, 291.6, 388.8],
+      [108, 162, 216, 270, 324],
+    ];
+    const gInterval = 7.0;
+    for (let gc = 0; gc < Math.ceil(actualDuration / gInterval); gc++) {
+      const gTime = gc * gInterval + 0.8;
+      if (gTime >= actualDuration - 1.8) break;
+      const notes = glassChords[gc % glassChords.length];
+      notes.forEach((freq, idx) => {
+        const nt = gTime + idx * 0.22;
+        if (nt < actualDuration - 1.5) {
+          const osc1 = offlineCtx.createOscillator();
+          const osc2 = offlineCtx.createOscillator();
+          const filt = offlineCtx.createBiquadFilter();
+          const gain = offlineCtx.createGain();
+
+          osc1.type = 'sine';
+          osc1.frequency.setValueAtTime(freq, nt);
+
+          osc2.type = 'triangle';
+          osc2.frequency.setValueAtTime(freq * 2.0, nt);
+
+          filt.type = 'lowpass';
+          filt.frequency.setValueAtTime(540, nt);
+          filt.frequency.exponentialRampToValueAtTime(160, nt + 5.0);
+
+          const vol = musicVol * (0.065 / (idx + 1));
+          gain.gain.setValueAtTime(0.0001, nt);
+          gain.gain.linearRampToValueAtTime(vol, nt + 0.14);
+          gain.gain.exponentialRampToValueAtTime(0.0001, Math.min(actualDuration, nt + 6.5));
+
+          osc1.connect(filt);
+          osc2.connect(filt);
+          filt.connect(gain);
+          gain.connect(offlineCtx.destination);
+
+          osc1.start(nt);
+          osc1.stop(Math.min(actualDuration, nt + 7.0));
+          osc2.start(nt);
+          osc2.stop(Math.min(actualDuration, nt + 7.0));
+        }
+      });
+    }
   } else {
     // String Akustik Halus & Damai (528Hz Solfeggio)
     const stringFreqs = [132, 264, 396];
@@ -1034,6 +1415,97 @@ export async function generateRelaxationSoundscapeWav(
           }
         }
       });
+    } else if (nType === 'hujan-kaca') {
+      // 🌧️ Rintik Hujan di Kaca Jendela (Gentle warm rain with crystalline glass tap droplets)
+      natureFilter.type = 'lowpass';
+      natureFilter.frequency.setValueAtTime(850, 0);
+      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.78, 0);
+
+      const windowDrops = [0.8, 2.3, 4.1, 6.7, 9.4, 12.1, 15.6, 18.8, 21.2, 24.5];
+      windowDrops.forEach((wTime) => {
+        if (wTime < actualDuration - 1.5) {
+          const dOsc = offlineCtx.createOscillator();
+          const dFilter = offlineCtx.createBiquadFilter();
+          const dGain = offlineCtx.createGain();
+
+          dOsc.type = 'sine';
+          dOsc.frequency.setValueAtTime(1800 + Math.random() * 400, wTime);
+          dOsc.frequency.exponentialRampToValueAtTime(800, wTime + 0.06);
+
+          dFilter.type = 'bandpass';
+          dFilter.frequency.setValueAtTime(1600, wTime);
+          dFilter.Q.setValueAtTime(4.0, wTime);
+
+          dGain.gain.setValueAtTime(0.0001, wTime);
+          dGain.gain.linearRampToValueAtTime(effectiveLayerVol * 0.16, wTime + 0.015);
+          dGain.gain.exponentialRampToValueAtTime(0.0001, wTime + 0.09);
+
+          dOsc.connect(dFilter);
+          dFilter.connect(dGain);
+          dGain.connect(offlineCtx.destination);
+
+          dOsc.start(wTime);
+          dOsc.stop(wTime + 0.1);
+        }
+      });
+    } else if (nType === 'gemericik-bambu-zen') {
+      // 🎋 Pancuran Bambu Taman Zen (Shishi-odoshi bamboo water stream & resonant wooden clap)
+      natureFilter.type = 'bandpass';
+      natureFilter.frequency.setValueAtTime(750, 0);
+      natureFilter.Q.setValueAtTime(2.2, 0);
+      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.75, 0);
+
+      const bambooStrikes = [3.5, 11.0, 18.5, 26.0];
+      bambooStrikes.forEach((bTime) => {
+        if (bTime < actualDuration - 2) {
+          // Hollow bamboo strike tone
+          const bOsc = offlineCtx.createOscillator();
+          const bGain = offlineCtx.createGain();
+          const bFilt = offlineCtx.createBiquadFilter();
+
+          bOsc.type = 'triangle';
+          bOsc.frequency.setValueAtTime(380, bTime);
+          bOsc.frequency.exponentialRampToValueAtTime(160, bTime + 0.12);
+
+          bFilt.type = 'bandpass';
+          bFilt.frequency.setValueAtTime(450, bTime);
+          bFilt.Q.setValueAtTime(3.5, bTime);
+
+          bGain.gain.setValueAtTime(0.0001, bTime);
+          bGain.gain.linearRampToValueAtTime(effectiveLayerVol * 0.28, bTime + 0.02);
+          bGain.gain.exponentialRampToValueAtTime(0.0001, bTime + 0.4);
+
+          bOsc.connect(bFilt);
+          bFilt.connect(bGain);
+          bGain.connect(offlineCtx.destination);
+
+          bOsc.start(bTime);
+          bOsc.stop(bTime + 0.45);
+        }
+      });
+    } else if (nType === 'ombak-samudra-dalam') {
+      // 🌊 Deburan Ombak Samudra Dalam (432Hz deep swell & oceanic breathing rhythm)
+      natureFilter.type = 'lowpass';
+      natureFilter.frequency.setValueAtTime(280, 0);
+      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.95, 0);
+
+      // Low frequency wave sweep oscillator
+      const sweepOsc = offlineCtx.createOscillator();
+      const sweepGain = offlineCtx.createGain();
+      sweepOsc.type = 'sine';
+      sweepOsc.frequency.setValueAtTime(0.08, 0); // 12.5 second ocean wave cycle
+
+      sweepGain.gain.setValueAtTime(effectiveLayerVol * 0.15, 0);
+      sweepOsc.connect(sweepGain);
+      sweepGain.connect(natureGain.gain);
+      sweepOsc.start(0);
+      sweepOsc.stop(actualDuration);
+    } else if (nType === 'angin-lembah-gunung') {
+      // 🏔️ Angin Lembah Pegunungan Berkabut (Wide airy mist dispersion)
+      natureFilter.type = 'bandpass';
+      natureFilter.frequency.setValueAtTime(420, 0);
+      natureFilter.Q.setValueAtTime(0.7, 0);
+      natureGain.gain.setValueAtTime(effectiveLayerVol * 0.82, 0);
     } else {
       natureFilter.type = 'lowpass';
       natureFilter.frequency.setValueAtTime(500, 0);
@@ -1282,6 +1754,66 @@ export const LEGA_EMOTION_PRESETS: Record<string, EmotionalAudioPreset> = {
     natureVolume: 0.30,
     musicVolume: 0.09,
     narrationVolume: 0.88
+  },
+  'zen-meditasi': {
+    id: 'zen-meditasi',
+    name: 'LEGA — SULING ZEN & GENTA KUIL (432Hz)',
+    emotionLabel: 'Meditasi Hening & Penjernihan Jiwa',
+    musicDescription: 'Melodi suling bambu Shakuhachi & resonansi genta kuil bernada 432Hz yang mengheningkan batin.',
+    natureDescription: 'Pancuran bambu taman zen & semilir angin dedaunan.',
+    natureTypes: ['gemericik-bambu-zen', 'angin-pepohonan'],
+    ambientMusic: 'zen-flute-432hz',
+    narrationPromptTone: 'Suara tenang dan meditatif, membimbing pemusatan pikiran pada keheningan saat ini.',
+    suggestedGeminiVoice: 'Suara Tenang',
+    sampleScript: 'Dengarkan nada suling bambu yang mengalun lembut di antara gemericik air dan ketukan bambu taman zen. Rasakan kejernihan yang hadir di sela-sela setiap hembusan napas Anda. Masuki ruang hening batin Anda yang selalu damai dan utuh.',
+    natureVolume: 0.34,
+    musicVolume: 0.13,
+    narrationVolume: 0.88
+  },
+  'solfeggio-528hz': {
+    id: 'solfeggio-528hz',
+    name: 'LEGA — 528Hz SOLFEGGIO MIRACLE HEALING',
+    emotionLabel: 'Pemulihan Energi & Welas Asih',
+    musicDescription: 'Frekuensi Solfeggio 528Hz keemasan pemulih sel batin berpadu lapisan pad hangat menyelimuti kesadaran.',
+    natureDescription: 'Aliran air pegunungan jernih & kicau burung pagi fajar.',
+    natureTypes: ['aliran-sungai', 'burung-pagi'],
+    ambientMusic: 'solfeggio-528hz-healing',
+    narrationPromptTone: 'Suara hangat dan mengayomi, mengalirkan rasa cinta kasih dan pemulihan ke seluruh tubuh.',
+    suggestedGeminiVoice: 'Suara Hangat',
+    sampleScript: 'Biarkan getaran 528Hz ini meresap lembut ke setiap helai napas dan sel tubuh Anda. Frekuensi ini membawa energi pemulihan, cinta, dan ketenangan yang mendalam. Rasakan bahwa Anda sangat layak untuk merasa aman, tenang, dan pulih sepenuhnya.',
+    natureVolume: 0.32,
+    musicVolume: 0.14,
+    narrationVolume: 0.90
+  },
+  'theta-deep-relax': {
+    id: 'theta-deep-relax',
+    name: 'LEGA — GELOMBANG THETA BINAURAL 6Hz',
+    emotionLabel: 'Relaksasi Mendalam & Transendental',
+    musicDescription: 'Frekuensi binaural 6Hz penuntun gelombang otak theta untuk relaksasi meditatif tingkat lanjut.',
+    natureDescription: 'Deburan ombak samudra dalam malam hari yang berirama sangat lambat.',
+    natureTypes: ['ombak-samudra-dalam', 'suasana-malam'],
+    ambientMusic: 'celestial-binaural-theta',
+    narrationPromptTone: 'Suara dalam dan menenangkan, membawa kesadaran melayang lembut ke titik relaksasi terdalam.',
+    suggestedGeminiVoice: 'Suara Dalam',
+    sampleScript: 'Gunakan earphone atau headset untuk merasakan gelombang binaural 6Hz ini. Rasakan ritme ombak samudra malam yang menyelaraskan gelombang otak Anda menuju keadaan relaksasi yang sangat dalam. Tubuh Anda terasa ringan dan mengambang bebas.',
+    natureVolume: 0.35,
+    musicVolume: 0.13,
+    narrationVolume: 0.88
+  },
+  'hujan-piano': {
+    id: 'hujan-piano',
+    name: 'LEGA — HUJAN DI KACA & PIANO TEDUH (432Hz)',
+    emotionLabel: 'Kenyamanan Ruang Hangat & Jeda Mental',
+    musicDescription: 'Harmoni progresi tuts piano akustik neo-klasik 432Hz berpadu rintik hujan di jendela kaca kamar.',
+    natureDescription: 'Rintik hujan lembut di kaca jendela & semilir angin sejuk.',
+    natureTypes: ['hujan-kaca', 'angin-pepohonan'],
+    ambientMusic: 'rain-glass-piano',
+    narrationPromptTone: 'Suara lembut bersahaja, menemani jeda santai melepas kepenatan hari.',
+    suggestedGeminiVoice: 'Suara Lembut',
+    sampleScript: 'Dengarkan rintik hujan yang mengetuk kaca jendela dengan lembut, diiringi alunan nada piano yang hangat. Ruangan ini adalah tempat perlindungan Anda yang aman. Lepaskan seluruh kepenatan hari ini, dan nikmati ketenangan yang teduh ini bersama kami.',
+    natureVolume: 0.33,
+    musicVolume: 0.14,
+    narrationVolume: 0.90
   }
 };
 
