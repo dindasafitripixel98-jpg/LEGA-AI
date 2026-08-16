@@ -341,6 +341,7 @@ export interface CustomerAccount {
   name: string;
   email: string;
   phone?: string;
+  password?: string;
   role: 'USER' | 'PREMIUM' | 'VIP' | 'DEVELOPER' | 'ADMIN';
   plan: 'TRIAL' | 'MONTHLY' | 'YEARLY' | 'LIFETIME';
   status: 'ACTIVE' | 'SUSPENDED' | 'EXPIRED';

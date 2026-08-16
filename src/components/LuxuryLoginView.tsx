@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { playCalmMeditationChime } from '../lib/audioEngine';
 import { signInWithGoogle } from '../lib/firebase';
+import { getLocalDeveloperConfig, getLocalCustomerAccounts } from '../lib/developerService';
 
 interface LuxuryLoginViewProps {
   onLoginSuccess: (userData?: { name: string; email: string }) => void;
@@ -34,6 +35,9 @@ export const LuxuryLoginView: React.FC<LuxuryLoginViewProps> = ({
   onLoginSuccess,
   onBackToLanding
 }) => {
+  const devConfig = getLocalDeveloperConfig();
+  const isDemoEnabled = devConfig.enableDemoMode24h ?? true;
+
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -87,6 +91,31 @@ export const LuxuryLoginView: React.FC<LuxuryLoginViewProps> = ({
 
     setTimeout(() => {
       setIsLoading(false);
+      const cleanEmail = email.trim().toLowerCase();
+      const cleanPassword = password.trim();
+
+      // Check registered customer accounts
+      const registeredAccounts = getLocalCustomerAccounts();
+      const matchedAccount = registeredAccounts.find(
+        (acc) => acc.email.toLowerCase() === cleanEmail
+      );
+
+      if (matchedAccount) {
+        if (matchedAccount.status === 'SUSPENDED') {
+          setErrorMessage('Akun ini sedang ditangguhkan (Suspended). Silakan hubungi admin SHAQILA DIGITAL 99.');
+          return;
+        }
+        if (matchedAccount.password && cleanPassword && matchedAccount.password !== cleanPassword) {
+          setErrorMessage('Kata sandi yang Anda masukkan salah. Silakan coba lagi.');
+          return;
+        }
+        onLoginSuccess({
+          name: matchedAccount.name,
+          email: matchedAccount.email,
+        });
+        return;
+      }
+
       const chosenName = name.trim() || email.split('@')[0] || 'Teman LEGA';
       onLoginSuccess({
         name: chosenName,
@@ -188,22 +217,30 @@ export const LuxuryLoginView: React.FC<LuxuryLoginViewProps> = ({
             </button>
 
             {/* Quick 1-Click Instant Guest / Demo Button */}
-            <button
-              onClick={handleInstantDemoLogin}
-              disabled={isLoading}
-              className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 hover:from-amber-300 hover:to-amber-200 text-stone-950 font-extrabold text-xs sm:text-sm shadow-md shadow-amber-500/20 hover:shadow-amber-400/30 transition-all transform hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2"
-            >
-              <Zap className="w-4 h-4 text-stone-950 fill-stone-950" />
-              <span>Masuk Cepat 1-Klik (Akses Tamu)</span>
-              <ArrowRight className="w-3.5 h-3.5 stroke-[3]" />
-            </button>
+            {isDemoEnabled ? (
+              <button
+                onClick={handleInstantDemoLogin}
+                disabled={isLoading}
+                className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 hover:from-amber-300 hover:to-amber-200 text-stone-950 font-extrabold text-xs sm:text-sm shadow-md shadow-amber-500/20 hover:shadow-amber-400/30 transition-all transform hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2"
+              >
+                <Zap className="w-4 h-4 text-stone-950 fill-stone-950" />
+                <span>Masuk Cepat 1-Klik (Akses Tamu 24 Jam)</span>
+                <ArrowRight className="w-3.5 h-3.5 stroke-[3]" />
+              </button>
+            ) : (
+              <div className="p-3 bg-stone-900/60 rounded-2xl border border-stone-800 text-center">
+                <p className="text-[11px] text-stone-400">
+                  🔒 Akses tamu demo saat ini dinonaktifkan oleh administrator. Silakan masuk dengan akun terdaftar Anda.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Divider */}
           <div className="flex items-center gap-3">
             <div className="flex-1 h-px bg-stone-800" />
             <span className="text-[10px] text-stone-400 uppercase font-mono tracking-wider">
-              atau akun terdaftar
+              {isDemoEnabled ? 'atau akun terdaftar' : 'masuk dengan email terdaftar'}
             </span>
             <div className="flex-1 h-px bg-stone-800" />
           </div>
@@ -248,7 +285,7 @@ export const LuxuryLoginView: React.FC<LuxuryLoginViewProps> = ({
                   <Key className="w-3.5 h-3.5 text-stone-400" />
                   <span>Kata Sandi / Kode Akses</span>
                 </label>
-                {authMode === 'login' && (
+                {authMode === 'login' && isDemoEnabled && (
                   <button
                     type="button"
                     onClick={() => {

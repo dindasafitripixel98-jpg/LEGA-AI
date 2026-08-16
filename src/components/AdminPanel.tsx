@@ -49,7 +49,8 @@ import {
   Moon,
   LifeBuoy,
   Edit,
-  Edit3
+  Edit3,
+  Power
 } from 'lucide-react';
 import { getAdminSystemStats, askAdminAI } from '../lib/geminiApi';
 import {
@@ -132,12 +133,25 @@ export const AdminPanel: React.FC = () => {
   const [editingCustomer, setEditingCustomer] = useState<CustomerAccount | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [showNewPassword, setShowNewPassword] = useState<boolean>(false);
+  const [showEditPassword, setShowEditPassword] = useState<boolean>(false);
+
+  // Helper: Generate Random Secure Password
+  const generateRandomPassword = (): string => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$';
+    let pwd = 'Lega@';
+    for (let i = 0; i < 5; i++) {
+      pwd += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return pwd;
+  };
 
   // New Customer Form State
   const [newCustomer, setNewCustomer] = useState<{
     name: string;
     email: string;
     phone: string;
+    password: string;
     role: CustomerAccount['role'];
     plan: CustomerAccount['plan'];
     status: CustomerAccount['status'];
@@ -149,6 +163,7 @@ export const AdminPanel: React.FC = () => {
     name: '',
     email: '',
     phone: '',
+    password: 'Lega@' + Math.floor(1000 + Math.random() * 9000),
     role: 'USER',
     plan: 'MONTHLY',
     status: 'ACTIVE',
@@ -812,6 +827,62 @@ export const AdminPanel: React.FC = () => {
               </div>
             </div>
 
+            {/* Quick Demo Account Control Banner */}
+            <div className="p-4 rounded-2xl bg-stone-950 border border-amber-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${
+                  featureToggles.demo
+                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                    : 'bg-rose-500/10 border-rose-500/30 text-rose-400'
+                }`}>
+                  <Zap className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-stone-100">Sakelar Akses Akun Demo Publik</h3>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
+                      featureToggles.demo
+                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                        : 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
+                    }`}>
+                      {featureToggles.demo ? '● MODE DEMO AKTIF' : '■ MODE DEMO NONAKTIF'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-stone-400 mt-0.5">
+                    {featureToggles.demo
+                      ? 'Pengguna tamu dapat login cepat 1-klik & menggunakan akun demo 24 jam.'
+                      : 'Akses instan akun demo ditutup. Hanya pengguna terdaftar / berlisensi yang bisa masuk.'}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={async () => {
+                  const newDemoState = !featureToggles.demo;
+                  setFeatureToggles({ ...featureToggles, demo: newDemoState });
+                  const res = await updateDeveloperConfig({ enableDemoMode24h: newDemoState });
+                  if (res.success) {
+                    setDevConfig(res.config);
+                    setSaveSuccessNotice(
+                      newDemoState
+                        ? 'Akun Demo & Akses Cepat Tamu BERHASIL DIAKTIFKAN!'
+                        : 'Akun Demo & Akses Cepat Tamu BERHASIL DINONAKTIFKAN!'
+                    );
+                    setTimeout(() => setSaveSuccessNotice(''), 4000);
+                  }
+                }}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-2 shrink-0 ${
+                  featureToggles.demo
+                    ? 'bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40'
+                    : 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40'
+                }`}
+              >
+                <Power className="w-3.5 h-3.5" />
+                <span>{featureToggles.demo ? 'Nonaktifkan Akun Demo' : 'Aktifkan Akun Demo'}</span>
+              </button>
+            </div>
+
             {/* Filter and Search Bar */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="relative sm:col-span-2">
@@ -1022,6 +1093,44 @@ export const AdminPanel: React.FC = () => {
                     </div>
                   </div>
 
+                  <div>
+                    <label className="text-xs font-semibold text-stone-300 flex items-center justify-between">
+                      <span className="flex items-center gap-1.5">
+                        <Lock className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Kata Sandi Akun (Password) *</span>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setNewCustomer({ ...newCustomer, password: generateRandomPassword() })
+                        }
+                        className="text-[10px] text-amber-400 hover:underline flex items-center gap-1"
+                      >
+                        <Key className="w-3 h-3" />
+                        <span>Acak Sandi Baru</span>
+                      </button>
+                    </label>
+                    <div className="relative mt-1">
+                      <input
+                        type={showNewPassword ? 'text' : 'password'}
+                        required
+                        value={newCustomer.password}
+                        onChange={(e) => setNewCustomer({ ...newCustomer, password: e.target.value })}
+                        placeholder="Minimal 6 karakter..."
+                        className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 pr-10 text-xs font-mono text-stone-100 focus:outline-none focus:border-amber-400"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowNewPassword(!showNewPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200"
+                        title={showNewPassword ? 'Sembunyikan sandi' : 'Tampilkan sandi'}
+                      >
+                        {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                    <p className="text-[10px] text-stone-500 mt-0.5">Digunakan pelanggan untuk login bersama email di halaman masuk.</p>
+                  </div>
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="text-xs font-semibold text-stone-300">Paket Langganan</label>
@@ -1211,6 +1320,43 @@ export const AdminPanel: React.FC = () => {
                         className="w-full mt-1 bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-stone-100 focus:outline-none focus:border-amber-400"
                       />
                     </div>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold text-stone-300 flex items-center justify-between">
+                      <span className="flex items-center gap-1.5">
+                        <Lock className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Kata Sandi Akun (Password)</span>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setEditingCustomer({ ...editingCustomer, password: generateRandomPassword() })
+                        }
+                        className="text-[10px] text-amber-400 hover:underline flex items-center gap-1"
+                      >
+                        <Key className="w-3 h-3" />
+                        <span>Reset Sandi Baru</span>
+                      </button>
+                    </label>
+                    <div className="relative mt-1">
+                      <input
+                        type={showEditPassword ? 'text' : 'password'}
+                        value={editingCustomer.password || ''}
+                        onChange={(e) => setEditingCustomer({ ...editingCustomer, password: e.target.value })}
+                        placeholder="Ketik sandi baru jika ingin mengubah..."
+                        className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 pr-10 text-xs font-mono text-stone-100 focus:outline-none focus:border-amber-400"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowEditPassword(!showEditPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200"
+                        title={showEditPassword ? 'Sembunyikan sandi' : 'Tampilkan sandi'}
+                      >
+                        {showEditPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                    <p className="text-[10px] text-stone-500 mt-0.5">Ubah kata sandi login pelanggan ini jika diperlukan.</p>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">

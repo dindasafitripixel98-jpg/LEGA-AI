@@ -4689,60 +4689,68 @@ app.post('/api/developer/config', (req, res) => {
 
 // 12c. Test Service Connection (Gemini or Noiz AI)
 app.post('/api/developer/test-connection', async (req, res) => {
-  const { service, apiKey } = req.body;
   const start = Date.now();
+  try {
+    const { service, apiKey } = req.body || {};
 
-  if (service === 'gemini') {
-    try {
-      const client = getGeminiClient(apiKey);
-      const testRes = await client.models.generateContent({
-        model: 'gemini-3.7-flash',
-        contents: 'Ping test. Balas hanya 1 kata: "OK".',
-        config: { temperature: 0.1 }
-      });
-      const latencyMs = Date.now() - start;
-      const text = testRes.text || 'OK';
-      return res.json({
-        success: true,
-        latencyMs,
-        message: `Koneksi Google Gemini API Aktif & Cepat (${latencyMs}ms)`,
-        details: { response: text.trim(), model: 'gemini-3.7-flash' }
-      });
-    } catch (geminiErr: any) {
-      const latencyMs = Date.now() - start;
-      return res.json({
-        success: false,
-        latencyMs,
-        message: `Uji Gemini Gagal: ${geminiErr?.message || 'API Key tidak valid atau kuota habis.'}`
-      });
+    if (service === 'gemini') {
+      try {
+        const client = getGeminiClient(apiKey);
+        const testRes = await client.models.generateContent({
+          model: 'gemini-3.7-flash',
+          contents: 'Ping test. Balas hanya 1 kata: "OK".',
+          config: { temperature: 0.1 }
+        });
+        const latencyMs = Date.now() - start;
+        const text = testRes.text || 'OK';
+        return res.json({
+          success: true,
+          latencyMs,
+          message: `Koneksi Google Gemini API Aktif & Cepat (${latencyMs}ms)`,
+          details: { response: text.trim(), model: 'gemini-3.7-flash' }
+        });
+      } catch (geminiErr: any) {
+        const latencyMs = Date.now() - start;
+        return res.json({
+          success: false,
+          latencyMs,
+          message: `Uji Gemini Gagal: ${geminiErr?.message || 'API Key tidak valid atau kuota habis.'}`
+        });
+      }
     }
-  }
 
-  if (service === 'noiz') {
-    try {
-      const effectiveKey = getNoizApiKey(apiKey);
-      const testAudio = await callNoizAiTtsService('Tes suara Noiz AI', 'rina', 1.0, 'calm');
-      const latencyMs = Date.now() - start;
-      const hasAudio = !!(testAudio.audioBase64 || testAudio.audioDataUrl);
-      return res.json({
-        success: true,
-        latencyMs,
-        message: hasAudio
-          ? `Koneksi Noiz.ai TTS Audio Engine Berhasil (${latencyMs}ms)`
-          : `Noiz.ai terhubung dengan mode fallback audio cerdas (${latencyMs}ms)`,
-        details: { provider: testAudio.provider, hasAudio }
-      });
-    } catch (noizErr: any) {
-      const latencyMs = Date.now() - start;
-      return res.json({
-        success: false,
-        latencyMs,
-        message: `Uji Noiz AI TTS Gagal: ${noizErr?.message || 'Koneksi gagal'}`
-      });
+    if (service === 'noiz') {
+      try {
+        const testAudio = await callNoizAiTtsService('Tes suara Noiz AI', 'rina', 1.0, 'calm');
+        const latencyMs = Date.now() - start;
+        const hasAudio = !!(testAudio.audioBase64 || testAudio.audioDataUrl);
+        return res.json({
+          success: true,
+          latencyMs,
+          message: hasAudio
+            ? `Koneksi Noiz.ai TTS Audio Engine Berhasil (${latencyMs}ms)`
+            : `Noiz.ai terhubung dengan mode fallback audio cerdas (${latencyMs}ms)`,
+          details: { provider: testAudio.provider, hasAudio }
+        });
+      } catch (noizErr: any) {
+        const latencyMs = Date.now() - start;
+        return res.json({
+          success: false,
+          latencyMs,
+          message: `Uji Noiz AI TTS Gagal: ${noizErr?.message || 'Koneksi gagal'}`
+        });
+      }
     }
-  }
 
-  res.status(400).json({ success: false, error: 'Service tidak dikenali.' });
+    return res.status(400).json({ success: false, error: 'Service tidak dikenali.' });
+  } catch (fatalErr: any) {
+    const latencyMs = Date.now() - start;
+    return res.json({
+      success: false,
+      latencyMs,
+      message: `Terjadi kendala server: ${fatalErr?.message || 'Gagal memverifikasi'}`
+    });
+  }
 });
 
 // 12d. Get Customer Accounts
@@ -4757,7 +4765,7 @@ app.get('/api/developer/users', (req, res) => {
 // 12e. Create Customer Account
 app.post('/api/developer/users', (req, res) => {
   try {
-    const { user } = req.body;
+    const { user } = req.body || {};
     if (!user || !user.name || !user.email) {
       return res.status(400).json({ success: false, error: 'Nama dan Email pelanggan wajib diisi.' });
     }
@@ -4767,6 +4775,7 @@ app.post('/api/developer/users', (req, res) => {
       name: user.name,
       email: user.email,
       phone: user.phone || '',
+      password: user.password || '',
       role: user.role || 'USER',
       plan: user.plan || 'MONTHLY',
       status: user.status || 'ACTIVE',
@@ -4794,7 +4803,7 @@ app.post('/api/developer/users', (req, res) => {
 // 12f. Update Customer Account
 app.put('/api/developer/users/:id', (req, res) => {
   const { id } = req.params;
-  const { updates } = req.body;
+  const { updates } = req.body || {};
   const index = runtimeCustomerUsers.findIndex(u => u.id === id);
   if (index !== -1) {
     runtimeCustomerUsers[index] = { ...runtimeCustomerUsers[index], ...updates };
