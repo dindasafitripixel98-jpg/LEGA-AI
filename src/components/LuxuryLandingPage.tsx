@@ -152,6 +152,24 @@ export const LuxuryLandingPage: React.FC<LuxuryLandingPageProps> = ({
 
   return (
     <div className="min-h-screen bg-stone-950 text-stone-100 font-sans selection:bg-amber-500/30 selection:text-amber-200 overflow-x-hidden relative">
+      {/* 0. TOP PROMINENT BRAND BAR - SHAQILA DIGITAL 99 */}
+      <div className="bg-gradient-to-r from-stone-950 via-amber-950/70 to-stone-950 border-b border-amber-500/40 px-4 py-2 relative z-50 shadow-md">
+        <div className="max-w-7xl mx-auto flex items-center justify-between text-xs">
+          <div className="flex items-center gap-2.5 mx-auto sm:mx-0">
+            <span className="px-2.5 py-0.5 rounded-md bg-gradient-to-r from-amber-400 to-amber-300 text-stone-950 font-black text-[11px] tracking-wider uppercase shadow-sm">
+              SHAQILA DIGITAL 99
+            </span>
+            <span className="text-amber-200 font-bold text-[11px] sm:text-xs">
+              LEGA SHAQILA DIGITAL 99 &bull; Platform Kesadaran Diri, Pengelolaan Emosi &amp; Relaksasi Berbasis AI
+            </span>
+          </div>
+          <div className="hidden sm:flex items-center gap-2 text-stone-400 text-[11px]">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-sm shadow-emerald-400" />
+            <span className="text-emerald-300 font-medium">Aplikasi Resmi SHAQILA DIGITAL 99</span>
+          </div>
+        </div>
+      </div>
+
       {/* 1. LUXURY TOP NAVIGATION BAR */}
       <header className="sticky top-0 z-40 bg-stone-950/80 backdrop-blur-xl border-b border-stone-800/80 px-4 sm:px-8 py-3.5 transition-all">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -162,32 +180,32 @@ export const LuxuryLandingPage: React.FC<LuxuryLandingPageProps> = ({
               </div>
             </div>
             <div>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2">
                 <span className="font-extrabold text-lg tracking-wider text-stone-100 font-serif">
                   LEGA
                 </span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500/20 to-emerald-500/20 border border-amber-500/30 text-amber-300 font-mono font-semibold">
-                  PRO AI
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 font-black tracking-wider uppercase">
+                  SHAQILA DIGITAL 99
                 </span>
               </div>
               <p className="text-[10px] text-stone-400 font-medium tracking-tight">
-                Ruang Tenang & Pemulihan Batin
+                Platform Kesadaran Diri, Pengelolaan Emosi &amp; Relaksasi Berbasis AI
               </p>
             </div>
           </div>
 
           <div className="hidden md:flex items-center gap-7 text-xs font-medium text-stone-300">
             <a href="#fitur-utama" className="hover:text-amber-300 transition-colors">
-              Fitur Mewah
+              Fitur Utama
             </a>
             <a href="#6-suara-pemandu" className="hover:text-amber-300 transition-colors">
-              6 Suara AI
+              6 Suara Pemandu
             </a>
             <a href="#tes-stres" className="hover:text-amber-300 transition-colors">
-              Cek Beban Pikiran
+              Cek Emosi
             </a>
             <a href="#testimoni" className="hover:text-amber-300 transition-colors">
-              Ulasan Nyata
+              Ulasan
             </a>
             <a href="#faq" className="hover:text-amber-300 transition-colors">
               FAQ
@@ -207,14 +225,14 @@ export const LuxuryLandingPage: React.FC<LuxuryLandingPageProps> = ({
               onClick={onGetStarted}
               className="px-4 sm:px-5 py-2 rounded-xl text-xs font-bold text-stone-950 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 hover:from-amber-300 hover:to-amber-200 shadow-lg shadow-amber-500/25 transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center gap-1.5"
             >
-              <span>Coba Gratis</span>
+              <span>Mulai Sekarang</span>
               <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
             </button>
           </div>
         </div>
       </header>
 
-      {/* 2. HERO SECTION - HIGH CTR CLICKBAIT HOOK WITH LUXURY ATMOSPHERE */}
+      {/* 2. HERO SECTION */}
       <section className="relative pt-12 pb-20 sm:pt-20 sm:pb-28 px-4 sm:px-8 overflow-hidden">
         {/* Background Luxury Ambient Lighting */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] sm:w-[900px] h-[450px] bg-gradient-to-tr from-amber-500/15 via-emerald-500/10 to-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
@@ -222,50 +240,56 @@ export const LuxuryLandingPage: React.FC<LuxuryLandingPageProps> = ({
         <div className="absolute bottom-10 right-10 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="max-w-5xl mx-auto text-center space-y-7 relative z-10">
-          {/* Top High CTR Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-stone-900/90 border border-amber-500/30 text-amber-200 text-xs font-medium shadow-xl shadow-amber-950/40 backdrop-blur-md animate-pulse">
+          {/* Top Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-stone-900/90 border border-amber-500/30 text-amber-200 text-xs font-medium shadow-xl shadow-amber-950/40 backdrop-blur-md">
             <Sparkle className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-            <span className="font-semibold text-amber-300">94% Merasakan Pikiran Langsung Tenang</span>
-            <span className="text-stone-400 hidden sm:inline">• Dalam 3 Menit Pertama</span>
+            <span className="font-bold text-amber-300">LEGA SHAQILA DIGITAL 99</span>
+            <span className="text-stone-400 hidden sm:inline">• Kesadaran Diri, Pengelolaan Emosi &amp; Relaksasi AI</span>
           </div>
 
-          {/* Luxury High-Converting Headline */}
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.15] text-stone-100 font-serif">
-            Hentikan Badai Pikiran &amp; Beban Batin.{' '}
-            <span className="bg-gradient-to-r from-amber-200 via-amber-400 to-emerald-300 bg-clip-text text-transparent underline decoration-amber-500/40 decoration-wavy decoration-1 underline-offset-8">
-              Kembalikan Ketenangan Jiwa Anda
-            </span>{' '}
-            Malam Ini.
+          {/* Main Headline */}
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.2] text-stone-100 font-serif">
+            LEGA SHAQILA DIGITAL 99
           </h1>
 
-          {/* Subtitle with High Psychological Value */}
-          <p className="text-base sm:text-lg text-stone-300 max-w-3xl mx-auto leading-relaxed font-normal">
-            Platform pemulihan emosi &amp; relaksasi somatis berbasis AI nomor satu di Indonesia. 
-            Dipadukan dengan <strong className="text-stone-100 font-semibold">6 karakter suara pemandu binaural</strong>, 
-            frekuensi penyembuh <strong className="text-amber-300 font-semibold">432Hz &amp; 528Hz</strong>, dan 
-            pendampingan emosional tanpa penghakiman.
+          <p className="text-lg sm:text-2xl font-semibold text-amber-200 max-w-3xl mx-auto">
+            Platform kesadaran diri, pengelolaan emosi &amp; relaksasi berbasis AI.
           </p>
 
-          {/* High-Converting Primary CTA Action Group */}
+          <p className="text-base sm:text-lg text-stone-300 max-w-3xl mx-auto leading-relaxed">
+            Ruang digital untuk mengenal diri, memahami emosi, dan menemukan ketenangan.
+          </p>
+
+          {/* Detailed Platform Capabilities Block */}
+          <div className="max-w-3xl mx-auto p-5 sm:p-6 rounded-2xl bg-stone-900/80 border border-stone-800 backdrop-blur-md text-stone-300 text-sm sm:text-base leading-relaxed text-center space-y-3">
+            <p>
+              Dilengkapi dengan <strong className="text-stone-100 font-semibold">AI Coach</strong>, <strong className="text-stone-100 font-semibold">Emotion Analyzer</strong>, latihan pelepasan emosi, refleksi diri, pengamatan emosi, audio relaksasi dengan berbagai suasana alam, dan <strong className="text-amber-300 font-semibold">6 pilihan suara pemandu</strong> yang dapat disesuaikan dengan pengalaman pengguna.
+            </p>
+            <p className="text-amber-200/90 font-medium italic">
+              Pendampingan dilakukan dengan pendekatan yang hangat, tenang, dan tanpa penghakiman.
+            </p>
+          </div>
+
+          {/* Primary Action Group */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-3">
             <button
               onClick={onGetStarted}
               className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 hover:from-amber-300 hover:to-amber-200 text-stone-950 font-extrabold text-base shadow-2xl shadow-amber-500/40 hover:shadow-amber-400/60 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2.5 group"
             >
               <Zap className="w-5 h-5 text-stone-950 fill-stone-950" />
-              <span>Mulai Pulihkan Ketenangan Sekarang</span>
+              <span>Masuk Ruang Tenang Sekarang</span>
               <ArrowRight className="w-4 h-4 stroke-[3] group-hover:translate-x-1 transition-transform" />
             </button>
 
             <button
               onClick={() => {
-                const el = document.getElementById('tes-stres');
+                const el = document.getElementById('6-suara-pemandu');
                 if (el) el.scrollIntoView({ behavior: 'smooth' });
               }}
               className="w-full sm:w-auto px-6 py-4 rounded-2xl bg-stone-900/90 hover:bg-stone-800 border border-stone-700 hover:border-amber-500/50 text-stone-200 font-semibold text-sm transition-all flex items-center justify-center gap-2"
             >
-              <Activity className="w-4 h-4 text-emerald-400" />
-              <span>Cek Tingkat Beban Batin Anda (30 Detik)</span>
+              <Headphones className="w-4 h-4 text-amber-400" />
+              <span>Dengarkan 6 Pilihan Suara Pemandu</span>
             </button>
           </div>
 

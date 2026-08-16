@@ -68,11 +68,11 @@ export const Header: React.FC<HeaderProps> = ({
 
   const currentInfo = MODULE_TITLES[currentModule] || {
     title: 'LEGA SHAQILA DIGITAL 99',
-    subtitle: 'Lepaskan • Eksplorasi • Gali • Amati',
+    subtitle: 'Platform Kesadaran Diri, Pengelolaan Emosi & Relaksasi Berbasis AI',
   };
 
   return (
-    <header className="sticky top-0 z-30 bg-stone-900/90 backdrop-blur-md border-b border-stone-800/80 px-4 py-3.5 flex items-center justify-between transition-all">
+    <header className="sticky top-0 z-30 bg-stone-900/95 backdrop-blur-md border-b border-stone-800/80 px-4 py-3 flex items-center justify-between transition-all shadow-md">
       <div className="flex items-center gap-3">
         <button
           onClick={onToggleMobile}
@@ -82,10 +82,15 @@ export const Header: React.FC<HeaderProps> = ({
           <Menu className="w-5 h-5" />
         </button>
         <div>
-          <h2 className="text-base md:text-lg font-bold text-stone-100 flex items-center gap-2">
-            {currentInfo.title}
-          </h2>
-          <p className="text-xs text-stone-400 hidden sm:block">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="px-2 py-0.5 rounded-md bg-gradient-to-r from-amber-400 to-amber-300 text-stone-950 font-black text-[10px] sm:text-[11px] tracking-wider uppercase shadow-sm">
+              SHAQILA DIGITAL 99
+            </span>
+            <h2 className="text-sm md:text-base font-bold text-stone-100 flex items-center gap-1.5">
+              LEGA &bull; {currentInfo.title}
+            </h2>
+          </div>
+          <p className="text-[11px] text-stone-400 hidden sm:block">
             {currentInfo.subtitle}
           </p>
         </div>

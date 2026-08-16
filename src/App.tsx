@@ -458,6 +458,25 @@ export default function App() {
 
       {/* Main Content Viewport */}
       <div className="flex-1 flex flex-col h-screen overflow-y-auto min-w-0 bg-stone-950">
+        {/* TOP BRANDING BAR - SHAQILA DIGITAL 99 */}
+        <div className="bg-gradient-to-r from-stone-950 via-stone-900 to-stone-950 border-b border-amber-500/30 px-3 sm:px-4 py-1.5 flex items-center justify-between text-[11px] text-amber-200 shrink-0 shadow-sm z-40">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse shadow-sm shadow-amber-400" />
+            <span className="font-black tracking-widest text-amber-300 uppercase text-[10px] sm:text-[11px] bg-amber-400/20 px-2 py-0.5 rounded border border-amber-400/30">
+              SHAQILA DIGITAL 99
+            </span>
+            <span className="text-stone-500 hidden md:inline">&bull;</span>
+            <span className="text-stone-300 font-medium hidden md:inline text-[11px]">
+              LEGA — Platform AI Kesadaran Diri & Audio Relaksasi Tenang
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-[9px] sm:text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 font-semibold tracking-wider">
+              PRODUKSI RESMI SHAQILA DIGITAL 99
+            </span>
+          </div>
+        </div>
+
         {/* Top 24-Hour Demo Notification Status Bar */}
         <DemoBanner
           demoState={demoState}

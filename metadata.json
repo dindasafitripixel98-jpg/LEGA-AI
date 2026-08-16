@@ -1,6 +1,6 @@
 {
-  "name": "LEGA - AI Self Awareness Platform",
-  "description": "LEGA SHAQILA DIGITAL 99 — Lepaskan • Eksplorasi • Gali • Amati. Platform Kesadaran Diri & Pengelolaan Emosi oleh SHAQILA DIGITAL 99.",
+  "name": "LEGA SHAQILA DIGITAL 99",
+  "description": "LEGA SHAQILA DIGITAL 99 — Platform kesadaran diri, pengelolaan emosi & relaksasi berbasis AI. Ruang digital untuk mengenal diri, memahami emosi, dan menemukan ketenangan. Dilengkapi dengan AI Coach, Emotion Analyzer, latihan pelepasan emosi, refleksi diri, pengamatan emosi, audio relaksasi dengan berbagai suasana alam, dan 6 pilihan suara pemandu yang dapat disesuaikan dengan pengalaman pengguna. Pendampingan dilakukan dengan pendekatan yang hangat, tenang, dan tanpa penghakiman.",
   "requestFramePermissions": ["microphone"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

@@ -46,7 +46,7 @@ import {
   Filter
 } from 'lucide-react';
 import { ModuleType, NatureSoundType, AmbientMusicType, AudioRelaxationMetadata } from '../types';
-import { generateAudioScript, generateGeminiTts } from '../lib/geminiApi';
+import { generateAudioScript, generateGeminiTts, generateNoizAiTts, previewNoizVoice } from '../lib/geminiApi';
 import {
   pcmToWavBlobUrl,
   generateRelaxationSoundscapeWav,
@@ -69,7 +69,11 @@ import {
   setStoredVoiceName,
   getStoredVoiceName,
   previewVoiceCharacterAudio,
-  stopVoicePreview
+  previewNoizAiVoiceAudio,
+  stopVoicePreview,
+  NOIZ_VOICES,
+  setStoredVoiceEngine,
+  getStoredVoiceEngine
 } from '../lib/voiceService';
 
 interface AudioPlayerViewProps {
@@ -255,7 +259,7 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
     subcategory: 'Kesadaran Diri & Ketenangan Pikiran',
     duration: '15 Menit / Loop Latar',
     desc: 'Audio relaksasi universal LEGA: Paduan air mengalir lembut, kicau burung natural & jauh, semilir angin pepohonan, serta piano ambient 432Hz hangat yang menjadi latar tipis menenangkan tanpa suara mengejutkan.',
-    purposes: ['semua', 'latihan-lega', 'istirahat-meditasi', 'menenangkan-pikiran', 'bekerja-belajar', 'menjelang-tidur'],
+    purposes: ['semua', 'musik-tenang', 'latihan-lega', 'istirahat-meditasi', 'menenangkan-pikiran', 'bekerja-belajar', 'menjelang-tidur'],
     purposeLabels: ['Latihan LEGA', 'Menenangkan Pikiran', 'Semua Kebutuhan'],
     tagline: 'Temani dirimu berhenti sejenak, hadir saat ini, dan menikmati ketenangan di pangkuan alam.',
     sampleScript: 'Selamat datang di ruang tenang Anda. Ambil posisi yang nyaman dan biarkan tubuh Anda bersandar dengan rileks. Rasakan aliran udara sejuk masuk saat Anda menarik napas, dan lepaskan seluruh ketegangan saat Anda menghembuskannya perlahan. [Jeda 4 detik] Dengarkan gemericik air yang mengalir lembut... desau angin yang menaungi pepohonan... dan kicau burung di kejauhan. Biarkan alunan musik ringan dan hangat ini menemani Anda hadir seutuhnya di saat ini. Di sini, Anda aman, tenang, dan utuh.',
@@ -287,7 +291,7 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
     subcategory: 'Pelepasan Amarah & Ketenangan Batin',
     duration: '15 Menit',
     desc: 'Musik petikan gitar akustik lembut, stabil, tidak ramai, dan ritme perlahan berpadu angin sejuk pepohonan dan arus air yang menenangkan gelora amarah.',
-    purposes: ['semua', 'latihan-lega', 'emosi-spesifik', 'menenangkan-pikiran'],
+    purposes: ['semua', 'musik-tenang', 'latihan-lega', 'emosi-spesifik', 'menenangkan-pikiran'],
     purposeLabels: ['Marah', 'Pelepasan Emosi', 'Ketenangan'],
     sampleScript: 'Sadari rasa marah yang sedang hadir di dalam diri Anda. Anda tidak perlu melawannya atau menekannya. Izinkan napas Anda mengalir perlahan... Dengarkan semilir angin yang menaungi pepohonan dan arus air yang senantiasa mengalir. Bersama setiap hembusan napas, lepaskan ketegangan di rahang, leher, dan dada Anda. Anda aman di sini.',
     natureTypes: ['angin-pepohonan', 'aliran-sungai'],
@@ -311,7 +315,7 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
     subcategory: 'Ruang Hangat Merasakan Kesedihan',
     duration: '15 Menit',
     desc: 'Musik akustik lembut dan hangat yang memberi ruang merasakan kesedihan tanpa membuat suasana semakin berat, ditemani rintik hujan ringan dan gemericik air sejuk.',
-    purposes: ['semua', 'latihan-lega', 'emosi-spesifik', 'menenangkan-pikiran'],
+    purposes: ['semua', 'musik-tenang', 'latihan-lega', 'emosi-spesifik', 'menenangkan-pikiran'],
     purposeLabels: ['Sedih', 'Welas Asih', 'Ruang Hangat'],
     sampleScript: 'Izinkan diri Anda merasakan apa pun yang sedang hadir. Kesedihan adalah bukti bahwa ada hal berharga yang Anda pedulikan. Dengarkan rintik hujan lembut yang menyejukkan... Rasakan kehangatan musik yang menemani Anda tanpa menuntut apa pun. Berikan pelukan kasih sayang pada diri Anda sendiri saat ini.',
     natureTypes: ['hujan-lembut', 'gemericik-air'],
@@ -335,7 +339,7 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
     subcategory: 'Kestabilan & Ketenangan Batin',
     duration: '15 Menit',
     desc: 'Musik kalimba & harpa relaksasi yang stabil, ringan, dan menenangkan tanpa perubahan nada mendadak, berpadu suara air mengalir stabil dan semilir angin.',
-    purposes: ['semua', 'latihan-lega', 'emosi-spesifik', 'menenangkan-pikiran'],
+    purposes: ['semua', 'musik-tenang', 'latihan-lega', 'emosi-spesifik', 'menenangkan-pikiran'],
     purposeLabels: ['Cemas', 'Kestabilan Batin', 'Grounding'],
     sampleScript: 'Tarik napas perlahan... dan hembuskan dengan lembut. Sadari bahwa saat ini Anda berada di tempat yang aman. Dengarkan aliran air yang mengalir stabil di hadapan Anda... dan petikan nada lembut yang konstan. Pikiran Anda mungkin sedang mengembara ke masa depan, namun tubuh Anda ada di sini, aman dan terlindungi.',
     natureTypes: ['aliran-sungai', 'angin-pepohonan'],
@@ -359,7 +363,7 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
     subcategory: 'Rasa Aman & Perlindungan Jiwa',
     duration: '15 Menit',
     desc: 'Musik instrumen akustik yang terasa aman, lembut, hangat, dan menaungi di bawah keteduhan kanopi hutan alami yang tenang dan damai.',
-    purposes: ['semua', 'latihan-lega', 'emosi-spesifik', 'istirahat-meditasi'],
+    purposes: ['semua', 'musik-tenang', 'latihan-lega', 'emosi-spesifik', 'istirahat-meditasi'],
     purposeLabels: ['Takut', 'Rasa Aman', 'Perlindungan'],
     sampleScript: 'Anda tidak sendirian. Sadari telapak kaki Anda yang menopang ke bumi. Masuki keteduhan kanopi hutan yang kokoh dan melindungi Anda dari segala badai. Rasakan kehangatan nada musik yang menyelimuti tubuh Anda. Ambil napas dalam... di dalam ruang ini, Anda aman dan berdaya.',
     natureTypes: ['hutan-alami', 'angin-pepohonan'],
@@ -383,7 +387,7 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
     subcategory: 'Refleksi Batin & Pelepasan Ekspektasi',
     duration: '15 Menit',
     desc: 'Musik petikan gitar reflektif yang lembut dan hangat, menuntun pelepasan beban kekecewaan bersama aliran air sungai dan semilir dedaunan.',
-    purposes: ['semua', 'latihan-lega', 'emosi-spesifik', 'istirahat-meditasi'],
+    purposes: ['semua', 'musik-tenang', 'latihan-lega', 'emosi-spesifik', 'istirahat-meditasi'],
     purposeLabels: ['Kecewa', 'Refleksi Diri', 'Pelepasan'],
     sampleScript: 'Kekecewaan hadir ketika harapan kita belum sesuai dengan kenyataan. Biarkan diri Anda bernapas bersama rasa ini... Dengarkan petikan gitar reflektif dan air yang mengalir melepaskan bebannya. Apa yang terjadi biarlah berlalu. Saat ini, Anda berhak memulihkan batin Anda kembali.',
     natureTypes: ['aliran-sungai', 'angin-pepohonan'],
@@ -407,7 +411,7 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
     subcategory: 'Pengheningan Pikiran & Jeda Mental',
     duration: '15 Menit',
     desc: 'Musik ambient sederhana, stabil, dan minimalis tanpa banyak melodi agar pikiran tidak semakin ramai, didukung aliran air stabil dan gemericik air sejuk.',
-    purposes: ['semua', 'latihan-lega', 'emosi-spesifik', 'menenangkan-pikiran'],
+    purposes: ['semua', 'musik-tenang', 'latihan-lega', 'emosi-spesifik', 'menenangkan-pikiran'],
     purposeLabels: ['Overthinking', 'Jeda Mental', 'Hening'],
     sampleScript: 'Pikiran Anda telah bekerja sangat keras hari ini. Sekarang adalah waktunya beristirahat. Anda tidak perlu menganalisis atau memecahkan apa pun saat ini. Fokuskan pendengaran Anda hanya pada aliran air yang konstan dan jernih. Setiap kali pikiran muncul, biarkan ia mengalir seperti daun di atas air sungai.',
     natureTypes: ['aliran-sungai', 'gemericik-air'],
@@ -431,7 +435,7 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
     subcategory: 'Kesadaran Momen Ini & Kejernihan Indrawi',
     duration: '15 Menit',
     desc: 'Musik minimalis yang sangat ringan dan natural, membiarkan suara alam terbuka, kicau burung alami di kejauhan, dan semilir angin menjadi LEBIH dominan.',
-    purposes: ['semua', 'latihan-lega', 'emosi-spesifik', 'menenangkan-pikiran'],
+    purposes: ['semua', 'musik-tenang', 'latihan-lega', 'emosi-spesifik', 'menenangkan-pikiran'],
     purposeLabels: ['Presence', 'Hadir Saat Ini', 'Kejernihan'],
     sampleScript: 'Bawa seluruh kesadaran Anda ke momen ini. Rasakan udara yang menyentuh kulit... dengarkan kicau burung fajar yang bergema di kejauhan... dan semilir angin di padang rumput terbuka. Tidak ada masa lalu, tidak ada masa depan. Hanya ada keheningan dan kehidupan di saat ini.',
     natureTypes: ['suasana-alam-tenang', 'burung-pagi', 'angin-pepohonan'],
@@ -455,7 +459,7 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
     subcategory: 'Pengamatan & Relaksasi Somatis',
     duration: '15 Menit',
     desc: 'Musik perlahan dan stabil dengan resonansi mangkuk Tibet 528Hz dan pad somatis, menuntun pemindaian tubuh secara bertahap bersama arus air pegunungan.',
-    purposes: ['semua', 'latihan-lega', 'emosi-spesifik', 'istirahat-meditasi'],
+    purposes: ['semua', 'musik-tenang', 'latihan-lega', 'emosi-spesifik', 'istirahat-meditasi'],
     purposeLabels: ['Body Awareness', 'Somatis', 'Relaksasi Otot'],
     sampleScript: 'Arahkan perhatian lembut Anda ke seluruh tubuh. Mulai dari ujung jari kaki... naik perlahan ke betis... paha... perut... hingga pundak dan wajah. Rasakan resonansi mangkuk hening dan aliran air yang merelakskan setiap serat otot Anda. Setiap napas masuk membawa ketenangan, setiap napas keluar melepaskan beban.',
     natureTypes: ['aliran-sungai', 'angin-pepohonan'],
@@ -479,7 +483,7 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
     subcategory: 'Katarsis & Kelegaan Batin',
     duration: '15 Menit',
     desc: 'Musik pelepasan dinamis yang mengalun lembut menyesuaikan emosi yang diproses, diiringi paduan arus air bebas, semilir angin, dan deburan ombak berirama.',
-    purposes: ['semua', 'latihan-lega', 'emosi-spesifik', 'menenangkan-pikiran'],
+    purposes: ['semua', 'musik-tenang', 'latihan-lega', 'emosi-spesifik', 'menenangkan-pikiran'],
     purposeLabels: ['Release', 'Pelepasan Emosi', 'Katarsis'],
     sampleScript: 'Tarik napas dalam-dalam memenuhi rongga dada Anda... tahan sejenak... dan hembuskan dengan kelegaan yang utuh melalui mulut. Lepaskan apa pun yang selama ini Anda genggam dengan erat. Dengarkan perpaduan arus air dan angin bebas. Biarkan diri Anda merasa lega, ringan, dan bebas.',
     natureTypes: ['aliran-sungai', 'angin-pepohonan', 'ombak-pantai'],
@@ -503,7 +507,7 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
     subcategory: 'Istirahat Malam & Tidur Lelap',
     duration: '15 Menit',
     desc: 'Musik tidur hening, sangat lembut, stabil, dan bertempo perlahan (Delta-Sleep 432Hz), dipadukan desau angin malam, jangkrik halus, dan rintik hujan lembut.',
-    purposes: ['semua', 'menjelang-tidur', 'emosi-spesifik', 'istirahat-meditasi'],
+    purposes: ['semua', 'musik-tenang', 'menjelang-tidur', 'emosi-spesifik', 'istirahat-meditasi'],
     purposeLabels: ['Tidur Lelap', 'Istirahat Malam', 'Delta Sleep'],
     sampleScript: 'Hari ini telah usai, dan Anda telah melakukan yang terbaik. Biarkan tubuh Anda tenggelam dalam kelembutan kasur yang nyaman. Dengarkan suara malam yang hening dan rintik hujan yang menentramkan. Pejamkan mata Anda... biarkan pikiran Anda melayang dalam kedamaian... Selamat beristirahat dalam tidur yang lelap.',
     natureTypes: ['suasana-malam', 'hujan-lembut'],
@@ -575,7 +579,7 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
     subcategory: 'Relaksasi Mendalam & Transendental',
     duration: '30 Menit / Loop Latar',
     desc: 'Frekuensi binaural 6Hz penuntun gelombang otak theta untuk relaksasi meditatif tingkat lanjut berpadu deburan ombak laut dalam yang berirama sangat lambat dan stabil.',
-    purposes: ['semua', 'gelombang-otak', 'istirahat-meditasi', 'menenangkan-pikiran'],
+    purposes: ['semua', 'musik-tenang', 'gelombang-otak', 'istirahat-meditasi', 'menenangkan-pikiran'],
     purposeLabels: ['Theta 6Hz', 'Binaural Beat', 'Relaksasi Sangat Dalam'],
     sampleScript: 'Gunakan earphone atau headset untuk merasakan gelombang binaural 6Hz ini. Rasakan ritme ombak samudra malam yang menyelaraskan gelombang otak Anda menuju keadaan relaksasi yang sangat dalam. Tubuh Anda terasa ringan dan mengambang bebas.',
     natureTypes: ['ombak-samudra-dalam', 'suasana-malam'],
@@ -599,7 +603,7 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
     subcategory: 'Pengantar Tidur Pulas & Pemulihan Syaraf',
     duration: '45 Menit / Loop Latar',
     desc: 'Frekuensi delta 3.2Hz penenang sistem syaraf otonom dipadukan progresi nada tuts piano malam bertempo sangat lambat dan desau angin malam yang menidurkan.',
-    purposes: ['semua', 'gelombang-otak', 'menjelang-tidur', 'istirahat-meditasi'],
+    purposes: ['semua', 'musik-tenang', 'gelombang-otak', 'menjelang-tidur', 'istirahat-meditasi'],
     purposeLabels: ['Delta 3Hz', 'Tidur Pulas', 'Atasi Insomnia'],
     sampleScript: 'Biarkan alunan gelombang delta 3Hz dan tuts piano malam yang sangat lembut ini meredakan setiap aktivitas pikiran Anda. Lepaskan kendali... biarkan tubuh Anda melayang dan tenggelam ke dalam tidur yang tenang dan lelap.',
     natureTypes: ['suasana-malam', 'angin-pepohonan'],
@@ -740,8 +744,8 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
   const [showMetadataDrawer, setShowMetadataDrawer] = useState<boolean>(true);
   const [presetPurposeFilter, setPresetPurposeFilter] = useState<AudioPurposeTag>('semua');
 
-  // Audio Engine & Playback Options
-  const [playbackSource, setPlaybackSource] = useState<'gemini_tts' | 'web_speech' | 'ambient_music'>('gemini_tts');
+  // Audio Engine & Playback Options (NOIZ AI TTS vs Gemini TTS vs Web Speech vs Pure Soundscape)
+  const [playbackSource, setPlaybackSource] = useState<'noiz_tts' | 'gemini_tts' | 'web_speech' | 'ambient_music'>('noiz_tts');
 
   // Dedicated Audio Refs for Voice and Background Soundscape
   const voiceAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -877,7 +881,7 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
     }
   };
 
-  // Preview Indonesian Voice Character Sample (iOS, Android, Tablet, PC ready)
+  // Preview Voice Character Sample (Supports NOIZ AI and Gemini Voice Characters)
   const handlePreviewVoice = (vName: string) => {
     if (previewingVoiceName === vName) {
       stopVoicePreview();
@@ -891,12 +895,22 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
     setStoredVoiceName(vName);
     setAudioUrl(null);
 
-    previewVoiceCharacterAudio(
-      vName,
-      () => setPreviewingVoiceName(vName),
-      () => setPreviewingVoiceName(null),
-      () => setPreviewingVoiceName(null)
-    );
+    // If using Noiz TTS engine or a Noiz-specific voice, use Noiz preview
+    if (playbackSource === 'noiz_tts' || vName.toLowerCase().includes('noiz') || NOIZ_VOICES.some(v => v.id === vName.toLowerCase() || v.name.toLowerCase() === vName.toLowerCase())) {
+      previewNoizAiVoiceAudio(
+        vName,
+        () => setPreviewingVoiceName(vName),
+        () => setPreviewingVoiceName(null),
+        () => setPreviewingVoiceName(null)
+      );
+    } else {
+      previewVoiceCharacterAudio(
+        vName,
+        () => setPreviewingVoiceName(vName),
+        () => setPreviewingVoiceName(null),
+        () => setPreviewingVoiceName(null)
+      );
+    }
   };
 
   // Test Tibetan Bell Chime
@@ -904,15 +918,15 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
     playCalmMeditationChime('bowl', 0.25);
   };
 
-  // Start Playback by current Mode
+  // Start Playback by current Mode (NOIZ AI TTS, Gemini TTS, Web Speech, or Pure Soundscape)
   const startPlaybackForMode = async (
-    mode: 'gemini_tts' | 'web_speech' | 'ambient_music',
+    mode: 'noiz_tts' | 'gemini_tts' | 'web_speech' | 'ambient_music',
     scriptText?: string,
-    geminiAudioUrl?: string | null,
+    providedAudioUrl?: string | null,
     selectedVoice?: string
   ) => {
     const textToSpeak = scriptText || generatedScriptData?.cleanScriptForTTS || generatedScriptData?.script || PRESET_LIBRARY[0].sampleScript;
-    let targetUrl = geminiAudioUrl !== undefined ? geminiAudioUrl : audioUrl;
+    let targetUrl = providedAudioUrl !== undefined ? providedAudioUrl : audioUrl;
     const currentVoice = selectedVoice || voiceName;
     const charProfile = getVoiceCharacter(currentVoice);
 
@@ -950,8 +964,68 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
         }
       });
       setIsPlaying(true);
+    } else if (mode === 'noiz_tts') {
+      // ⚡ NOIZ AI TTS Mode (Ultra-realistic Indonesian voice)
+      stopVoicePreview();
+      stopIndonesianNarration();
+
+      // If URL not yet generated, attempt fast generate via Noiz AI
+      if (!targetUrl) {
+        try {
+          const noizRes = await generateNoizAiTts(textToSpeak, currentVoice);
+          if (noizRes?.audioDataUrl) {
+            targetUrl = noizRes.audioDataUrl;
+            setAudioUrl(targetUrl);
+          }
+        } catch (noizErr) {
+          console.warn('Noiz AI TTS runtime fetch note:', noizErr);
+        }
+      }
+
+      // If Noiz failed, fallback to Gemini TTS
+      if (!targetUrl) {
+        try {
+          const rawAudio = await generateGeminiTts(textToSpeak, currentVoice as any);
+          if (rawAudio) {
+            targetUrl = (rawAudio.startsWith('data:') || rawAudio.startsWith('blob:') || rawAudio.startsWith('http'))
+              ? rawAudio
+              : pcmToWavBlobUrl(rawAudio, 24000);
+            setAudioUrl(targetUrl);
+          }
+        } catch (geminiErr) {
+          console.warn('Gemini TTS fallback note:', geminiErr);
+        }
+      }
+
+      if (targetUrl && voiceAudioRef.current) {
+        voiceAudioRef.current.src = targetUrl;
+        voiceAudioRef.current.volume = isMuted ? 0 : masterVolume * (narrationVolumePct / 100);
+        voiceAudioRef.current.play()
+          .then(() => setIsPlaying(true))
+          .catch(() => {
+            // Fallback to Web Speech with Character + Soundscape
+            speakIndonesianNarration(textToSpeak, {
+              voiceCharacter: currentVoice,
+              voiceName: currentVoice,
+              rate: charProfile.rate ?? 0.80,
+              pitch: charProfile.pitch ?? 1.0,
+              volume: isMuted ? 0 : (narrationVolumePct / 100) * masterVolume
+            });
+            setIsPlaying(true);
+          });
+      } else {
+        // Fallback to Web Speech with Character + Soundscape
+        speakIndonesianNarration(textToSpeak, {
+          voiceCharacter: currentVoice,
+          voiceName: currentVoice,
+          rate: charProfile.rate ?? 0.80,
+          pitch: charProfile.pitch ?? 1.0,
+          volume: isMuted ? 0 : (narrationVolumePct / 100) * masterVolume
+        });
+        setIsPlaying(true);
+      }
     } else {
-      // Gemini TTS Mode
+      // ✨ Gemini TTS Mode (Google AI Neural TTS)
       stopVoicePreview();
       stopIndonesianNarration();
 
@@ -1000,9 +1074,16 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
     }
   };
 
-  // Switch Audio Engine Mode
-  const handleSelectPlaybackSource = (newMode: 'gemini_tts' | 'web_speech' | 'ambient_music') => {
+  // Switch Audio Engine Mode (NOIZ AI TTS, Gemini TTS, Web Speech, Soundscape)
+  const handleSelectPlaybackSource = (newMode: 'noiz_tts' | 'gemini_tts' | 'web_speech' | 'ambient_music') => {
     setPlaybackSource(newMode);
+    if (newMode === 'noiz_tts') {
+      setStoredVoiceEngine('noiz-ai');
+    } else if (newMode === 'gemini_tts') {
+      setStoredVoiceEngine('gemini-tts');
+    } else if (newMode === 'web_speech') {
+      setStoredVoiceEngine('web-speech');
+    }
     if (isPlaying) {
       startPlaybackForMode(newMode);
     }
@@ -1055,7 +1136,21 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
       const ttsText = scriptData?.cleanScriptForTTS || scriptData?.script || 'Mari kita hening sejenak...';
 
       let newVoiceUrl: string | null = null;
-      if (playbackSource === 'gemini_tts') {
+
+      // 2. Generate Audio according to selected TTS Engine
+      if (playbackSource === 'noiz_tts') {
+        try {
+          const noizRes = await generateNoizAiTts(ttsText, voiceName);
+          if (noizRes?.audioDataUrl) {
+            newVoiceUrl = noizRes.audioDataUrl;
+          }
+        } catch (noizErr) {
+          console.warn('Noiz AI TTS generation note:', noizErr);
+        }
+      }
+
+      // If Gemini TTS is selected or if Noiz TTS returned no audio
+      if (!newVoiceUrl && (playbackSource === 'gemini_tts' || playbackSource === 'noiz_tts')) {
         try {
           const rawAudio = await generateGeminiTts(ttsText, voiceName as any);
           if (rawAudio) {
@@ -1081,8 +1176,8 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
     }
   };
 
-  // Play Preset Track
-  const handlePlayPreset = async (preset: typeof PRESET_LIBRARY[0]) => {
+  // Play Preset Track (Direct Pure Music Soundscape or with Voice Narration)
+  const handlePlayPreset = async (preset: typeof PRESET_LIBRARY[0], mode: 'pure_music' | 'with_narration' = 'pure_music') => {
     setIsGenerating(true);
     stopIndonesianNarration();
     if (voiceAudioRef.current) voiceAudioRef.current.pause();
@@ -1094,7 +1189,7 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
     setSelectedNatureSounds(presetNats);
     setNatureSound(presetNats[0] || preset.metadata.natureSoundType);
     setAmbientMusic(preset.metadata.ambientMusicType);
-    setNarrationVolumePct(preset.metadata.narrationVolume);
+    setNarrationVolumePct(mode === 'pure_music' ? 0 : preset.metadata.narrationVolume);
     setNatureVolumePct(preset.metadata.natureVolume);
     setMusicVolumePct(preset.metadata.musicVolume);
 
@@ -1111,41 +1206,72 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
         script: preset.sampleScript,
         ttsPrompt: preset.sampleScript,
         reflectiveQuestions: [
-          'Bagaimana sensasi napas dan detak jantung Anda setelah menyimak panduan ini?',
+          'Bagaimana sensasi napas dan detak jantung Anda setelah menyimak alunan musik relaksasi ini?',
           'Apakah ada rasa lega atau ketegangan yang mulai mengendur?'
         ]
       });
       setTotalDuration(durMins * 60);
 
       // Prepare soundscape with the preset's multi-layers
-      await prepareSoundscapeAudio(
+      const scUrl = await prepareSoundscapeAudio(
         presetNats,
         preset.metadata.ambientMusicType,
         preset.metadata.natureVolume,
         preset.metadata.musicVolume
       );
 
-      let url: string | null = null;
-      if (playbackSource === 'gemini_tts') {
-        try {
-          const rawAudio = await generateGeminiTts(preset.sampleScript, voiceName as any);
-          if (rawAudio) {
-            if (rawAudio.startsWith('data:audio/') || rawAudio.startsWith('blob:') || rawAudio.startsWith('http')) {
-              url = rawAudio;
-            } else {
-              url = pcmToWavBlobUrl(rawAudio, 24000);
-            }
+      if (mode === 'pure_music') {
+        setPlaybackSource('ambient_music');
+        setAudioUrl(null);
+        if (soundscapeAudioRef.current) {
+          if (scUrl && soundscapeAudioRef.current.src !== scUrl) {
+            soundscapeAudioRef.current.src = scUrl;
           }
-        } catch (e) {
-          console.warn('Preset Gemini TTS error:', e);
+          soundscapeAudioRef.current.volume = isMuted ? 0 : masterVolume;
+          await soundscapeAudioRef.current.play().catch(e => console.warn('Soundscape play warning:', e));
+          setIsPlaying(true);
         }
-      }
+      } else {
+        let url: string | null = null;
+        if (playbackSource === 'noiz_tts') {
+          try {
+            const noizRes = await generateNoizAiTts(preset.sampleScript, voiceName);
+            if (noizRes?.audioDataUrl) {
+              url = noizRes.audioDataUrl;
+            }
+          } catch (noizErr) {
+            console.warn('Preset Noiz TTS note:', noizErr);
+          }
+        }
 
-      setAudioUrl(url);
-      await startPlaybackForMode(playbackSource, preset.sampleScript, url, voiceName);
+        if (!url && (playbackSource === 'gemini_tts' || playbackSource === 'noiz_tts')) {
+          try {
+            const rawAudio = await generateGeminiTts(preset.sampleScript, voiceName as any);
+            if (rawAudio) {
+              if (rawAudio.startsWith('data:audio/') || rawAudio.startsWith('blob:') || rawAudio.startsWith('http')) {
+                url = rawAudio;
+              } else {
+                url = pcmToWavBlobUrl(rawAudio, 24000);
+              }
+            }
+          } catch (e) {
+            console.warn('Preset Gemini TTS error:', e);
+          }
+        }
+
+        setAudioUrl(url);
+        await startPlaybackForMode(playbackSource === 'ambient_music' ? 'noiz_tts' : playbackSource, preset.sampleScript, url, voiceName);
+      }
     } catch (err) {
       console.error('Preset play error:', err);
-      await startPlaybackForMode('web_speech', preset.sampleScript, null, voiceName);
+      if (mode === 'pure_music') {
+        if (soundscapeAudioRef.current) {
+          soundscapeAudioRef.current.play().catch(() => {});
+          setIsPlaying(true);
+        }
+      } else {
+        await startPlaybackForMode('web_speech', preset.sampleScript, null, voiceName);
+      }
     } finally {
       setIsGenerating(false);
     }
@@ -1351,13 +1477,16 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-xl md:text-2xl font-bold text-stone-100">LEGA Audio Relaksasi Premium</h2>
-                <span className="text-xs bg-sky-900/80 text-sky-300 px-2.5 py-0.5 rounded-full border border-sky-700 font-mono">
-                  v3.0 Premium Studio
+                <span className="px-2 py-0.5 rounded bg-amber-400 text-stone-950 font-black text-[10px] tracking-wider uppercase">
+                  SHAQILA DIGITAL 99
+                </span>
+                <h2 className="text-xl md:text-2xl font-bold text-stone-100 font-serif">LEGA SHAQILA DIGITAL 99</h2>
+                <span className="text-xs bg-amber-900/60 text-amber-300 px-2.5 py-0.5 rounded-full border border-amber-700 font-mono">
+                  Audio Relaksasi AI
                 </span>
               </div>
-              <p className="text-xs text-stone-400 mt-0.5">
-                Pengalaman relaksasi berstandar tinggi: Narasi Bahasa Indonesia hangat & lambat, 7 backsound suara alam, musik ambient piano/pad/string, dan tata metadata suara profesional.
+              <p className="text-xs text-stone-300 mt-1 leading-relaxed">
+                Platform kesadaran diri, pengelolaan emosi &amp; relaksasi berbasis AI. Ruang digital untuk mengenal diri, memahami emosi, dan menemukan ketenangan dengan 6 pilihan suara pemandu &amp; berbagai suasana alam.
               </p>
             </div>
           </div>
@@ -1897,26 +2026,91 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
             </div>
           </div>
 
-          {/* 4. Karakter Vokal Narasi Indonesia (6 Pilihan Suara Resmi LEGA) */}
+          {/* 4. Pilihan Engine TTS & Karakter Vokal Narasi LEGA */}
           <div className="space-y-3 pt-2 border-t border-stone-800" id="audio-voice-selection-block">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
-              <label className="text-xs font-bold text-stone-200 flex items-center gap-1.5">
-                <span className="text-sm">🎙️</span>
-                <span>4. Pilih Suara Narasi LEGA (6 Pilihan Suara):</span>
-              </label>
-              <div className="flex items-center gap-1.5 text-[10px] font-mono">
-                <span className="text-stone-400">Aktif:</span>
-                <span className="text-sky-400 font-bold px-2 py-0.5 rounded bg-sky-950/80 border border-sky-800">
-                  {VOICES.find(v => v.name === voiceName)?.name || voiceName}
+            {/* Header with Engine Toggle */}
+            <div className="flex flex-col gap-2">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+                <label className="text-xs font-bold text-stone-200 flex items-center gap-1.5">
+                  <span className="text-sm">🎙️</span>
+                  <span>4. Pilih Engine Audio & Suara Narasi LEGA:</span>
+                </label>
+                <div className="flex items-center gap-1.5 text-[10px] font-mono">
+                  <span className="text-stone-400">Suara Aktif:</span>
+                  <span className="text-sky-400 font-bold px-2 py-0.5 rounded bg-sky-950/80 border border-sky-800">
+                    {voiceName}
+                  </span>
+                </div>
+              </div>
+
+              {/* TTS Engine Switcher Bar (NOIZ TTS vs Gemini TTS vs Web Speech) */}
+              <div className="bg-stone-950/90 p-1.5 rounded-2xl border border-stone-800 grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => handleSelectPlaybackSource('noiz_tts')}
+                  className={`py-2 px-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                    playbackSource === 'noiz_tts'
+                      ? 'bg-gradient-to-r from-sky-600 to-indigo-600 text-white shadow-md shadow-sky-950/60 ring-1 ring-sky-400'
+                      : 'bg-stone-900/80 text-stone-300 hover:bg-stone-800 hover:text-white border border-stone-800'
+                  }`}
+                >
+                  <span className="text-amber-300">⚡</span>
+                  <div className="text-left">
+                    <div className="leading-none text-[11px]">NOIZ AI TTS</div>
+                    <div className="text-[9px] font-normal opacity-80 leading-none mt-0.5">Bahasa Indonesia Alami</div>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleSelectPlaybackSource('gemini_tts')}
+                  className={`py-2 px-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                    playbackSource === 'gemini_tts'
+                      ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-950/60 ring-1 ring-purple-400'
+                      : 'bg-stone-900/80 text-stone-300 hover:bg-stone-800 hover:text-white border border-stone-800'
+                  }`}
+                >
+                  <span className="text-purple-300">✨</span>
+                  <div className="text-left">
+                    <div className="leading-none text-[11px]">Gemini AI TTS</div>
+                    <div className="text-[9px] font-normal opacity-80 leading-none mt-0.5">Google Neural AI</div>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleSelectPlaybackSource('web_speech')}
+                  className={`py-2 px-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 col-span-2 sm:col-span-1 ${
+                    playbackSource === 'web_speech'
+                      ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-950/60 ring-1 ring-emerald-400'
+                      : 'bg-stone-900/80 text-stone-300 hover:bg-stone-800 hover:text-white border border-stone-800'
+                  }`}
+                >
+                  <span className="text-emerald-300">🔊</span>
+                  <div className="text-left">
+                    <div className="leading-none text-[11px]">Web Speech</div>
+                    <div className="text-[9px] font-normal opacity-80 leading-none mt-0.5">Browser Offline</div>
+                  </div>
+                </button>
+              </div>
+
+              {/* Engine Context Description Banner */}
+              <div className="text-[11px] px-3 py-1.5 rounded-xl bg-stone-950 border border-stone-800/80 flex items-center justify-between text-stone-400">
+                <span>
+                  {playbackSource === 'noiz_tts' && '⚡ Menggunakan NOIZ AI TTS (noiz.ai) untuk pelafalan Bahasa Indonesia yang sangat hangat, lembut, dan natural.'}
+                  {playbackSource === 'gemini_tts' && '✨ Menggunakan Google Gemini Neural TTS dengan 6 karakter vokal multi-nada berkualitas studio.'}
+                  {playbackSource === 'web_speech' && '🔊 Menggunakan sintesis suara lokal browser dengan karakter nada vokal Indonesia.'}
+                  {playbackSource === 'ambient_music' && '🌿 Mode musik murni & suara alam (tanpa suara narasi panduan).'}
                 </span>
+                <span className="text-[9px] font-mono text-sky-400 shrink-0 ml-2">6 Pilihan Karakter</span>
               </div>
             </div>
 
+            {/* Dynamic Voice Grid based on Engine */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
-              {VOICES.map((v, index) => {
-                const isSelected = voiceName === v.name || voiceName === v.id;
+              {(playbackSource === 'noiz_tts' ? NOIZ_VOICES : VOICES).map((v, index) => {
+                const isSelected = voiceName.toLowerCase() === v.name.toLowerCase() || voiceName.toLowerCase() === v.id.toLowerCase() || (playbackSource === 'noiz_tts' && index === 0 && !NOIZ_VOICES.some(nv => nv.name.toLowerCase() === voiceName.toLowerCase()));
                 const isVoicePreviewing = previewingVoiceName === v.name;
-                const isFemale = v.gender === 'female';
 
                 return (
                   <div
@@ -1987,7 +2181,7 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
                             ? 'bg-rose-500/20 text-rose-300 border border-rose-500 animate-pulse'
                             : 'bg-stone-900 text-sky-400 hover:text-sky-300 hover:bg-stone-800 border border-stone-800'
                         }`}
-                        title={`Dengarkan contoh ${v.name}`}
+                        title={`Dengarkan contoh suara ${v.name}`}
                       >
                         {isVoicePreviewing ? (
                           <>
@@ -2128,50 +2322,66 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
               </p>
             </div>
 
-            {/* Audio Engine Mode Selection */}
+            {/* Audio Engine Mode Selection (NOIZ TTS, Gemini TTS, Web Speech, Soundscape) */}
             <div className="bg-stone-950 p-2.5 rounded-xl border border-stone-800 space-y-1.5">
               <div className="flex items-center justify-between">
                 <label className="text-[10px] font-semibold text-stone-300 flex items-center gap-1">
                   <Music className="w-3 h-3 text-sky-400" /> Mode Engine Audio:
                 </label>
-                <span className="text-[9px] text-sky-400 font-mono">Klik untuk ganti instan</span>
+                <span className="text-[9px] text-sky-400 font-mono">Ganti Engine Seketika</span>
               </div>
-              <div className="grid grid-cols-3 gap-1.5">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                 <button
+                  type="button"
+                  onClick={() => handleSelectPlaybackSource('noiz_tts')}
+                  className={`py-1.5 px-2 rounded-lg text-[10px] font-medium transition text-center truncate flex flex-col items-center justify-center ${
+                    playbackSource === 'noiz_tts'
+                      ? 'bg-sky-950 border border-sky-500 text-sky-200 font-bold shadow-sm ring-1 ring-sky-500/50'
+                      : 'bg-stone-900 border border-stone-800/80 text-stone-400 hover:text-stone-300 hover:border-stone-700'
+                  }`}
+                  title="NOIZ AI TTS - Vokal Bahasa Indonesia Ultra-Alami & Lembut"
+                >
+                  <span className="truncate flex items-center gap-1">⚡ NOIZ AI</span>
+                  <span className="text-[8px] opacity-75 font-normal truncate">noiz.ai TTS</span>
+                </button>
+                <button
+                  type="button"
                   onClick={() => handleSelectPlaybackSource('gemini_tts')}
                   className={`py-1.5 px-2 rounded-lg text-[10px] font-medium transition text-center truncate flex flex-col items-center justify-center ${
                     playbackSource === 'gemini_tts'
-                      ? 'bg-sky-950 border border-sky-500 text-sky-200 font-bold shadow-sm'
+                      ? 'bg-purple-950 border border-purple-500 text-purple-200 font-bold shadow-sm ring-1 ring-purple-500/50'
                       : 'bg-stone-900 border border-stone-800/80 text-stone-400 hover:text-stone-300 hover:border-stone-700'
                   }`}
-                  title="Vokal Audio Narasi Alami + Suara Alam & Musik"
+                  title="Gemini AI TTS - Google Neural Multilingual Speech"
                 >
-                  <span className="truncate">Audio Narasi</span>
-                  <span className="text-[8px] opacity-75 font-normal truncate">Vokal Alami</span>
+                  <span className="truncate flex items-center gap-1">✨ Gemini TTS</span>
+                  <span className="text-[8px] opacity-75 font-normal truncate">Google Neural</span>
                 </button>
                 <button
+                  type="button"
                   onClick={() => handleSelectPlaybackSource('web_speech')}
                   className={`py-1.5 px-2 rounded-lg text-[10px] font-medium transition text-center truncate flex flex-col items-center justify-center ${
                     playbackSource === 'web_speech'
-                      ? 'bg-sky-950 border border-sky-500 text-sky-200 font-bold shadow-sm'
+                      ? 'bg-emerald-950 border border-emerald-500 text-emerald-200 font-bold shadow-sm ring-1 ring-emerald-500/50'
                       : 'bg-stone-900 border border-stone-800/80 text-stone-400 hover:text-stone-300 hover:border-stone-700'
                   }`}
-                  title="Narasi Suara Indonesia Hangat + Suara Alam"
+                  title="Web Speech API - Sintesis Suara Lokal Browser"
                 >
-                  <span className="truncate">Narasi + Alam</span>
-                  <span className="text-[8px] opacity-75 font-normal truncate">Vokal & Alam</span>
+                  <span className="truncate flex items-center gap-1">🔊 Web Speech</span>
+                  <span className="text-[8px] opacity-75 font-normal truncate">Suara Browser</span>
                 </button>
                 <button
+                  type="button"
                   onClick={() => handleSelectPlaybackSource('ambient_music')}
                   className={`py-1.5 px-2 rounded-lg text-[10px] font-medium transition text-center truncate flex flex-col items-center justify-center ${
                     playbackSource === 'ambient_music'
-                      ? 'bg-sky-950 border border-sky-500 text-sky-200 font-bold shadow-sm'
+                      ? 'bg-teal-950 border border-teal-500 text-teal-200 font-bold shadow-sm ring-1 ring-teal-500/50'
                       : 'bg-stone-900 border border-stone-800/80 text-stone-400 hover:text-stone-300 hover:border-stone-700'
                   }`}
-                  title="Hanya Suara Alam Alami & Musik Ambient (Tanpa Suara Bicara)"
+                  title="Hanya Suara Alam Alami & Musik Ambient (Tanpa Vokal Narasi)"
                 >
-                  <span className="truncate">Hanya Soundscape</span>
-                  <span className="text-[8px] opacity-75 font-normal truncate">Tanpa Suara</span>
+                  <span className="truncate flex items-center gap-1">🌿 Soundscape</span>
+                  <span className="text-[8px] opacity-75 font-normal truncate">Musik & Alam</span>
                 </button>
               </div>
             </div>
@@ -2436,6 +2646,31 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
           })}
         </div>
 
+        {/* Quick Play Banner for Musik Relaksasi Tenang */}
+        {presetPurposeFilter === 'musik-tenang' && (
+          <div className="p-4 bg-gradient-to-r from-indigo-950/90 via-sky-950/80 to-stone-950 rounded-2xl border border-indigo-500/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-sm">🎵</span>
+                <h4 className="font-bold text-xs sm:text-sm text-stone-100">Koleksi Musik Audio Relaksasi Tenang</h4>
+                <span className="text-[10px] px-2 py-0.5 bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-full font-mono">
+                  Mastering 432Hz / 528Hz
+                </span>
+              </div>
+              <p className="text-[11px] text-stone-300">
+                Pilih salah satu lagu di bawah untuk langsung mendengarkan musik akustik, piano teduh, suling bambu zen, atau gelombang relaksasi batin murni tanpa narasi suara.
+              </p>
+            </div>
+            <button
+              onClick={() => handlePlayPreset(PRESET_LIBRARY[11], 'pure_music')}
+              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-xs transition flex items-center gap-2 shrink-0 shadow-md shadow-indigo-950/60"
+            >
+              <Play className="w-3.5 h-3.5" />
+              <span>▶ Putar Suling Zen 432Hz</span>
+            </button>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {PRESET_LIBRARY.filter(preset => presetPurposeFilter === 'semua' || preset.purposes.includes(presetPurposeFilter)).map((preset) => (
             <div
@@ -2469,12 +2704,23 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
                 </div>
               </div>
 
-              <button
-                onClick={() => handlePlayPreset(preset)}
-                className="w-full py-2 bg-stone-950 hover:bg-stone-800 border border-stone-800 text-sky-300 hover:text-sky-200 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-2"
-              >
-                <Play className="w-3.5 h-3.5" /> Putar Soundscape
-              </button>
+              {/* Two Direct Action Buttons: Pure Music vs With Voice Narration */}
+              <div className="space-y-1.5 pt-2 border-t border-stone-800/80">
+                <button
+                  onClick={() => handlePlayPreset(preset, 'pure_music')}
+                  className="w-full py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-md shadow-sky-950/40"
+                  title="Putar instrumen musik relaksasi dan suara alam secara langsung tanpa jeda"
+                >
+                  <Play className="w-3.5 h-3.5" /> Putar Musik Tenang (Murni)
+                </button>
+                <button
+                  onClick={() => handlePlayPreset(preset, 'with_narration')}
+                  className="w-full py-1.5 bg-stone-950 hover:bg-stone-800 border border-stone-800 text-stone-300 hover:text-stone-100 rounded-xl text-[11px] font-medium transition flex items-center justify-center gap-1.5"
+                  title="Putar dengan narasi suara panduan bahasa Indonesia"
+                >
+                  <Mic className="w-3 h-3 text-sky-400" /> Putar + Narasi Suara
+                </button>
+              </div>
             </div>
           ))}
         </div>

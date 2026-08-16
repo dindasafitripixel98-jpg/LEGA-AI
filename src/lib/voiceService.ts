@@ -1,14 +1,17 @@
-// LEGA Universal Voice Engine - Seamless Gemini TTS & Offline Speech Synthesis
+// LEGA Universal Voice Engine - Seamless Noiz AI & Gemini TTS & Offline Speech Synthesis
 // SHAQILA DIGITAL 99 - LEGA AI Voice System
 
-import { generateGeminiTts, fetchVoiceSamples } from './geminiApi';
+import { generateGeminiTts, generateNoizAiTts, previewNoizVoice, fetchVoiceSamples } from './geminiApi';
 import { pcmToWavBlobUrl, speakIndonesianNarration, stopIndonesianNarration, getVoiceCharacter } from './audioEngine';
 import { generateDistinctVoiceAudio } from './voiceSynthesisEngine';
+
+export type VoiceEngineType = 'noiz-ai' | 'gemini-tts' | 'web-speech' | 'none';
 
 export interface VoiceOptions {
   title?: string;
   subtitle?: string;
   voiceName?: string;
+  preferredEngine?: VoiceEngineType;
   rate?: number;
   pitch?: number;
   volume?: number;
@@ -25,9 +28,72 @@ export interface VoiceState {
   currentText: string;
   currentTime: number;
   duration: number;
-  engine: 'gemini-tts' | 'web-speech' | 'none';
+  engine: VoiceEngineType;
   voiceName: string;
 }
+
+export const NOIZ_VOICES = [
+  {
+    id: 'rina',
+    name: 'Noiz Rina',
+    label: 'Rina — Hangat & Welas Asih (Noiz AI)',
+    gender: 'female' as const,
+    lang: 'id-ID',
+    tag: 'Noiz AI Premium',
+    description: 'Vokal hangat, santun, dan menentramkan jiwa untuk panduan harian.',
+    samplePhrase: 'Selamat datang di ruang tenang Anda bersama Noiz AI. Tarik napas lembut dan izinkan batin Anda beristirahat dalam kedamaian.'
+  },
+  {
+    id: 'nova',
+    name: 'Noiz Nova',
+    label: 'Nova — Jernih & Damai (Noiz AI)',
+    gender: 'female' as const,
+    lang: 'id-ID',
+    tag: 'Mindfulness & Presence',
+    description: 'Artikulasi jernih dan tenang untuk memandu kesadaran hadir dan mindfulness.',
+    samplePhrase: 'Setiap tarikan napas membawa kejernihan baru bagi pikiran Anda. Anda aman, tenang, dan hadir di saat ini.'
+  },
+  {
+    id: 'bayu',
+    name: 'Noiz Bayu',
+    label: 'Bayu — Teduh & Santai (Noiz AI)',
+    gender: 'male' as const,
+    lang: 'id-ID',
+    tag: 'Grounding & Nafas',
+    description: 'Resonansi maskulin santai dan natural untuk latihan pernapasan.',
+    samplePhrase: 'Mari berhenti sejenak dari segala kesibukan. Sadari tubuh Anda dan lepaskan ketegangan secara perlahan.'
+  },
+  {
+    id: 'maya',
+    name: 'Noiz Maya',
+    label: 'Maya — Lembut Menyejukkan (Noiz AI)',
+    gender: 'female' as const,
+    lang: 'id-ID',
+    tag: 'Pelepasan Emosi',
+    description: 'Vokal halus dan menenangkan untuk pelepasan emosi dan muhasabah.',
+    samplePhrase: 'Tarik napas perlahan... rasakan kelembutan udara yang mengalir dan izinkan seluruh beban batin Anda melunak.'
+  },
+  {
+    id: 'arga',
+    name: 'Noiz Arga',
+    label: 'Arga — Berwibawa & Berjangkar (Noiz AI)',
+    gender: 'male' as const,
+    lang: 'id-ID',
+    tag: 'Deep Grounding',
+    description: 'Bariton berwibawa dan dalam untuk relaksasi malam dan kestabilan batin.',
+    samplePhrase: 'Rasakan pijakan Anda yang kokoh dan berjangkar kuat. Napas Anda aman di ruang perlindungan yang tenang ini.'
+  },
+  {
+    id: 'alisa',
+    name: 'Noiz Alisa',
+    label: 'Alisa — Relaksasi & Tidur Lelap (Noiz AI)',
+    gender: 'female' as const,
+    lang: 'id-ID',
+    tag: 'Sleep & Lullaby',
+    description: 'Ritme meninabobokan dan tempo sangat perlahan untuk pengantar tidur pulas.',
+    samplePhrase: 'Pejamkan mata Anda secara perlahan... biarkan rasa tenang meresap lembut ke setiap helai napas dan sel tubuh Anda.'
+  }
+];
 
 // In-memory audio cache to prevent redundant TTS API calls
 const audioCache = new Map<string, string>();
@@ -49,7 +115,7 @@ let state: VoiceState = {
   currentTime: 0,
   duration: 0,
   engine: 'none',
-  voiceName: typeof localStorage !== 'undefined' ? localStorage.getItem('lega_voice_name') || 'Suara Tenang' : 'Suara Tenang'
+  voiceName: typeof localStorage !== 'undefined' ? localStorage.getItem('lega_voice_name') || 'Noiz Rina' : 'Noiz Rina'
 };
 
 function notifyListeners() {
@@ -68,11 +134,26 @@ export function subscribeVoiceState(listener: VoiceListener): () => void {
   };
 }
 
+export function getStoredVoiceEngine(): VoiceEngineType {
+  if (typeof localStorage !== 'undefined') {
+    return (localStorage.getItem('lega_voice_engine') as VoiceEngineType) || 'noiz-ai';
+  }
+  return 'noiz-ai';
+}
+
+export function setStoredVoiceEngine(engine: VoiceEngineType) {
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('lega_voice_engine', engine);
+  }
+  state.engine = engine;
+  notifyListeners();
+}
+
 export function getStoredVoiceName(): string {
   if (typeof localStorage !== 'undefined') {
-    return localStorage.getItem('lega_voice_name') || 'Suara Tenang';
+    return localStorage.getItem('lega_voice_name') || 'Noiz Rina';
   }
-  return 'Suara Tenang';
+  return 'Noiz Rina';
 }
 
 export function setStoredVoiceName(name: string) {
@@ -84,7 +165,7 @@ export function setStoredVoiceName(name: string) {
 }
 
 /**
- * Pre-warms the 6 distinct voice character audio samples for 0ms latency audio preview on iOS, Android & PC
+ * Pre-warms voice character audio samples for 0ms latency audio preview on iOS, Android & PC
  */
 let isPrewarmed = false;
 export async function initializeVoiceEngine(): Promise<void> {
@@ -119,6 +200,71 @@ if (typeof window !== 'undefined') {
 }
 
 /**
+ * Preview Noiz AI Voice Character
+ */
+export async function previewNoizAiVoiceAudio(
+  voiceId: string,
+  onStart?: () => void,
+  onEnd?: () => void,
+  onError?: (err: any) => void
+): Promise<void> {
+  if (previewAudioInstance) {
+    previewAudioInstance.pause();
+    previewAudioInstance = null;
+  }
+  stopVoiceNarration();
+
+  const noizVoice = NOIZ_VOICES.find(v => v.id === voiceId || v.name.toLowerCase().includes(voiceId.toLowerCase())) || NOIZ_VOICES[0];
+  const cacheKey = `noiz_preview:${noizVoice.id}`;
+
+  let audioUrl = audioCache.get(cacheKey);
+  if (!audioUrl) {
+    try {
+      const res = await previewNoizVoice(noizVoice.id);
+      if (res) {
+        audioUrl = res;
+        audioCache.set(cacheKey, audioUrl);
+      }
+    } catch (err) {
+      console.warn('Noiz voice preview error:', err);
+    }
+  }
+
+  if (audioUrl) {
+    try {
+      const audio = new Audio(audioUrl);
+      previewAudioInstance = audio;
+      audio.volume = 0.95;
+
+      audio.onplay = () => onStart?.();
+      audio.onended = () => {
+        previewAudioInstance = null;
+        onEnd?.();
+      };
+      audio.onerror = (e) => {
+        previewAudioInstance = null;
+        onError?.(e);
+      };
+
+      await audio.play();
+      return;
+    } catch (playErr) {
+      console.warn('Noiz Audio play error, fallback to web speech:', playErr);
+    }
+  }
+
+  // Fallback to Web Speech Synthesis with graceful tone
+  speakIndonesianNarration(noizVoice.samplePhrase, {
+    voiceCharacter: noizVoice.name,
+    pitch: noizVoice.gender === 'female' ? 1.1 : 0.9,
+    rate: 0.9,
+    onStart,
+    onEnd,
+    onError
+  });
+}
+
+/**
  * Previews a specific voice character with its sample phrase using distinct acoustic vocal synthesis.
  * Guaranteed 100% distinct vocal resonance across iOS, Android, Tablets, PC, Mac, Windows.
  */
@@ -130,6 +276,11 @@ export async function previewVoiceCharacterAudio(
   onEnd?: () => void,
   onError?: (err: any) => void
 ): Promise<void> {
+  // If voice name contains noiz or matches a noiz voice, use Noiz preview
+  if (voiceName.toLowerCase().includes('noiz') || NOIZ_VOICES.some(v => v.id === voiceName.toLowerCase() || v.name.toLowerCase() === voiceName.toLowerCase())) {
+    return previewNoizAiVoiceAudio(voiceName, onStart, onEnd, onError);
+  }
+
   // Stop existing preview
   if (previewAudioInstance) {
     previewAudioInstance.pause();
@@ -166,36 +317,14 @@ export async function previewVoiceCharacterAudio(
       previewAudioInstance = audio;
       audio.volume = 0.95;
 
-      audio.onplay = () => {
-        if (onStart) onStart();
-        // Also speak in sync with high-contrast pitch & rate so speech engine utters the words
-        try {
-          speakIndonesianNarration(samplePhrase, {
-            voiceCharacter: profile.name,
-            pitch: profile.pitch,
-            rate: profile.rate,
-            volume: 0.90
-          });
-        } catch {
-          // ignore
-        }
-      };
+      audio.onplay = () => onStart?.();
       audio.onended = () => {
         previewAudioInstance = null;
-        stopIndonesianNarration();
-        if (onEnd) onEnd();
+        onEnd?.();
       };
       audio.onerror = (e) => {
-        console.warn('Preview Audio element error, fallback to web speech:', e);
         previewAudioInstance = null;
-        speakIndonesianNarration(samplePhrase, {
-          voiceCharacter: profile.name,
-          pitch: profile.pitch,
-          rate: profile.rate,
-          onStart,
-          onEnd,
-          onError
-        });
+        onError?.(e);
       };
 
       await audio.play();
@@ -227,7 +356,7 @@ export function stopVoicePreview() {
 
 /**
  * Play voice narration for any text.
- * Automatically tries Gemini 3.1 Flash Neural TTS first, then gracefully falls back to Indonesian Web Speech Synthesis.
+ * Prioritizes Noiz AI Ultra-Real TTS (noiz.ai) or Gemini TTS, then gracefully falls back to Indonesian Web Speech Synthesis.
  */
 export async function playVoiceNarration(
   text: string,
@@ -238,7 +367,8 @@ export async function playVoiceNarration(
   const title = options?.title || 'Panduan Suara LEGA AI';
   const subtitle = options?.subtitle || 'Mendengarkan bimbingan hening...';
   const voiceName = (options?.voiceName || getStoredVoiceName()) as any;
-  const trackId = `${voiceName}:${text.trim()}`;
+  const preferredEngine = options?.preferredEngine || getStoredVoiceEngine();
+  const trackId = `${preferredEngine}:${voiceName}:${text.trim()}`;
 
   // If already playing this exact track, toggle pause/play
   if (currentTrackId === trackId && (state.isPlaying || currentAudio || currentUtterance)) {
@@ -259,7 +389,7 @@ export async function playVoiceNarration(
     currentText: text,
     currentTime: 0,
     duration: 0,
-    engine: 'none',
+    engine: preferredEngine,
     voiceName
   };
   notifyListeners();
@@ -275,11 +405,25 @@ export async function playVoiceNarration(
   // Try to find in cache first
   const cachedUrl = audioCache.get(trackId);
   if (cachedUrl) {
-    playAudioUrl(cachedUrl, title, subtitle, cleanText, voiceName, options);
+    playAudioUrl(cachedUrl, title, subtitle, cleanText, voiceName, preferredEngine, options);
     return;
   }
 
-  // Try Gemini Neural TTS via server
+  // 1. Try Noiz AI TTS first if engine is 'noiz-ai' or voiceName contains 'noiz'
+  if (preferredEngine === 'noiz-ai' || voiceName.toLowerCase().includes('noiz')) {
+    try {
+      const noizResult = await generateNoizAiTts(cleanText, voiceName);
+      if (noizResult && noizResult.audioDataUrl && currentTrackId === trackId) {
+        audioCache.set(trackId, noizResult.audioDataUrl);
+        playAudioUrl(noizResult.audioDataUrl, title, subtitle, cleanText, voiceName, 'noiz-ai', options);
+        return;
+      }
+    } catch (noizErr) {
+      console.warn('Noiz AI TTS call notice, falling back:', noizErr);
+    }
+  }
+
+  // 2. Try Gemini Neural TTS via server
   try {
     const audioData = await generateGeminiTts(cleanText, voiceName);
     if (audioData && currentTrackId === trackId) {
@@ -289,7 +433,7 @@ export async function playVoiceNarration(
       }
       if (finalAudioUrl) {
         audioCache.set(trackId, finalAudioUrl);
-        playAudioUrl(finalAudioUrl, title, subtitle, cleanText, voiceName, options);
+        playAudioUrl(finalAudioUrl, title, subtitle, cleanText, voiceName, 'gemini-tts', options);
         return;
       }
     }
@@ -297,7 +441,7 @@ export async function playVoiceNarration(
     console.warn('Gemini TTS network call failed, falling back to Web Speech API:', err);
   }
 
-  // Fallback to Web Speech API (Indonesian synthesized narration)
+  // 3. Fallback to Web Speech API (Indonesian synthesized narration)
   if (currentTrackId === trackId) {
     playWebSpeechFallback(cleanText, title, subtitle, voiceName, options);
   }
@@ -309,6 +453,7 @@ function playAudioUrl(
   subtitle: string,
   text: string,
   voiceName: string,
+  engineType: VoiceEngineType = 'noiz-ai',
   options?: VoiceOptions
 ) {
   try {
@@ -334,7 +479,7 @@ function playAudioUrl(
         currentTitle: title,
         currentSubtitle: subtitle,
         currentText: text,
-        engine: 'gemini-tts',
+        engine: engineType,
         voiceName
       };
       notifyListeners();

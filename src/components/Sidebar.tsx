@@ -126,17 +126,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const sidebarContent = (
     <div className="flex flex-col h-full bg-stone-900 text-stone-200 w-64 border-r border-stone-800 select-none">
       {/* Brand Header */}
-      <div className="p-4 border-b border-stone-800/80 flex items-center justify-between">
+      <div className="p-4 border-b border-stone-800/80 flex items-center justify-between bg-stone-950/50">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 via-blue-500 to-cyan-500 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-sky-900/50">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 via-amber-300 to-emerald-400 flex items-center justify-center text-stone-950 font-black text-xl shadow-lg shadow-amber-950/50">
             L
           </div>
           <div>
-            <h1 className="font-bold text-stone-100 tracking-wide text-sm leading-tight flex items-center gap-1.5">
+            <div className="px-1.5 py-0.5 bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded text-[9px] font-black tracking-wider uppercase inline-block mb-0.5 shadow-sm">
+              SHAQILA DIGITAL 99
+            </div>
+            <h1 className="font-bold text-stone-100 tracking-wide text-sm leading-tight">
               LEGA SHAQILA DIGITAL 99
             </h1>
-            <p className="text-[10px] text-sky-400 font-medium tracking-tight">Lepaskan • Eksplorasi • Gali • Amati</p>
-            <p className="text-[9px] font-bold text-stone-400 tracking-wider uppercase">SHAQILA DIGITAL 99</p>
+            <p className="text-[10px] text-stone-400 font-medium tracking-tight">Platform Kesadaran Diri, Emosi & Relaksasi AI</p>
           </div>
         </div>
         <button

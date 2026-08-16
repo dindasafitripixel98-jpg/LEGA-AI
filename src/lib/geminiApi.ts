@@ -1555,6 +1555,75 @@ export async function generateGeminiTts(text: string, voiceName: string = 'Kore'
   }
 }
 
+export async function generateNoizAiTts(
+  text: string,
+  voiceName: string = 'rina',
+  speed: number = 1.0,
+  emotion: string = 'calm'
+): Promise<{ audioDataUrl: string | null; provider: string; voiceName: string } | null> {
+  try {
+    const res = await fetch('/api/noiz/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, voiceName, speed, emotion }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data.success) return null;
+    const audioUrl = data.audioDataUrl || (data.audioBase64 ? (data.audioBase64.startsWith('data:') ? data.audioBase64 : `data:audio/mp3;base64,${data.audioBase64}`) : null);
+    return {
+      audioDataUrl: audioUrl,
+      provider: data.provider || 'noiz.ai',
+      voiceName: data.voiceName || voiceName
+    };
+  } catch (err: any) {
+    console.warn('generateNoizAiTts notice:', err);
+    return null;
+  }
+}
+
+export async function fetchNoizVoices(): Promise<{
+  apiKeyConfigured: boolean;
+  voices: Array<{
+    id: string;
+    name: string;
+    label: string;
+    gender: 'female' | 'male';
+    lang: string;
+    description: string;
+    samplePhrase: string;
+    noizVoiceId: string;
+  }>;
+} | null> {
+  try {
+    const res = await fetch('/api/noiz/voices');
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data.success) return null;
+    return data;
+  } catch (err: any) {
+    console.warn('fetchNoizVoices notice:', err);
+    return null;
+  }
+}
+
+export async function previewNoizVoice(voiceId: string): Promise<string | null> {
+  try {
+    const res = await fetch('/api/noiz/sample', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ voiceId }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data.success) return null;
+    return data.audioDataUrl || (data.audioBase64 ? (data.audioBase64.startsWith('data:') ? data.audioBase64 : `data:audio/mp3;base64,${data.audioBase64}`) : null);
+  } catch (err: any) {
+    console.warn('previewNoizVoice notice:', err);
+    return null;
+  }
+}
+
 export async function fetchVoiceSamples(): Promise<Record<string, { audioDataUrl: string; voiceName: string; geminiVoice: string }> | null> {
   try {
     const res = await fetch('/api/gemini/voice-samples');

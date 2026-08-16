@@ -204,31 +204,37 @@ export const Dashboard: React.FC<DashboardProps> = ({
   return (
     <div className="p-4 md:p-6 space-y-6 max-w-6xl mx-auto text-stone-100">
       {/* 0. Official Welcome Message & Identity Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-sky-950/80 via-stone-900 to-emerald-950/60 p-6 md:p-8 border border-sky-500/30 shadow-2xl space-y-4">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-950/70 via-stone-900 to-emerald-950/60 p-6 md:p-8 border border-amber-500/30 shadow-2xl space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
-          <div className="space-y-2">
+          <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-lg bg-sky-500/20 text-sky-300 border border-sky-400/30 text-[10px] font-bold tracking-wider uppercase">
+              <span className="px-2.5 py-0.5 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-400/30 text-[10px] font-bold tracking-wider uppercase">
                 SHAQILA DIGITAL 99
               </span>
-            </div>
-            <h2 className="text-xl md:text-2xl lg:text-3xl font-extrabold text-white tracking-tight leading-snug">
-              SELAMAT DATANG DI<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-cyan-200 to-emerald-300">
-                &ldquo;LEGA&rdquo; SHAQILA DIGITAL 99
+              <span className="px-2.5 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[10px] font-bold tracking-wider">
+                PLATFORM RESMI
               </span>
+            </div>
+            <h2 className="text-xl md:text-2xl lg:text-3xl font-extrabold text-white tracking-tight leading-snug font-serif">
+              LEGA SHAQILA DIGITAL 99
             </h2>
-            <p className="text-xs md:text-sm font-semibold text-sky-200/90 tracking-wide">
-              Lepaskan • Eksplorasi • Gali • Amati
+            <p className="text-sm md:text-base font-semibold text-amber-200/95 tracking-wide">
+              Platform kesadaran diri, pengelolaan emosi &amp; relaksasi berbasis AI.
             </p>
-            <p className="text-xs md:text-sm text-stone-300 max-w-2xl leading-relaxed">
-              Ruang untuk mengenal diri, menyadari apa yang sedang dirasakan, mengamati pengalaman dengan lebih sadar, dan belajar dari apa yang hadir.
+            <p className="text-xs md:text-sm text-stone-200 leading-relaxed font-medium">
+              Ruang digital untuk mengenal diri, memahami emosi, dan menemukan ketenangan.
+            </p>
+            <p className="text-xs text-stone-300 max-w-2xl leading-relaxed">
+              Dilengkapi dengan AI Coach, Emotion Analyzer, latihan pelepasan emosi, refleksi diri, pengamatan emosi, audio relaksasi dengan berbagai suasana alam, dan 6 pilihan suara pemandu yang dapat disesuaikan dengan pengalaman pengguna.
+            </p>
+            <p className="text-xs text-amber-300/90 font-medium italic">
+              Pendampingan dilakukan dengan pendekatan yang hangat, tenang, dan tanpa penghakiman.
             </p>
           </div>
           <div className="shrink-0">
             <button
               onClick={() => onSelectModule('ai-coach')}
-              className="px-6 py-3.5 bg-gradient-to-r from-sky-400 via-cyan-400 to-emerald-400 hover:from-sky-300 hover:to-emerald-300 text-stone-950 font-extrabold text-xs md:text-sm rounded-2xl transition shadow-xl shadow-sky-950/60 active:scale-95 flex items-center gap-2"
+              className="px-6 py-3.5 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 hover:from-amber-300 hover:to-amber-200 text-stone-950 font-extrabold text-xs md:text-sm rounded-2xl transition shadow-xl shadow-amber-950/60 active:scale-95 flex items-center gap-2"
             >
               <Sparkles className="w-4 h-4 text-stone-950" />
               <span>MULAI PERJALANAN</span>

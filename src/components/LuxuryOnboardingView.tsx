@@ -164,8 +164,22 @@ export const LuxuryOnboardingView: React.FC<LuxuryOnboardingViewProps> = ({
       {/* Background Aura */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-gradient-to-tr from-amber-500/15 via-emerald-500/10 to-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
 
+      {/* Top Banner SHAQILA DIGITAL 99 */}
+      <div className="bg-gradient-to-r from-stone-950 via-amber-950/70 to-stone-950 border-b border-amber-500/40 px-4 py-1.5 text-center relative z-20">
+        <div className="max-w-7xl mx-auto flex items-center justify-between text-xs">
+          <div className="flex items-center gap-2 mx-auto sm:mx-0">
+            <span className="px-2 py-0.5 rounded bg-amber-400 text-stone-950 font-black text-[10px] tracking-wider uppercase">
+              SHAQILA DIGITAL 99
+            </span>
+            <span className="text-amber-200 font-semibold text-[11px]">
+              LEGA — Personalisasi Ruang Tenang & Audio Relaksasi
+            </span>
+          </div>
+        </div>
+      </div>
+
       {/* Top Bar */}
-      <header className="px-4 sm:px-8 py-4 flex items-center justify-between border-b border-stone-800/80 bg-stone-950/70 backdrop-blur-md relative z-10">
+      <header className="px-4 sm:px-8 py-3.5 flex items-center justify-between border-b border-stone-800/80 bg-stone-950/70 backdrop-blur-md relative z-10">
         <div className="flex items-center gap-3">
           {step > 1 ? (
             <button
@@ -184,6 +198,9 @@ export const LuxuryOnboardingView: React.FC<LuxuryOnboardingViewProps> = ({
               <span>Ke Menu Masuk</span>
             </button>
           )}
+          <span className="hidden sm:inline px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-black tracking-wider uppercase">
+            SHAQILA DIGITAL 99
+          </span>
         </div>
 
         {/* Step Indicator */}

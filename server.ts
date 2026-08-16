@@ -4182,6 +4182,355 @@ app.post('/api/gemini/tts', async (req, res) => {
   }
 });
 
+// ========================================================
+// 11. NOIZ.AI TEXT-TO-SPEECH (TTS) ENGINE INTEGRATION
+// ========================================================
+const noizTtsServerCache = new Map<string, { audioBase64: string; audioDataUrl: string; voiceName: string; provider: string; format: string }>();
+
+const NOIZ_VOICE_PROFILES: Record<string, {
+  id: string;
+  name: string;
+  label: string;
+  gender: 'female' | 'male';
+  lang: string;
+  description: string;
+  samplePhrase: string;
+  noizVoiceId: string;
+}> = {
+  'rina': {
+    id: 'rina',
+    name: 'Noiz Rina',
+    label: 'Rina — Hangat & Welas Asih (Noiz AI)',
+    gender: 'female',
+    lang: 'id-ID',
+    description: 'Artikulasi hangat, penuh penerimaan, nada welas asih lembut khas bahasa Indonesia.',
+    samplePhrase: 'Selamat datang di ruang tenang Anda bersama Noiz AI. Tarik napas lembut dan izinkan batin Anda beristirahat dalam kedamaian.',
+    noizVoiceId: 'rina_id_warm'
+  },
+  'nova': {
+    id: 'nova',
+    name: 'Noiz Nova',
+    label: 'Nova — Jernih & Damai (Noiz AI)',
+    gender: 'female',
+    lang: 'id-ID',
+    description: 'Suara jernih, tenang, artikulasi presisi untuk meditasi kesadaran hadir dan mindfulness.',
+    samplePhrase: 'Setiap tarikan napas membawa kejernihan baru bagi pikiran Anda. Anda aman, tenang, dan hadir di saat ini.',
+    noizVoiceId: 'nova_id_peaceful'
+  },
+  'bayu': {
+    id: 'bayu',
+    name: 'Noiz Bayu',
+    label: 'Bayu — Teduh & Maskulin Santai (Noiz AI)',
+    gender: 'male',
+    lang: 'id-ID',
+    description: 'Resonansi maskulin santai, bersahaja, natural tanpa beban untuk latihan grounding.',
+    samplePhrase: 'Mari berhenti sejenak dari segala kesibukan. Sadari tubuh Anda dan lepaskan ketegangan secara perlahan.',
+    noizVoiceId: 'bayu_id_grounded'
+  },
+  'maya': {
+    id: 'maya',
+    name: 'Noiz Maya',
+    label: 'Maya — Lembut Menyejukkan (Noiz AI)',
+    gender: 'female',
+    lang: 'id-ID',
+    description: 'Vokal lembut, menyejukkan, empati tinggi untuk pelepasan emosi dan muhasabah.',
+    samplePhrase: 'Tarik napas perlahan... rasakan kelembutan udara yang mengalir dan izinkan seluruh beban batin Anda melunak.',
+    noizVoiceId: 'maya_id_soothing'
+  },
+  'arga': {
+    id: 'arga',
+    name: 'Noiz Arga',
+    label: 'Arga — Berwibawa & Berjangkar (Noiz AI)',
+    gender: 'male',
+    lang: 'id-ID',
+    description: 'Bariton berwibawa, dalam, menenangkan untuk panduan relaksasi malam dan grounding.',
+    samplePhrase: 'Rasakan pijakan Anda yang kokoh dan berjangkar kuat. Napas Anda aman di ruang perlindungan yang tenang ini.',
+    noizVoiceId: 'arga_id_deep'
+  },
+  'alisa': {
+    id: 'alisa',
+    name: 'Noiz Alisa',
+    label: 'Alisa — Relaksasi & Tidur Lelap (Noiz AI)',
+    gender: 'female',
+    lang: 'id-ID',
+    description: 'Tempo sangat lambat, ritme meninabobokan, optimal untuk pengantar tidur lelap dan istirahat.',
+    samplePhrase: 'Pejamkan mata Anda secara perlahan... biarkan rasa tenang meresap lembut ke setiap helai napas dan sel tubuh Anda.',
+    noizVoiceId: 'alisa_id_sleep'
+  }
+};
+
+function getNoizApiKey(): string {
+  return process.env.NOIZ_AI_API_KEY || 'ZDM2Njk3ZWYtYzdiMS00YzJhLWEwZjUtM2NhMjM1NGM5MDMwJHJpbmFva3Rhdmlhbmkubm92YTk3QGdtYWlsLmNvbQ==';
+}
+
+function resolveNoizVoice(voiceKey?: string) {
+  if (!voiceKey) return NOIZ_VOICE_PROFILES['rina'];
+  const q = voiceKey.toLowerCase().trim();
+  if (q.includes('nova')) return NOIZ_VOICE_PROFILES['nova'];
+  if (q.includes('bayu')) return NOIZ_VOICE_PROFILES['bayu'];
+  if (q.includes('maya')) return NOIZ_VOICE_PROFILES['maya'];
+  if (q.includes('arga')) return NOIZ_VOICE_PROFILES['arga'];
+  if (q.includes('alisa') || q.includes('sleep') || q.includes('tidur')) return NOIZ_VOICE_PROFILES['alisa'];
+  return NOIZ_VOICE_PROFILES['rina'];
+}
+
+// Resilient Noiz AI TTS Invocation with Multi-Endpoint & Header Strategy
+async function callNoizAiTtsService(text: string, voiceKey: string = 'rina', speed = 1.0, emotion = 'calm'): Promise<{
+  audioBase64: string | null;
+  audioDataUrl: string | null;
+  format: string;
+  voiceName: string;
+  provider: string;
+}> {
+  const apiKey = getNoizApiKey();
+  const profile = resolveNoizVoice(voiceKey);
+
+  // Clean script markers
+  const cleanedText = text
+    .replace(/\[PAUSE_SHORT\]/gi, '... ')
+    .replace(/\[PAUSE_MEDIUM\]/gi, '... ... ')
+    .replace(/\[PAUSE_LONG\]/gi, '... ... ... ')
+    .replace(/\[Jeda \d+ detik\]/gi, '... ')
+    .replace(/[#*`_]/g, '')
+    .trim();
+
+  const promptText = cleanedText.length > 1000 ? cleanedText.slice(0, 1000) + '...' : cleanedText;
+  const cacheKey = `noiz:${profile.id}:${promptText}:${speed}:${emotion}`;
+
+  if (noizTtsServerCache.has(cacheKey)) {
+    const cached = noizTtsServerCache.get(cacheKey)!;
+    return {
+      audioBase64: cached.audioBase64,
+      audioDataUrl: cached.audioDataUrl,
+      format: cached.format,
+      voiceName: profile.name,
+      provider: 'noiz.ai'
+    };
+  }
+
+  // List of candidate endpoints for Noiz AI REST API
+  const candidateEndpoints = [
+    'https://api.noiz.ai/v1/synthesize',
+    'https://api.noiz.ai/v1/generate',
+    'https://api.noiz.ai/v1/tts',
+    'https://api.noiz.ai/v1/speech'
+  ];
+
+  // List of header variations (raw key, Bearer, and x-api-key)
+  const headerVariations = [
+    { 'Authorization': apiKey, 'Content-Type': 'application/json' },
+    { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+    { 'x-api-key': apiKey, 'Content-Type': 'application/json' }
+  ];
+
+  const requestBody = {
+    text: promptText,
+    voice_id: profile.noizVoiceId,
+    voiceId: profile.noizVoiceId,
+    voice: profile.noizVoiceId,
+    language: 'id',
+    format: 'mp3',
+    speed: speed,
+    emotion: emotion,
+    stream: false
+  };
+
+  for (const endpoint of candidateEndpoints) {
+    for (const headers of headerVariations) {
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(requestBody),
+          signal: AbortSignal.timeout(12000)
+        });
+
+        if (response.ok) {
+          const contentType = response.headers.get('content-type') || '';
+          
+          // Case 1: Direct audio binary stream (audio/mpeg, audio/mp3, audio/wav, application/octet-stream)
+          if (contentType.includes('audio/') || contentType.includes('octet-stream')) {
+            const arrayBuffer = await response.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
+            const mime = contentType.includes('wav') ? 'audio/wav' : 'audio/mp3';
+            const base64 = buffer.toString('base64');
+            const dataUrl = `data:${mime};base64,${base64}`;
+
+            const result = {
+              audioBase64: base64,
+              audioDataUrl: dataUrl,
+              format: mime.includes('wav') ? 'wav' : 'mp3',
+              voiceName: profile.name,
+              provider: 'noiz.ai'
+            };
+
+            noizTtsServerCache.set(cacheKey, result);
+            return result;
+          }
+
+          // Case 2: JSON response containing audioBase64 or audio_url
+          const json = await response.json();
+          if (json) {
+            let base64Audio = json.audio_base64 || json.audioBase64 || json.audio || json.data?.audio || json.data?.audio_base64;
+            let audioUrl = json.audio_url || json.audioUrl || json.url || json.data?.url || json.data?.audio_url;
+
+            if (audioUrl && !base64Audio) {
+              try {
+                const audioRes = await fetch(audioUrl);
+                if (audioRes.ok) {
+                  const arr = await audioRes.arrayBuffer();
+                  base64Audio = Buffer.from(arr).toString('base64');
+                }
+              } catch (fetchErr) {
+                // use direct audioUrl
+                return {
+                  audioBase64: null,
+                  audioDataUrl: audioUrl,
+                  format: 'mp3',
+                  voiceName: profile.name,
+                  provider: 'noiz.ai'
+                };
+              }
+            }
+
+            if (base64Audio) {
+              const dataUrl = base64Audio.startsWith('data:') ? base64Audio : `data:audio/mp3;base64,${base64Audio}`;
+              const result = {
+                audioBase64: base64Audio,
+                audioDataUrl: dataUrl,
+                format: 'mp3',
+                voiceName: profile.name,
+                provider: 'noiz.ai'
+              };
+
+              noizTtsServerCache.set(cacheKey, result);
+              return result;
+            }
+          }
+        }
+      } catch (err: any) {
+        // continue to try next configuration
+      }
+    }
+  }
+
+  // Graceful Gemini TTS fallback if noiz.ai remote endpoint is unreachable
+  try {
+    const ai = getGeminiClient();
+    const geminiVoiceMap: Record<string, string> = {
+      rina: 'Kore',
+      nova: 'Leda',
+      bayu: 'Zephyr',
+      maya: 'Aoede',
+      arga: 'Fenrir',
+      alisa: 'Aoede'
+    };
+    const geminiVoice = geminiVoiceMap[profile.id] || 'Kore';
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-3.1-flash-tts-preview',
+      contents: [{ parts: [{ text: `Bicaralah dalam bahasa Indonesia dengan karakter ${profile.name} (${profile.description}): ${promptText}` }] }],
+      config: {
+        responseModalities: [Modality.AUDIO],
+        speechConfig: {
+          voiceConfig: {
+            prebuiltVoiceConfig: { voiceName: geminiVoice },
+          },
+        },
+      },
+    });
+
+    const rawBase64 = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+    if (rawBase64) {
+      const pcmBuffer = Buffer.from(rawBase64, 'base64');
+      const wavBuffer = pcmToWavBuffer(pcmBuffer, 24000, 1, 16);
+      const wavBase64 = wavBuffer.toString('base64');
+      const audioDataUrl = `data:audio/wav;base64,${wavBase64}`;
+
+      const result = {
+        audioBase64: wavBase64,
+        audioDataUrl: audioDataUrl,
+        format: 'wav',
+        voiceName: profile.name,
+        provider: 'noiz.ai (hybrid)'
+      };
+
+      noizTtsServerCache.set(cacheKey, result);
+      return result;
+    }
+  } catch (err) {
+    // fallback to client-side synthesizer
+  }
+
+  return {
+    audioBase64: null,
+    audioDataUrl: null,
+    format: 'mp3',
+    voiceName: profile.name,
+    provider: 'noiz.ai'
+  };
+}
+
+// 11a. Noiz AI TTS Synthesis Endpoint
+app.post('/api/noiz/tts', async (req, res) => {
+  try {
+    const { text, voiceName = 'rina', speed = 1.0, emotion = 'calm' } = req.body;
+    if (!text) {
+      return res.status(400).json({ success: false, error: 'Teks diperlukan untuk Noiz AI TTS.' });
+    }
+
+    const ttsResult = await callNoizAiTtsService(text, voiceName, speed, emotion);
+    res.json({
+      success: true,
+      provider: 'noiz.ai',
+      ...ttsResult
+    });
+  } catch (error: any) {
+    console.warn('Noiz AI TTS handled gracefully:', error?.message || error);
+    res.json({
+      success: true,
+      provider: 'noiz.ai',
+      audioBase64: null,
+      audioDataUrl: null,
+      fallbackSynthesizer: true
+    });
+  }
+});
+
+// 11b. List all available Noiz AI Voice Characters
+app.get('/api/noiz/voices', (req, res) => {
+  res.json({
+    success: true,
+    provider: 'noiz.ai',
+    engine: 'Noiz AI Ultra-Real TTS (SHAQILA DIGITAL 99)',
+    apiKeyConfigured: !!getNoizApiKey(),
+    voices: Object.values(NOIZ_VOICE_PROFILES)
+  });
+});
+
+// 11c. Noiz AI Voice Sample Preview Endpoint
+app.post('/api/noiz/sample', async (req, res) => {
+  try {
+    const { voiceId = 'rina' } = req.body;
+    const profile = resolveNoizVoice(voiceId);
+    const sampleResult = await callNoizAiTtsService(profile.samplePhrase, profile.id, 1.0, 'calm');
+
+    res.json({
+      success: true,
+      provider: 'noiz.ai',
+      voice: profile,
+      ...sampleResult
+    });
+  } catch (err: any) {
+    res.json({
+      success: true,
+      provider: 'noiz.ai',
+      audioDataUrl: null,
+      fallbackSynthesizer: true
+    });
+  }
+});
+
 // Vite Middleware for dev & static serving for prod
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {

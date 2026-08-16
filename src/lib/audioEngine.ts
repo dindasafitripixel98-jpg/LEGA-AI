@@ -1846,7 +1846,7 @@ export async function generateMeditationAmbientWav(durationSeconds = 120): Promi
 }
 
 /**
- * Converts AudioBuffer to WAV Blob URL
+ * Converts AudioBuffer to WAV Blob URL with professional peak normalization and mastering headroom
  */
 function audioBufferToWavBlob(audioBuffer: AudioBuffer): string {
   const numChannels = audioBuffer.numberOfChannels;
@@ -1854,6 +1854,20 @@ function audioBufferToWavBlob(audioBuffer: AudioBuffer): string {
   const length = audioBuffer.length * numChannels * 2;
   const buffer = new ArrayBuffer(44 + length);
   const view = new DataView(buffer);
+
+  // Measure peak amplitude across all channels for dynamic normalization
+  let maxPeak = 0.0001;
+  for (let c = 0; c < numChannels; c++) {
+    const channelData = audioBuffer.getChannelData(c);
+    // Sample step 5 for ultra fast peak scanning
+    for (let i = 0; i < channelData.length; i += 4) {
+      const val = Math.abs(channelData[i]);
+      if (val > maxPeak) maxPeak = val;
+    }
+  }
+
+  // Target peak normalization to ~0.84 (-1.5dB) so the audio is rich, clear, and perfectly audible on all phone/PC speakers
+  const normGain = maxPeak > 0.0005 ? Math.min(25.0, 0.84 / maxPeak) : 1.0;
 
   // RIFF header
   writeString(view, 0, 'RIFF');
@@ -1870,12 +1884,18 @@ function audioBufferToWavBlob(audioBuffer: AudioBuffer): string {
   writeString(view, 36, 'data');
   view.setUint32(40, length, true);
 
-  // Interleave channels
+  // Interleave channels with normalized gain & soft limiter
   let offset = 44;
   for (let i = 0; i < audioBuffer.length; i++) {
     for (let channel = 0; channel < numChannels; channel++) {
-      let sample = audioBuffer.getChannelData(channel)[i];
-      sample = Math.max(-1, Math.min(1, sample));
+      let rawSample = audioBuffer.getChannelData(channel)[i] * normGain;
+      // Soft saturation limiter to prevent digital clipping
+      if (rawSample > 0.95) {
+        rawSample = 0.95 + (rawSample - 0.95) * 0.1;
+      } else if (rawSample < -0.95) {
+        rawSample = -0.95 + (rawSample + 0.95) * 0.1;
+      }
+      const sample = Math.max(-0.99, Math.min(0.99, rawSample));
       view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7fff, true);
       offset += 2;
     }
