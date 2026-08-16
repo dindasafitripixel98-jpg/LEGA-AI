@@ -1,0 +1,120 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Validation for UserProfile
+    function isValidUserProfile(data, userId) {
+      return data.userId is string && data.userId == userId
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 100
+        && data.email is string && data.email.size() <= 150
+        && (!('avatar' in data) || (data.avatar is string && data.avatar.size() <= 50))
+        && (!('bio' in data) || (data.bio is string && data.bio.size() <= 500))
+        && (!('reflectionGoal' in data) || (data.reflectionGoal is string && data.reflectionGoal.size() <= 300))
+        && (!('preferredTone' in data) || (data.preferredTone in ['hangat', 'tenang', 'fokus']))
+        && (!('preferredVoice' in data) || (data.preferredVoice is string && data.preferredVoice.size() <= 50))
+        && (!('primaryEmotionFocus' in data) || (data.primaryEmotionFocus is string && data.primaryEmotionFocus.size() <= 50))
+        && (!('dailyReminderTime' in data) || (data.dailyReminderTime is string && data.dailyReminderTime.size() <= 10))
+        && (!('enableSoundscapes' in data) || data.enableSoundscapes is bool)
+        && (!('streakDays' in data) || data.streakDays is number)
+        && (!('totalReflections' in data) || data.totalReflections is number)
+        && (!('registeredDate' in data) || (data.registeredDate is string && data.registeredDate.size() <= 50));
+    }
+
+    // Validation for EmotionLog
+    function isValidEmotionLog(data, userId) {
+      return data.id is string && data.id.size() > 0 && data.id.size() <= 128
+        && data.userId is string && data.userId == userId
+        && data.timestamp is string && data.timestamp.size() <= 50
+        && data.emotion is string && data.emotion.size() <= 50
+        && data.intensity is number && data.intensity >= 1 && data.intensity <= 10
+        && (!('physicalSensations' in data) || (data.physicalSensations is list && data.physicalSensations.size() <= 20))
+        && (!('triggers' in data) || (data.triggers is list && data.triggers.size() <= 20))
+        && (!('notes' in data) || (data.notes is string && data.notes.size() <= 2000));
+    }
+
+    // Validation for JournalEntry
+    function isValidJournalEntry(data, userId) {
+      return data.id is string && data.id.size() > 0 && data.id.size() <= 128
+        && data.userId is string && data.userId == userId
+        && data.title is string && data.title.size() <= 200
+        && data.content is string && data.content.size() <= 10000
+        && data.date is string && data.date.size() <= 50
+        && (!('mood' in data) || (data.mood is string && data.mood.size() <= 50))
+        && (!('tags' in data) || (data.tags is list && data.tags.size() <= 30));
+    }
+
+    // Validation for AudioSession
+    function isValidAudioSession(data, userId) {
+      return data.id is string && data.id.size() > 0 && data.id.size() <= 128
+        && data.userId is string && data.userId == userId
+        && data.title is string && data.title.size() <= 200
+        && data.category is string && data.category.size() <= 50
+        && data.timestamp is string && data.timestamp.size() <= 50
+        && (!('durationSeconds' in data) || data.durationSeconds is number);
+    }
+
+    // Test connection document for initial boot check
+    match /test/connection {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // User Profile Document
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidUserProfile(incoming(), userId);
+      allow update: if isOwner(userId) && isValidUserProfile(incoming(), userId);
+      allow delete: if isOwner(userId);
+
+      // Subcollection: Emotion Logs
+      match /emotion_logs/{logId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(logId) && isValidEmotionLog(incoming(), userId);
+        allow update: if isOwner(userId) && isValidId(logId) && isValidEmotionLog(incoming(), userId);
+        allow delete: if isOwner(userId) && isValidId(logId);
+      }
+
+      // Subcollection: Journals
+      match /journals/{journalId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(journalId) && isValidJournalEntry(incoming(), userId);
+        allow update: if isOwner(userId) && isValidId(journalId) && isValidJournalEntry(incoming(), userId);
+        allow delete: if isOwner(userId) && isValidId(journalId);
+      }
+
+      // Subcollection: Audio Sessions
+      match /audio_sessions/{sessionId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(sessionId) && isValidAudioSession(incoming(), userId);
+        allow update: if isOwner(userId) && isValidId(sessionId) && isValidAudioSession(incoming(), userId);
+        allow delete: if isOwner(userId) && isValidId(sessionId);
+      }
+    }
+
+    // Global Catch-all Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

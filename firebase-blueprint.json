@@ -1,0 +1,226 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Profil pengguna LEGA termasuk target refleksi, preferensi nada AI, dan progres streak.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "ID unik pengguna Firebase Auth"
+        },
+        "name": {
+          "type": "string",
+          "description": "Nama lengkap atau nama panggilan pengguna",
+          "maxLength": 100
+        },
+        "email": {
+          "type": "string",
+          "description": "Alamat email pengguna",
+          "maxLength": 150
+        },
+        "avatar": {
+          "type": "string",
+          "description": "Karakter avatar pilihan (lotus, leaf, moon, sun, mountain, water)",
+          "maxLength": 50
+        },
+        "bio": {
+          "type": "string",
+          "description": "Catatan singkat motivasi diri",
+          "maxLength": 500
+        },
+        "reflectionGoal": {
+          "type": "string",
+          "description": "Tujuan utama perjalanan kesadaran diri",
+          "maxLength": 300
+        },
+        "preferredTone": {
+          "type": "string",
+          "description": "Gaya interaksi AI Coach",
+          "enum": ["hangat", "tenang", "fokus"]
+        },
+        "preferredVoice": {
+          "type": "string",
+          "description": "Karakter suara narasi audio AI",
+          "maxLength": 50
+        },
+        "primaryEmotionFocus": {
+          "type": "string",
+          "description": "Fokus emosi utama yang ingin dikelola",
+          "maxLength": 50
+        },
+        "dailyReminderTime": {
+          "type": "string",
+          "description": "Waktu pengingat refleksi harian (format HH:mm)",
+          "maxLength": 10
+        },
+        "enableSoundscapes": {
+          "type": "boolean",
+          "description": "Status aktif instrumen musik latar alami"
+        },
+        "streakDays": {
+          "type": "number",
+          "description": "Jumlah hari berturut-turut melakukan refleksi"
+        },
+        "totalReflections": {
+          "type": "number",
+          "description": "Total sesi refleksi yang telah diselesaikan"
+        },
+        "registeredDate": {
+          "type": "string",
+          "description": "Tanggal akun pertama kali terdaftar",
+          "maxLength": 50
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Waktu pembaruan profil terakhir"
+        }
+      },
+      "required": ["userId", "name", "email", "registeredDate"]
+    },
+    "EmotionLog": {
+      "title": "EmotionLog",
+      "description": "Catatan log emosi harian, tingkat intensitas, sensasi tubuh, pemicu, dan analisis AI.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID unik entri emosi"
+        },
+        "userId": {
+          "type": "string",
+          "description": "ID pengguna pemilik log emosi"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Waktu pencatatan emosi dalam format ISO",
+          "maxLength": 50
+        },
+        "emotion": {
+          "type": "string",
+          "description": "Kategori emosi utama yang dirasakan",
+          "maxLength": 50
+        },
+        "intensity": {
+          "type": "number",
+          "description": "Tingkat intensitas emosi skala 1-10"
+        },
+        "physicalSensations": {
+          "type": "array",
+          "description": "Daftar sensasi tubuh somatis yang dirasakan"
+        },
+        "triggers": {
+          "type": "array",
+          "description": "Daftar situasi atau pemicu emosi"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Catatan reflektif tambahan pengguna",
+          "maxLength": 2000
+        },
+        "aiAnalysis": {
+          "type": "object",
+          "description": "Hasil analisis AI Coach terkait emosi dan rekomendasi latihan"
+        }
+      },
+      "required": ["id", "userId", "timestamp", "emotion", "intensity"]
+    },
+    "JournalEntry": {
+      "title": "JournalEntry",
+      "description": "Entri jurnal refleksi harian, ekspresi emosional, dan umpan balik hangat dari AI.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID unik jurnal"
+        },
+        "userId": {
+          "type": "string",
+          "description": "ID pengguna pemilik jurnal"
+        },
+        "title": {
+          "type": "string",
+          "description": "Judul jurnal refleksi",
+          "maxLength": 200
+        },
+        "content": {
+          "type": "string",
+          "description": "Isi lengkap tulisan jurnal refleksi",
+          "maxLength": 10000
+        },
+        "date": {
+          "type": "string",
+          "description": "Tanggal pembuatan jurnal",
+          "maxLength": 50
+        },
+        "mood": {
+          "type": "string",
+          "description": "Suasana hati saat menulis jurnal",
+          "maxLength": 50
+        },
+        "tags": {
+          "type": "array",
+          "description": "Label kategori refleksi"
+        },
+        "aiFeedback": {
+          "type": "object",
+          "description": "Refleksi dan wawasan bijak dari AI"
+        }
+      },
+      "required": ["id", "userId", "title", "content", "date"]
+    },
+    "AudioSession": {
+      "title": "AudioSession",
+      "description": "Riwayat sesi audio meditasi, relaksasi pernapasan, dan lanskap suara alam yang dinikmati.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID unik sesi audio"
+        },
+        "userId": {
+          "type": "string",
+          "description": "ID pengguna"
+        },
+        "title": {
+          "type": "string",
+          "description": "Judul track atau panduan audio",
+          "maxLength": 200
+        },
+        "category": {
+          "type": "string",
+          "description": "Kategori audio (guided, nature, binaural, tts)",
+          "maxLength": 50
+        },
+        "durationSeconds": {
+          "type": "number",
+          "description": "Durasi mendengarkan dalam detik"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Waktu sesi audio diselesaikan",
+          "maxLength": 50
+        }
+      },
+      "required": ["id", "userId", "title", "category", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Dokumen data profil pribadi pengguna LEGA."
+    },
+    "/users/{userId}/emotion_logs/{logId}": {
+      "schema": "EmotionLog",
+      "description": "Sub-koleksi catatan log emosi harian milik pengguna."
+    },
+    "/users/{userId}/journals/{journalId}": {
+      "schema": "JournalEntry",
+      "description": "Sub-koleksi jurnal refleksi pribadi milik pengguna."
+    },
+    "/users/{userId}/audio_sessions/{sessionId}": {
+      "schema": "AudioSession",
+      "description": "Sub-koleksi riwayat pemutaran sesi audio relaksasi milik pengguna."
+    }
+  }
+}

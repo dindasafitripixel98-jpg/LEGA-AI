@@ -56,10 +56,11 @@ import { DemoBanner } from './components/DemoBanner';
 import { DemoAuthModal } from './components/DemoAuthModal';
 import { DemoExpirationScreen } from './components/DemoExpirationScreen';
 import { setStoredVoiceName } from './lib/voiceService';
+import { FirebaseProvider, useFirebase } from './context/FirebaseContext';
 
 export type AppFlowStage = 'landing' | 'login' | 'onboarding' | 'app';
 
-export default function App() {
+function AppContent() {
   const getInitialFlowStage = (): AppFlowStage => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
@@ -93,55 +94,24 @@ export default function App() {
   // Demo Account 24-Hour Auth Hook
   const demoState = useDemoAuth();
 
-  const getInitialProfile = (): UserProfile => {
-    const defaultProfile: UserProfile = {
-      name: 'Teman LEGA',
-      email: 'teman@lega.app',
-      avatar: 'lotus',
-      bio: 'Menemukan keheningan di tengah riuh dunia, menyayangi diri seutuhnya.',
-      reflectionGoal: 'Mengenal diri lebih dalam, mengelola cemas kerja, dan membangun ketenangan batin.',
-      preferredTone: 'tenang',
-      preferredVoice: 'Suara Tenang',
-      primaryEmotionFocus: 'overthinking',
-      dailyReminderTime: '21:00',
-      enableSoundscapes: true,
-      streakDays: 4,
-      totalReflections: 12,
-      registeredDate: new Date().toISOString().split('T')[0],
-    };
-
-    if (typeof window !== 'undefined') {
-      try {
-        const stored = localStorage.getItem('lega_user_profile');
-        if (stored) {
-          return { ...defaultProfile, ...JSON.parse(stored) };
-        }
-      } catch (err) {
-        console.warn('Profile parse notice:', err);
-      }
-    }
-    return defaultProfile;
-  };
-
-  const [userProfile, setUserProfile] = useState<UserProfile>(getInitialProfile);
-
-  const [emotionLogs, setEmotionLogs] = useState<EmotionLog[]>(INITIAL_EMOTION_LOGS);
-  const [journals, setJournals] = useState<JournalEntry[]>(INITIAL_JOURNALS);
+  // Firebase Real-time Firestore State & Functions
+  const {
+    userProfile,
+    setUserProfile,
+    emotionLogs,
+    journals,
+    saveEmotionLog,
+    addJournal,
+    updateProfile,
+    isCloudSynced
+  } = useFirebase();
 
   const handleSaveEmotionLog = (log: EmotionLog) => {
-    setEmotionLogs((prev) => [log, ...prev]);
-    setUserProfile((prev) => ({
-      ...prev,
-      totalReflections: prev.totalReflections + 1,
-    }));
+    saveEmotionLog(log);
   };
 
   const handleAddJournal = (entry: JournalEntry) => {
-    setJournals((prev) => [entry, ...prev]);
-    setUserProfile((prev) => ({
-      ...prev,
-      totalReflections: prev.totalReflections + 1,
-    }));
+    addJournal(entry);
   };
 
   const handleQuickLogMood = (emotion: EmotionCategory, intensity: number) => {
@@ -154,7 +124,7 @@ export default function App() {
       triggers: ['Dashboard Harian'],
       notes: 'Pencatatan emosi cepat dari Dashboard',
     };
-    handleSaveEmotionLog(quickLog);
+    saveEmotionLog(quickLog);
   };
 
   const renderModuleView = () => {
@@ -494,6 +464,7 @@ export default function App() {
           onOpenDemoModal={() => setIsDemoModalOpen(true)}
           onNavigateLanding={() => setFlowStage('landing')}
           onLogout={() => setFlowStage('landing')}
+          isCloudSynced={isCloudSynced}
         />
 
         <main className="flex-1 pb-12">{renderModuleView()}</main>
@@ -523,5 +494,13 @@ export default function App() {
       {/* Global AI Voice Guide Floating Controller */}
       <GlobalVoiceBar />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <FirebaseProvider>
+      <AppContent />
+    </FirebaseProvider>
   );
 }

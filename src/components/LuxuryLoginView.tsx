@@ -19,9 +19,11 @@ import {
   Heart,
   Eye,
   EyeOff,
-  AlertCircle
+  AlertCircle,
+  Cloud
 } from 'lucide-react';
 import { playCalmMeditationChime } from '../lib/audioEngine';
+import { signInWithGoogle } from '../lib/firebase';
 
 interface LuxuryLoginViewProps {
   onLoginSuccess: (userData?: { name: string; email: string }) => void;
@@ -39,6 +41,29 @@ export const LuxuryLoginView: React.FC<LuxuryLoginViewProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const handleGoogleSignIn = async () => {
+    try {
+      playCalmMeditationChime('bell', 0.15);
+      setIsLoading(true);
+      setErrorMessage(null);
+      const user = await signInWithGoogle();
+      if (user) {
+        onLoginSuccess({
+          name: user.displayName || 'Teman LEGA',
+          email: user.email || ''
+        });
+      }
+    } catch (err: any) {
+      console.warn('Google Sign In note:', err);
+      // If user closed popup or error, provide clear guidance
+      if (err?.code !== 'auth/popup-closed-by-user') {
+        setErrorMessage(err?.message || 'Gagal masuk dengan Google. Silakan coba lagi atau gunakan Akun Tamu.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleInstantDemoLogin = () => {
     playCalmMeditationChime('bell', 0.15);
@@ -134,20 +159,44 @@ export const LuxuryLoginView: React.FC<LuxuryLoginViewProps> = ({
             </p>
           </div>
 
-          {/* Quick 1-Click Instant Guest / Demo Button (HIGH CTR & ZERO FRICTION) */}
-          <div className="space-y-2">
+          {/* Google Sign In with Firebase Cloud Sync */}
+          <div className="space-y-2.5">
+            <button
+              onClick={handleGoogleSignIn}
+              disabled={isLoading}
+              className="w-full py-3 px-4 rounded-2xl bg-white hover:bg-stone-100 text-stone-900 font-bold text-xs sm:text-sm shadow-lg shadow-white/10 transition-all transform hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-3 border border-stone-300"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24">
+                <path
+                  fill="#4285F4"
+                  d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.16 0 9.97 0 12s.45 3.84 1.25 5.42l4.03-3.15z"
+                />
+                <path
+                  fill="#EA4335"
+                  d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
+                />
+              </svg>
+              <span>{isLoading ? 'Menghubungkan...' : 'Masuk dengan Google (Cloud Sync)'}</span>
+            </button>
+
+            {/* Quick 1-Click Instant Guest / Demo Button */}
             <button
               onClick={handleInstantDemoLogin}
               disabled={isLoading}
-              className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 hover:from-amber-300 hover:to-amber-200 text-stone-950 font-extrabold text-xs sm:text-sm shadow-xl shadow-amber-500/25 hover:shadow-amber-400/40 transition-all transform hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2.5"
+              className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 hover:from-amber-300 hover:to-amber-200 text-stone-950 font-extrabold text-xs sm:text-sm shadow-md shadow-amber-500/20 hover:shadow-amber-400/30 transition-all transform hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2"
             >
               <Zap className="w-4 h-4 text-stone-950 fill-stone-950" />
-              <span>{isLoading ? 'Membuka Ruang Tenang...' : 'Masuk Cepat 1-Klik (Akses Tamu 24 Jam)'}</span>
-              <ArrowRight className="w-4 h-4 stroke-[3]" />
+              <span>Masuk Cepat 1-Klik (Akses Tamu)</span>
+              <ArrowRight className="w-3.5 h-3.5 stroke-[3]" />
             </button>
-            <p className="text-[10px] text-center text-stone-400">
-              ⚡ Tanpa perlu registrasi &amp; tanpa password — langsung aktif instan
-            </p>
           </div>
 
           {/* Divider */}

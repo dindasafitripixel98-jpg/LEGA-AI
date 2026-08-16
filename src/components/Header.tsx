@@ -1,5 +1,5 @@
 import React from 'react';
-import { Menu, PhoneCall, Sparkles, Flame, User, Smartphone, Wifi, WifiOff, Clock, Key, LogOut } from 'lucide-react';
+import { Menu, PhoneCall, Sparkles, Flame, User, Smartphone, Wifi, WifiOff, Clock, Key, LogOut, Cloud, CloudOff } from 'lucide-react';
 import { ModuleType, UserProfile } from '../types';
 import { usePwa } from '../lib/pwaManager';
 import { useDemoAuth } from '../lib/demoAuthManager';
@@ -15,6 +15,7 @@ interface HeaderProps {
   onOpenDemoModal?: () => void;
   onNavigateLanding?: () => void;
   onLogout?: () => void;
+  isCloudSynced?: boolean;
 }
 
 const MODULE_TITLES: Record<ModuleType, { title: string; subtitle: string }> = {
@@ -63,6 +64,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenDemoModal,
   onNavigateLanding,
   onLogout,
+  isCloudSynced = false,
 }) => {
   const { isOnline, isInstalled } = usePwa();
 
@@ -160,6 +162,22 @@ export const Header: React.FC<HeaderProps> = ({
             </span>
           </button>
         )}
+
+        {/* Firebase Cloud Sync Status */}
+        <div
+          onClick={() => onSelectModule('profile')}
+          className={`cursor-pointer px-2.5 py-1.5 rounded-xl border text-xs font-medium flex items-center gap-1.5 transition active:scale-95 ${
+            isCloudSynced
+              ? 'bg-sky-950/50 border-sky-600/60 text-sky-300'
+              : 'bg-stone-800/80 border-stone-700/60 text-stone-400 hover:text-stone-300'
+          }`}
+          title={isCloudSynced ? 'Data tersinkronisasi aman di Firebase Cloud' : 'Firebase Cloud Siap / Mode Lokal'}
+        >
+          <Cloud className={`w-3.5 h-3.5 ${isCloudSynced ? 'text-sky-400 fill-sky-400/30' : 'text-stone-400'}`} />
+          <span className="hidden xl:inline text-[10px] font-semibold">
+            {isCloudSynced ? 'Cloud Aktif' : 'Lokal / Cloud'}
+          </span>
+        </div>
 
         {/* Streak Counter */}
         <div
