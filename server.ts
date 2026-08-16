@@ -23,9 +23,47 @@ app.use((req, res, next) => {
   next();
 });
 
-// Helper to initialize Gemini SDK safely with comprehensive environment variable fallback
-function getGeminiClient() {
+// Dynamic In-Memory Runtime Developer Configuration (Managed via Developer Control Panel)
+const runtimeDeveloperConfig = {
+  geminiApiKey: process.env.GEMINI_API_KEY || '',
+  noizApiKey: process.env.NOIZ_AI_API_KEY || process.env.NOIZ_API_KEY || 'ZDM2Njk3ZWYtYzdiMS00YzJhLWEwZjUtM2NhMjM1NGM5MDMwJHJpbmFva3Rhdmlhbmkubm92YTk3QGdtYWlsLmNvbQ==',
+  openaiApiKey: process.env.OPENAI_API_KEY || '',
+  appTitle: 'LEGA SHAQILA DIGITAL 99',
+  appTagline: 'Platform Kesadaran Diri, Manajemen Emosi & Relaksasi AI',
+  developerName: 'SHAQILA DIGITAL 99',
+  developerEmail: 'dindasafitri.pixel98@gmail.com',
+  defaultVoice: 'rina',
+  defaultMasterVolume: 0.5,
+  enableSpiritualModule: true,
+  enableCrisisHotline: true,
+  enableDemoMode24h: true,
+  customAiCoachPrompt: '',
+};
+
+let runtimeCustomerUsers: any[] = [
+  {
+    id: 'CUST-001',
+    name: 'Dinda Safitri (Owner & Developer)',
+    email: 'dindasafitri.pixel98@gmail.com',
+    phone: '+62 812-9988-7766',
+    role: 'DEVELOPER',
+    plan: 'LIFETIME',
+    status: 'ACTIVE',
+    licenseKey: 'LEGA-DEV-99001-OWNER',
+    createdAt: '2026-08-01',
+    expiresAt: '2099-12-31',
+    maxDevices: 10,
+    notes: 'Pemilik & Developer Utama Aplikasi LEGA',
+    streakCount: 28,
+    lastLogin: 'Hari ini, 04:30 WIB'
+  }
+];
+
+// Helper to initialize Gemini SDK safely with comprehensive environment variable fallback & runtime developer override
+function getGeminiClient(customKey?: string) {
   const apiKey =
+    customKey ||
+    runtimeDeveloperConfig.geminiApiKey ||
     process.env.GEMINI_API_KEY ||
     process.env.VITE_GEMINI_API_KEY ||
     process.env.GOOGLE_API_KEY ||
@@ -4274,8 +4312,10 @@ const NOIZ_VOICE_PROFILES: Record<string, {
   }
 };
 
-function getNoizApiKey(): string {
+function getNoizApiKey(customKey?: string): string {
   return (
+    customKey ||
+    runtimeDeveloperConfig.noizApiKey ||
     process.env.NOIZ_AI_API_KEY ||
     process.env.NOIZ_API_KEY ||
     process.env.VITE_NOIZ_AI_API_KEY ||
@@ -4551,6 +4591,223 @@ app.post('/api/noiz/sample', async (req, res) => {
       fallbackSynthesizer: true
     });
   }
+});
+
+// ========================================================
+// 12. DEVELOPER CONTROL PANEL LIVE BACKEND API
+// ========================================================
+
+// 12a. Get Developer System Configuration
+app.get('/api/developer/config', (req, res) => {
+  const currentGemini = runtimeDeveloperConfig.geminiApiKey || process.env.GEMINI_API_KEY || '';
+  const currentNoiz = runtimeDeveloperConfig.noizApiKey || process.env.NOIZ_AI_API_KEY || process.env.NOIZ_API_KEY || '';
+
+  const maskKey = (k: string) => {
+    if (!k || k.length < 8) return k ? '********' : '';
+    return `${k.slice(0, 6)}...${k.slice(-4)}`;
+  };
+
+  res.json({
+    success: true,
+    config: {
+      ...runtimeDeveloperConfig,
+      geminiApiKey: currentGemini,
+      noizApiKey: currentNoiz,
+      maskedGeminiKey: maskKey(currentGemini),
+      maskedNoizKey: maskKey(currentNoiz),
+      isCustomGeminiSet: !!runtimeDeveloperConfig.geminiApiKey,
+      isCustomNoizSet: !!runtimeDeveloperConfig.noizApiKey,
+    },
+    system: {
+      uptimeSeconds: Math.floor(process.uptime()),
+      nodeEnv: process.env.NODE_ENV || 'development',
+      isVercel: !!process.env.VERCEL,
+      memoryUsageMB: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+      timestamp: new Date().toISOString()
+    }
+  });
+});
+
+// 12b. Update Developer System Configuration Live at Runtime
+app.post('/api/developer/config', (req, res) => {
+  try {
+    const { config } = req.body;
+    if (!config || typeof config !== 'object') {
+      return res.status(400).json({ success: false, error: 'Payload konfigurasi tidak valid.' });
+    }
+
+    // Update keys and parameters in runtime memory
+    if (typeof config.geminiApiKey === 'string') {
+      runtimeDeveloperConfig.geminiApiKey = config.geminiApiKey.trim();
+    }
+    if (typeof config.noizApiKey === 'string') {
+      runtimeDeveloperConfig.noizApiKey = config.noizApiKey.trim();
+    }
+    if (typeof config.openaiApiKey === 'string') {
+      runtimeDeveloperConfig.openaiApiKey = config.openaiApiKey.trim();
+    }
+    if (typeof config.appTitle === 'string') {
+      runtimeDeveloperConfig.appTitle = config.appTitle.trim();
+    }
+    if (typeof config.appTagline === 'string') {
+      runtimeDeveloperConfig.appTagline = config.appTagline.trim();
+    }
+    if (typeof config.developerName === 'string') {
+      runtimeDeveloperConfig.developerName = config.developerName.trim();
+    }
+    if (typeof config.developerEmail === 'string') {
+      runtimeDeveloperConfig.developerEmail = config.developerEmail.trim();
+    }
+    if (typeof config.defaultVoice === 'string') {
+      runtimeDeveloperConfig.defaultVoice = config.defaultVoice.trim();
+    }
+    if (typeof config.defaultMasterVolume === 'number') {
+      runtimeDeveloperConfig.defaultMasterVolume = config.defaultMasterVolume;
+    }
+    if (typeof config.enableSpiritualModule === 'boolean') {
+      runtimeDeveloperConfig.enableSpiritualModule = config.enableSpiritualModule;
+    }
+    if (typeof config.enableCrisisHotline === 'boolean') {
+      runtimeDeveloperConfig.enableCrisisHotline = config.enableCrisisHotline;
+    }
+    if (typeof config.enableDemoMode24h === 'boolean') {
+      runtimeDeveloperConfig.enableDemoMode24h = config.enableDemoMode24h;
+    }
+    if (typeof config.customAiCoachPrompt === 'string') {
+      runtimeDeveloperConfig.customAiCoachPrompt = config.customAiCoachPrompt.trim();
+    }
+
+    res.json({
+      success: true,
+      message: 'Konfigurasi Developer berhasil disimpan dan aktif langsung!',
+      config: runtimeDeveloperConfig
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err?.message || 'Gagal menyimpan konfigurasi.' });
+  }
+});
+
+// 12c. Test Service Connection (Gemini or Noiz AI)
+app.post('/api/developer/test-connection', async (req, res) => {
+  const { service, apiKey } = req.body;
+  const start = Date.now();
+
+  if (service === 'gemini') {
+    try {
+      const client = getGeminiClient(apiKey);
+      const testRes = await client.models.generateContent({
+        model: 'gemini-3.7-flash',
+        contents: 'Ping test. Balas hanya 1 kata: "OK".',
+        config: { temperature: 0.1 }
+      });
+      const latencyMs = Date.now() - start;
+      const text = testRes.text || 'OK';
+      return res.json({
+        success: true,
+        latencyMs,
+        message: `Koneksi Google Gemini API Aktif & Cepat (${latencyMs}ms)`,
+        details: { response: text.trim(), model: 'gemini-3.7-flash' }
+      });
+    } catch (geminiErr: any) {
+      const latencyMs = Date.now() - start;
+      return res.json({
+        success: false,
+        latencyMs,
+        message: `Uji Gemini Gagal: ${geminiErr?.message || 'API Key tidak valid atau kuota habis.'}`
+      });
+    }
+  }
+
+  if (service === 'noiz') {
+    try {
+      const effectiveKey = getNoizApiKey(apiKey);
+      const testAudio = await callNoizAiTtsService('Tes suara Noiz AI', 'rina', 1.0, 'calm');
+      const latencyMs = Date.now() - start;
+      const hasAudio = !!(testAudio.audioBase64 || testAudio.audioDataUrl);
+      return res.json({
+        success: true,
+        latencyMs,
+        message: hasAudio
+          ? `Koneksi Noiz.ai TTS Audio Engine Berhasil (${latencyMs}ms)`
+          : `Noiz.ai terhubung dengan mode fallback audio cerdas (${latencyMs}ms)`,
+        details: { provider: testAudio.provider, hasAudio }
+      });
+    } catch (noizErr: any) {
+      const latencyMs = Date.now() - start;
+      return res.json({
+        success: false,
+        latencyMs,
+        message: `Uji Noiz AI TTS Gagal: ${noizErr?.message || 'Koneksi gagal'}`
+      });
+    }
+  }
+
+  res.status(400).json({ success: false, error: 'Service tidak dikenali.' });
+});
+
+// 12d. Get Customer Accounts
+app.get('/api/developer/users', (req, res) => {
+  res.json({
+    success: true,
+    users: runtimeCustomerUsers,
+    total: runtimeCustomerUsers.length
+  });
+});
+
+// 12e. Create Customer Account
+app.post('/api/developer/users', (req, res) => {
+  try {
+    const { user } = req.body;
+    if (!user || !user.name || !user.email) {
+      return res.status(400).json({ success: false, error: 'Nama dan Email pelanggan wajib diisi.' });
+    }
+
+    const newUser = {
+      id: user.id || `CUST-${Date.now().toString().slice(-5)}`,
+      name: user.name,
+      email: user.email,
+      phone: user.phone || '',
+      role: user.role || 'USER',
+      plan: user.plan || 'MONTHLY',
+      status: user.status || 'ACTIVE',
+      licenseKey: user.licenseKey || `LEGA-PRO-${Math.floor(10000 + Math.random() * 90000)}`,
+      createdAt: user.createdAt || new Date().toISOString().split('T')[0],
+      expiresAt: user.expiresAt || new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0],
+      maxDevices: user.maxDevices || 3,
+      notes: user.notes || '',
+      streakCount: user.streakCount || 0,
+      lastLogin: 'Baru dibuat'
+    };
+
+    runtimeCustomerUsers.unshift(newUser);
+
+    res.json({
+      success: true,
+      message: 'Akun pelanggan berhasil dibuat.',
+      user: newUser
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err?.message || 'Gagal membuat akun pelanggan.' });
+  }
+});
+
+// 12f. Update Customer Account
+app.put('/api/developer/users/:id', (req, res) => {
+  const { id } = req.params;
+  const { updates } = req.body;
+  const index = runtimeCustomerUsers.findIndex(u => u.id === id);
+  if (index !== -1) {
+    runtimeCustomerUsers[index] = { ...runtimeCustomerUsers[index], ...updates };
+    return res.json({ success: true, user: runtimeCustomerUsers[index] });
+  }
+  res.status(404).json({ success: false, error: 'Pengguna tidak ditemukan.' });
+});
+
+// 12g. Delete Customer Account
+app.delete('/api/developer/users/:id', (req, res) => {
+  const { id } = req.params;
+  runtimeCustomerUsers = runtimeCustomerUsers.filter(u => u.id !== id);
+  res.json({ success: true, message: 'Akun berhasil dihapus.' });
 });
 
 // Vite Middleware for dev & static serving for standalone prod server

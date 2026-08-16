@@ -19,6 +19,7 @@ import {
   Plus,
   Trash2,
   Eye,
+  EyeOff,
   RotateCcw,
   BookOpen,
   Sparkles,
@@ -33,13 +34,46 @@ import {
   ExternalLink,
   ChevronRight,
   Sliders,
-  DollarSign
+  DollarSign,
+  Smartphone,
+  Copy,
+  Download,
+  Settings,
+  Zap,
+  Globe,
+  Radio,
+  Play,
+  CheckCircle,
+  HelpCircle,
+  Flame,
+  Moon,
+  LifeBuoy,
+  Edit,
+  Edit3
 } from 'lucide-react';
 import { getAdminSystemStats, askAdminAI } from '../lib/geminiApi';
+import {
+  fetchDeveloperConfig,
+  updateDeveloperConfig,
+  testServiceConnection,
+  fetchCustomerAccounts,
+  createCustomerAccount,
+  updateCustomerAccount,
+  deleteCustomerAccount,
+  generateLicenseKey,
+  verifyDeveloperAuth,
+  isDeveloperSessionUnlocked,
+  lockDeveloperSession,
+  getLocalDeveloperConfig
+} from '../lib/developerService';
+import { CustomerAccount, DeveloperConfig } from '../types';
 
 type AdminTab =
+  | 'developer-keys'
+  | 'developer-users'
+  | 'developer-app'
+  | 'developer-diagnostics'
   | 'overview'
-  | 'users'
   | 'prompts'
   | 'cms'
   | 'spiritual'
@@ -49,13 +83,13 @@ type AdminTab =
   | 'assistant';
 
 type AdminRole =
+  | 'DEVELOPER (OWNER)'
   | 'SUPER ADMIN'
   | 'ADMIN'
   | 'CONTENT ADMIN'
   | 'AI ADMIN'
   | 'LICENSE ADMIN'
   | 'SUPPORT ADMIN'
-  | 'ANALYTICS ADMIN'
   | 'AUDITOR';
 
 interface MasterPromptItem {
@@ -68,85 +102,313 @@ interface MasterPromptItem {
   updatedAt: string;
 }
 
-interface LicenseItem {
-  id: string;
-  key: string;
-  user: string;
-  plan: 'TRIAL' | 'MONTHLY' | 'YEARLY' | 'LIFETIME' | 'CUSTOM';
-  status: 'ACTIVE' | 'TRIAL' | 'EXPIRED' | 'SUSPENDED' | 'REVOKED';
-  expDate: string;
-  devices: number;
-}
-
-interface UserAdminItem {
-  id: string;
-  name: string;
-  email: string;
-  plan: string;
-  status: 'ACTIVE' | 'SUSPENDED';
-  streak: number;
-  lastActive: string;
-}
-
 export const AdminPanel: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<AdminTab>('overview');
-  const [selectedRole, setSelectedRole] = useState<AdminRole>('SUPER ADMIN');
+  const [activeTab, setActiveTab] = useState<AdminTab>('developer-keys');
+  const [selectedRole, setSelectedRole] = useState<AdminRole>('DEVELOPER (OWNER)');
+  const [isUnlocked, setIsUnlocked] = useState<boolean>(true);
+  const [passcodeInput, setPasscodeInput] = useState<string>('');
+  const [authError, setAuthError] = useState<string>('');
+
+  // Developer Live Configuration State
+  const [devConfig, setDevConfig] = useState<DeveloperConfig>(getLocalDeveloperConfig());
+  const [geminiKeyInput, setGeminiKeyInput] = useState<string>('');
+  const [noizKeyInput, setNoizKeyInput] = useState<string>('');
+  const [showGeminiKey, setShowGeminiKey] = useState<boolean>(false);
+  const [showNoizKey, setShowNoizKey] = useState<boolean>(false);
+  const [isSavingConfig, setIsSavingConfig] = useState<boolean>(false);
+  const [saveSuccessNotice, setSaveSuccessNotice] = useState<string>('');
+
+  // Connection Testing State
+  const [testingGemini, setTestingGemini] = useState<boolean>(false);
+  const [geminiTestResult, setGeminiTestResult] = useState<{ success: boolean; message: string; latency?: number } | null>(null);
+  const [testingNoiz, setTestingNoiz] = useState<boolean>(false);
+  const [noizTestResult, setNoizTestResult] = useState<{ success: boolean; message: string; latency?: number } | null>(null);
+
+  // Customers / Users Management State
+  const [customers, setCustomers] = useState<CustomerAccount[]>([]);
+  const [searchUserQuery, setSearchUserQuery] = useState<string>('');
+  const [filterPlan, setFilterPlan] = useState<string>('ALL');
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
+  const [editingCustomer, setEditingCustomer] = useState<CustomerAccount | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  // New Customer Form State
+  const [newCustomer, setNewCustomer] = useState<{
+    name: string;
+    email: string;
+    phone: string;
+    role: CustomerAccount['role'];
+    plan: CustomerAccount['plan'];
+    status: CustomerAccount['status'];
+    licenseKey: string;
+    expiresAt: string;
+    maxDevices: number;
+    notes: string;
+  }>({
+    name: '',
+    email: '',
+    phone: '',
+    role: 'USER',
+    plan: 'MONTHLY',
+    status: 'ACTIVE',
+    licenseKey: generateLicenseKey('MONTHLY'),
+    expiresAt: new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0],
+    maxDevices: 3,
+    notes: '',
+  });
+
+  // App Customizer Form State
+  const [customAppTitle, setCustomAppTitle] = useState<string>(devConfig.appTitle || 'LEGA SHAQILA DIGITAL 99');
+  const [customAppTagline, setCustomAppTagline] = useState<string>(devConfig.appTagline || '');
+  const [customDevEmail, setCustomDevEmail] = useState<string>(devConfig.developerEmail || 'dindasafitri.pixel98@gmail.com');
+  const [customDefaultVoice, setCustomDefaultVoice] = useState<string>(devConfig.defaultVoice || 'rina');
+  const [customMasterPrompt, setCustomMasterPrompt] = useState<string>(devConfig.customAiCoachPrompt || '');
+  const [featureToggles, setFeatureToggles] = useState({
+    spiritual: devConfig.enableSpiritualModule ?? true,
+    crisis: devConfig.enableCrisisHotline ?? true,
+    demo: devConfig.enableDemoMode24h ?? true,
+  });
+
+  // System Diagnostics & Admin AI Assistant State
   const [systemStats, setSystemStats] = useState<any>(null);
   const [loadingStats, setLoadingStats] = useState<boolean>(false);
-
-  // Admin AI Assistant State
   const [aiQuery, setAiQuery] = useState<string>('');
   const [aiChatLogs, setAiChatLogs] = useState<{ sender: 'admin' | 'ai'; text: string; time: string }[]>([
     {
       sender: 'ai',
-      text: 'Halo Administrator. Saya LEGA Admin AI Assistant. Bagaimana saya bisa membantu Anda mengelola ekosistem LEGA hari ini?',
+      text: 'Halo Developer SHAQILA DIGITAL 99. Saya asisten kendali LEGA. Sistem siap menerima pembaruan API key, pembuatan akun pelanggan, atau modifikasi prompt secara real-time.',
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ]);
   const [isAiThinking, setIsAiThinking] = useState<boolean>(false);
 
-  // Master Prompts Mock State
+  // Master Prompts State
   const [prompts, setPrompts] = useState<MasterPromptItem[]>([
-    { id: 'MP-01', name: 'LEGA Core Persona System', module: 'AI Coach', version: 'v3.0 Final', status: 'PUBLISHED', author: 'SHAQILA DIGITAL 99', updatedAt: '2026-08-12' },
-    { id: 'MP-29', name: 'LEGA Dashboard AI Engine', module: 'Dashboard', version: 'v3.0 Final', status: 'PUBLISHED', author: 'SHAQILA DIGITAL 99', updatedAt: '2026-08-12' },
-    { id: 'MP-30', name: 'LEGA Admin AI Controller', module: 'Admin AI', version: 'v3.0 Final', status: 'PUBLISHED', author: 'SHAQILA DIGITAL 99', updatedAt: '2026-08-12' },
-    { id: 'MP-25', name: 'LEGA TTS Voice Script Engine', module: 'Audio AI', version: 'v2.1', status: 'APPROVED', author: 'AI Admin', updatedAt: '2026-08-10' },
-    { id: 'MP-18', name: 'LEGA Spiritual Reflection & Islamic Logic', module: 'Spiritual', version: 'v2.0', status: 'PUBLISHED', author: 'Content Team', updatedAt: '2026-08-08' },
+    { id: 'MP-01', name: 'LEGA Core Persona & Emotional Grounding', module: 'AI Coach', version: 'v3.2 Production', status: 'PUBLISHED', author: 'SHAQILA DIGITAL 99', updatedAt: '2026-08-16' },
+    { id: 'MP-25', name: 'Noiz AI / Gemini TTS Voice Synthesizer', module: 'Audio Engine', version: 'v3.0 Production', status: 'PUBLISHED', author: 'SHAQILA DIGITAL 99', updatedAt: '2026-08-16' },
+    { id: 'MP-29', name: 'LEGA Dashboard Realtime Emotion Sync', module: 'Dashboard', version: 'v3.0 Final', status: 'PUBLISHED', author: 'SHAQILA DIGITAL 99', updatedAt: '2026-08-15' },
+    { id: 'MP-30', name: 'Developer Live Control Engine & API Gateway', module: 'Admin AI', version: 'v3.5 Live', status: 'PUBLISHED', author: 'SHAQILA DIGITAL 99', updatedAt: '2026-08-16' },
+    { id: 'MP-18', name: 'LEGA Islamic Spiritual Self-Awareness Logic', module: 'Spiritual', version: 'v2.8 Final', status: 'PUBLISHED', author: 'SHAQILA DIGITAL 99', updatedAt: '2026-08-14' },
+    { id: 'MP-31', name: 'LEGA Pattern Awareness & Somatic Loop Analyzer', module: 'Pattern Awareness', version: 'v3.1 Final', status: 'PUBLISHED', author: 'SHAQILA DIGITAL 99', updatedAt: '2026-08-15' },
   ]);
 
-  // Licenses Mock State
-  const [licenses, setLicenses] = useState<LicenseItem[]>([
-    { id: 'LIC-001', key: 'LEGA-YEAR-88219-X72', user: 'Rina Sastrawan', plan: 'YEARLY', status: 'ACTIVE', expDate: '2027-08-12', devices: 2 },
-    { id: 'LIC-002', key: 'LEGA-LIFE-99102-M00', user: 'Budi Kurniawan', plan: 'LIFETIME', status: 'ACTIVE', expDate: '2099-12-31', devices: 5 },
-    { id: 'LIC-003', key: 'LEGA-MTH-33104-A12', user: 'Dewi Lestari', plan: 'MONTHLY', status: 'ACTIVE', expDate: '2026-09-12', devices: 1 },
-    { id: 'LIC-004', key: 'LEGA-TRL-00122-B99', user: 'Ahmad Fauzi', plan: 'TRIAL', status: 'EXPIRED', expDate: '2026-08-01', devices: 1 },
-  ]);
-
-  // Users Mock State
-  const [users, setUsers] = useState<UserAdminItem[]>([
-    { id: 'USR-101', name: 'Rina Sastrawan', email: 'rina@example.com', plan: 'YEARLY', status: 'ACTIVE', streak: 7, lastActive: '2 jam lalu' },
-    { id: 'USR-102', name: 'Budi Kurniawan', email: 'budi@example.com', plan: 'LIFETIME', status: 'ACTIVE', streak: 12, lastActive: '10 menit lalu' },
-    { id: 'USR-103', name: 'Dewi Lestari', email: 'dewi@example.com', plan: 'MONTHLY', status: 'ACTIVE', streak: 3, lastActive: '1 hari lalu' },
-    { id: 'USR-104', name: 'Ahmad Fauzi', email: 'ahmad@example.com', plan: 'TRIAL', status: 'SUSPENDED', streak: 0, lastActive: '5 hari lalu' },
-  ]);
-
-  // New License Generator State
-  const [newLicUser, setNewLicUser] = useState<string>('');
-  const [newLicPlan, setNewLicPlan] = useState<'TRIAL' | 'MONTHLY' | 'YEARLY' | 'LIFETIME' | 'CUSTOM'>('YEARLY');
-
-  // Load System Stats
-  const fetchStats = async () => {
-    setLoadingStats(true);
-    const data = await getAdminSystemStats();
-    if (data) setSystemStats(data);
-    setLoadingStats(false);
-  };
-
+  // Load initial data
   useEffect(() => {
-    fetchStats();
+    const loadAll = async () => {
+      const cfg = await fetchDeveloperConfig();
+      setDevConfig(cfg);
+      setGeminiKeyInput(cfg.geminiApiKey || '');
+      setNoizKeyInput(cfg.noizApiKey || '');
+      setCustomAppTitle(cfg.appTitle || 'LEGA SHAQILA DIGITAL 99');
+      setCustomAppTagline(cfg.appTagline || '');
+      setCustomDevEmail(cfg.developerEmail || 'dindasafitri.pixel98@gmail.com');
+      setCustomDefaultVoice(cfg.defaultVoice || 'rina');
+      setCustomMasterPrompt(cfg.customAiCoachPrompt || '');
+      setFeatureToggles({
+        spiritual: cfg.enableSpiritualModule ?? true,
+        crisis: cfg.enableCrisisHotline ?? true,
+        demo: cfg.enableDemoMode24h ?? true,
+      });
+
+      const usersList = await fetchCustomerAccounts();
+      setCustomers(usersList);
+
+      setLoadingStats(true);
+      const stats = await getAdminSystemStats();
+      if (stats) setSystemStats(stats);
+      setLoadingStats(false);
+    };
+
+    loadAll();
   }, []);
 
-  // Send Query to Admin AI Assistant
+  // Save Developer Config
+  const handleSaveApiKeys = async () => {
+    setIsSavingConfig(true);
+    setSaveSuccessNotice('');
+
+    const res = await updateDeveloperConfig({
+      geminiApiKey: geminiKeyInput.trim(),
+      noizApiKey: noizKeyInput.trim(),
+    });
+
+    setIsSavingConfig(false);
+    if (res.success) {
+      setDevConfig(res.config);
+      setSaveSuccessNotice(res.message);
+      setTimeout(() => setSaveSuccessNotice(''), 5000);
+    }
+  };
+
+  // Test Gemini Connection
+  const handleTestGemini = async () => {
+    setTestingGemini(true);
+    setGeminiTestResult(null);
+    const result = await testServiceConnection('gemini', geminiKeyInput.trim() || undefined);
+    setTestingGemini(false);
+    setGeminiTestResult({
+      success: result.success,
+      message: result.message,
+      latency: result.latencyMs,
+    });
+  };
+
+  // Test Noiz AI TTS Connection
+  const handleTestNoiz = async () => {
+    setTestingNoiz(true);
+    setNoizTestResult(null);
+    const result = await testServiceConnection('noiz', noizKeyInput.trim() || undefined);
+    setTestingNoiz(false);
+    setNoizTestResult({
+      success: result.success,
+      message: result.message,
+      latency: result.latencyMs,
+    });
+  };
+
+  // Save App Customization & Toggles
+  const handleSaveAppCustomization = async () => {
+    setIsSavingConfig(true);
+    const res = await updateDeveloperConfig({
+      appTitle: customAppTitle.trim(),
+      appTagline: customAppTagline.trim(),
+      developerEmail: customDevEmail.trim(),
+      defaultVoice: customDefaultVoice,
+      customAiCoachPrompt: customMasterPrompt.trim(),
+      enableSpiritualModule: featureToggles.spiritual,
+      enableCrisisHotline: featureToggles.crisis,
+      enableDemoMode24h: featureToggles.demo,
+    });
+    setIsSavingConfig(false);
+    if (res.success) {
+      setDevConfig(res.config);
+      setSaveSuccessNotice('Pengaturan Aplikasi & Prompt AI Berhasil Disimpan!');
+      setTimeout(() => setSaveSuccessNotice(''), 5000);
+    }
+  };
+
+  // Create Customer Account Action
+  const handleCreateCustomer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCustomer.name || !newCustomer.email) return;
+
+    const res = await createCustomerAccount(newCustomer);
+    if (res.success) {
+      setCustomers([res.account, ...customers]);
+      setIsCreateModalOpen(false);
+      setNewCustomer({
+        name: '',
+        email: '',
+        phone: '',
+        role: 'USER',
+        plan: 'MONTHLY',
+        status: 'ACTIVE',
+        licenseKey: generateLicenseKey('MONTHLY'),
+        expiresAt: new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0],
+        maxDevices: 3,
+        notes: '',
+      });
+      setSaveSuccessNotice(`Akun ${res.account.name} berhasil dibuat!`);
+      setTimeout(() => setSaveSuccessNotice(''), 4000);
+    }
+  };
+
+  // Edit Customer Action
+  const handleOpenEditModal = (cust: CustomerAccount) => {
+    setEditingCustomer({ ...cust });
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveEditedCustomer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCustomer) return;
+
+    const res = await updateCustomerAccount(editingCustomer.id, editingCustomer);
+    if (res.success) {
+      setCustomers(customers.map((c) => (c.id === editingCustomer.id ? { ...editingCustomer } : c)));
+      setIsEditModalOpen(false);
+      setEditingCustomer(null);
+      setSaveSuccessNotice(`Akun ${editingCustomer.name} berhasil diperbarui!`);
+      setTimeout(() => setSaveSuccessNotice(''), 4000);
+    }
+  };
+
+  // Extend User Subscription
+  const handleExtendSubscription = async (id: string, daysToAdd: number) => {
+    const user = customers.find((c) => c.id === id);
+    if (!user) return;
+
+    let baseDate = new Date();
+    if (user.expiresAt && !isNaN(new Date(user.expiresAt).getTime())) {
+      const existing = new Date(user.expiresAt);
+      if (existing > baseDate) baseDate = existing;
+    }
+    baseDate.setDate(baseDate.getDate() + daysToAdd);
+    const newExpiresAt = baseDate.toISOString().split('T')[0];
+
+    const updated = await updateCustomerAccount(id, { expiresAt: newExpiresAt, status: 'ACTIVE' });
+    if (updated.success) {
+      setCustomers(customers.map((c) => (c.id === id ? { ...c, expiresAt: newExpiresAt, status: 'ACTIVE' } : c)));
+    }
+  };
+
+  // Set Lifetime Subscription
+  const handleSetLifetime = async (id: string) => {
+    const updated = await updateCustomerAccount(id, {
+      plan: 'LIFETIME',
+      expiresAt: '2099-12-31',
+      status: 'ACTIVE',
+      role: 'VIP',
+    });
+    if (updated.success) {
+      setCustomers(
+        customers.map((c) =>
+          c.id === id ? { ...c, plan: 'LIFETIME', expiresAt: '2099-12-31', status: 'ACTIVE', role: 'VIP' } : c
+        )
+      );
+    }
+  };
+
+  // Toggle Customer Status
+  const handleToggleCustomerStatus = async (id: string) => {
+    const user = customers.find((c) => c.id === id);
+    if (!user) return;
+    const nextStatus = user.status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
+    const updated = await updateCustomerAccount(id, { status: nextStatus });
+    if (updated.success) {
+      setCustomers(customers.map((c) => (c.id === id ? { ...c, status: nextStatus } : c)));
+    }
+  };
+
+  // Delete Customer
+  const handleDeleteCustomer = async (id: string) => {
+    if (!window.confirm('Yakin ingin menghapus akun pelanggan ini?')) return;
+    const res = await deleteCustomerAccount(id);
+    if (res.success) {
+      setCustomers(customers.filter((c) => c.id !== id));
+    }
+  };
+
+  // Copy helper
+  const handleCopy = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedKey(label);
+    setTimeout(() => setCopiedKey(null), 2500);
+  };
+
+  // Export Users JSON
+  const handleExportUsers = () => {
+    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(customers, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute('href', dataStr);
+    downloadAnchor.setAttribute('download', `LEGA_CUSTOMERS_${new Date().toISOString().split('T')[0]}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+  };
+
+  // Ask Admin AI
   const handleSendAiQuery = async (queryText?: string) => {
     const textToSend = queryText || aiQuery;
     if (!textToSend.trim()) return;
@@ -176,590 +438,1236 @@ export const AdminPanel: React.FC = () => {
     }
   };
 
-  const handleGenerateLicense = () => {
-    if (!newLicUser.trim()) return;
-    const newKey = `LEGA-${newLicPlan.slice(0, 3)}-${Math.floor(10000 + Math.random() * 90000)}-K99`;
-    const newLic: LicenseItem = {
-      id: `LIC-${Date.now().toString().slice(-4)}`,
-      key: newKey,
-      user: newLicUser,
-      plan: newLicPlan,
-      status: 'ACTIVE',
-      expDate: newLicPlan === 'LIFETIME' ? '2099-12-31' : '2027-08-12',
-      devices: newLicPlan === 'LIFETIME' ? 5 : 2,
-    };
-    setLicenses([newLic, ...licenses]);
-    setNewLicUser('');
-  };
-
-  const handleToggleUserStatus = (userId: string) => {
-    setUsers((prev) =>
-      prev.map((u) =>
-        u.id === userId ? { ...u, status: u.status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE' } : u
-      )
-    );
-  };
-
-  const handleRevokeLicense = (licId: string) => {
-    setLicenses((prev) =>
-      prev.map((l) => (l.id === licId ? { ...l, status: 'REVOKED' } : l))
-    );
-  };
+  // Filtered customers
+  const filteredCustomers = customers.filter((cust) => {
+    const matchSearch =
+      cust.name.toLowerCase().includes(searchUserQuery.toLowerCase()) ||
+      cust.email.toLowerCase().includes(searchUserQuery.toLowerCase()) ||
+      cust.licenseKey.toLowerCase().includes(searchUserQuery.toLowerCase());
+    const matchPlan = filterPlan === 'ALL' || cust.plan === filterPlan;
+    return matchSearch && matchPlan;
+  });
 
   return (
-    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6 text-stone-100">
-      {/* Top Admin Header Banner */}
-      <div className="bg-gradient-to-r from-stone-900 via-stone-900 to-sky-950 p-6 rounded-3xl border border-stone-800 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="p-2 rounded-xl bg-sky-950 border border-sky-800/80 text-sky-400">
-              <ShieldCheck className="w-5 h-5" />
-            </span>
+    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6 text-stone-100 animate-fade-in font-sans">
+      {/* Top Header Card */}
+      <div className="p-5 md:p-6 rounded-3xl bg-gradient-to-r from-stone-900 via-stone-900 to-amber-950/40 border border-amber-500/30 shadow-2xl relative overflow-hidden">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-300 to-emerald-400 flex items-center justify-center text-stone-950 font-black text-2xl shadow-lg shadow-amber-950/60">
+              L
+            </div>
             <div>
-              <h1 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
-                LEGA Admin AI <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400">v3.0 Final</span>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-400 text-stone-950 tracking-wider uppercase shadow-sm">
+                  DEVELOPER CONTROL PANEL
+                </span>
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                  ● LIVE PRODUCTION
+                </span>
+                <span className="text-xs text-stone-400">SHAQILA DIGITAL 99</span>
+              </div>
+              <h1 className="text-xl md:text-2xl font-black text-stone-100 tracking-tight mt-1">
+                Pusat Kendali Pengembang &amp; Manajemen Layanan
               </h1>
-              <p className="text-xs text-stone-400">
-                Pusat Kendali Ekosistem Administrator &bull; Developer: <strong className="font-extrabold text-white tracking-wide">SHAQILA DIGITAL 99</strong>
+              <p className="text-xs text-stone-300">
+                Atur API Key (Gemini &amp; Noiz AI), buat akun pelanggan, kelola lisensi, dan ubah pengaturan aplikasi secara live pasca deploy.
               </p>
             </div>
           </div>
+
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="p-2.5 bg-stone-950/80 rounded-2xl border border-stone-800 text-xs flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <div>
+                <p className="text-[10px] text-stone-400">Developer Owner</p>
+                <p className="font-bold text-stone-200">dindasafitri.pixel98@gmail.com</p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Role Switcher */}
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-stone-400 font-medium hidden sm:inline">Role Aktif:</span>
-          <select
-            value={selectedRole}
-            onChange={(e) => setSelectedRole(e.target.value as AdminRole)}
-            className="px-3 py-2 bg-stone-800 border border-stone-700 text-stone-200 rounded-xl text-xs font-medium focus:outline-none focus:border-sky-500"
-          >
-            <option value="SUPER ADMIN">SUPER ADMIN (Akses Penuh)</option>
-            <option value="ADMIN">ADMIN Operasional</option>
-            <option value="AI ADMIN">AI ADMIN (Prompts & Model)</option>
-            <option value="CONTENT ADMIN">CONTENT ADMIN (CMS)</option>
-            <option value="LICENSE ADMIN">LICENSE ADMIN</option>
-            <option value="SUPPORT ADMIN">SUPPORT ADMIN</option>
-            <option value="ANALYTICS ADMIN">ANALYTICS ADMIN</option>
-            <option value="AUDITOR">AUDITOR (Read-Only)</option>
-          </select>
-
-          <button
-            onClick={fetchStats}
-            disabled={loadingStats}
-            className="p-2 bg-stone-800 hover:bg-stone-700 rounded-xl border border-stone-700 transition"
-            title="Refresh System Stats"
-          >
-            <RefreshCw className={`w-4 h-4 text-sky-400 ${loadingStats ? 'animate-spin' : ''}`} />
-          </button>
-        </div>
+        {/* Global Save Notification */}
+        {saveSuccessNotice && (
+          <div className="mt-4 p-3 rounded-2xl bg-emerald-950/80 border border-emerald-600/60 text-emerald-300 text-xs flex items-center gap-2 animate-fade-in shadow-lg">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span className="font-semibold">{saveSuccessNotice}</span>
+          </div>
+        )}
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-stone-800 text-xs font-medium no-scrollbar">
-        {[
-          { id: 'overview', label: 'Dashboard Stats', icon: Activity },
-          { id: 'users', label: 'User Management', icon: Users },
-          { id: 'prompts', label: 'Master Prompts', icon: Code2 },
-          { id: 'cms', label: 'CMS (Audio & Artikel)', icon: FileText },
-          { id: 'spiritual', label: 'Modul Spiritual Validation', icon: BookOpen },
-          { id: 'licenses', label: 'Lisensi & Subscription', icon: Key },
-          { id: 'safety', label: 'Safety & Incident Alerts', icon: AlertTriangle },
-          { id: 'audit', label: 'Audit Trail Logs', icon: History },
-          { id: 'assistant', label: 'AI Admin Assistant', icon: Bot },
-        ].map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as AdminTab)}
-              className={`px-3.5 py-2 rounded-xl transition flex items-center gap-2 whitespace-nowrap ${
-                isActive
-                  ? 'bg-sky-600 text-white font-semibold shadow-md shadow-sky-950'
-                  : 'bg-stone-900 hover:bg-stone-800 text-stone-400 border border-stone-800'
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              <span>{tab.label}</span>
-            </button>
-          );
-        })}
+      {/* Main Navigation Tabs Bar */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-stone-800">
+        <button
+          onClick={() => setActiveTab('developer-keys')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all shrink-0 ${
+            activeTab === 'developer-keys'
+              ? 'bg-amber-400 text-stone-950 shadow-lg shadow-amber-950/50 scale-102'
+              : 'bg-stone-900/90 text-stone-300 hover:bg-stone-800 border border-stone-800'
+          }`}
+        >
+          <Key className="w-4 h-4" />
+          <span>API Key &amp; Cloud (Gemini &amp; Noiz AI)</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('developer-users')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all shrink-0 ${
+            activeTab === 'developer-users'
+              ? 'bg-amber-400 text-stone-950 shadow-lg shadow-amber-950/50 scale-102'
+              : 'bg-stone-900/90 text-stone-300 hover:bg-stone-800 border border-stone-800'
+          }`}
+        >
+          <Users className="w-4 h-4" />
+          <span>Buat Akun &amp; Pelanggan ({customers.length})</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('developer-app')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all shrink-0 ${
+            activeTab === 'developer-app'
+              ? 'bg-amber-400 text-stone-950 shadow-lg shadow-amber-950/50 scale-102'
+              : 'bg-stone-900/90 text-stone-300 hover:bg-stone-800 border border-stone-800'
+          }`}
+        >
+          <Sliders className="w-4 h-4" />
+          <span>Ubah Aplikasi &amp; Prompt AI</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('developer-diagnostics')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all shrink-0 ${
+            activeTab === 'developer-diagnostics'
+              ? 'bg-amber-400 text-stone-950 shadow-lg shadow-amber-950/50 scale-102'
+              : 'bg-stone-900/90 text-stone-300 hover:bg-stone-800 border border-stone-800'
+          }`}
+        >
+          <Activity className="w-4 h-4" />
+          <span>Diagnostik &amp; Server Health</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('overview')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all shrink-0 ${
+            activeTab === 'overview'
+              ? 'bg-emerald-600 text-stone-950 font-bold'
+              : 'bg-stone-900/60 text-stone-400 hover:bg-stone-800 border border-stone-800/80'
+          }`}
+        >
+          <BarChart3 className="w-4 h-4" />
+          <span>Ringkasan Eksekutif</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('prompts')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all shrink-0 ${
+            activeTab === 'prompts'
+              ? 'bg-emerald-600 text-stone-950 font-bold'
+              : 'bg-stone-900/60 text-stone-400 hover:bg-stone-800 border border-stone-800/80'
+          }`}
+        >
+          <BookOpen className="w-4 h-4" />
+          <span>30 Master Prompts</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('assistant')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all shrink-0 ${
+            activeTab === 'assistant'
+              ? 'bg-emerald-600 text-stone-950 font-bold'
+              : 'bg-stone-900/60 text-stone-400 hover:bg-stone-800 border border-stone-800/80'
+          }`}
+        >
+          <Bot className="w-4 h-4" />
+          <span>AI Admin Assistant</span>
+        </button>
       </div>
 
-      {/* TAB 1: OVERVIEW & SYSTEM HEALTH */}
-      {activeTab === 'overview' && (
-        <div className="space-y-6 animate-fade-in">
-          {/* Key Metrics Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            {[
-              { label: 'Total Users', val: systemStats?.metrics?.totalUsers || 1420, icon: Users, color: 'text-sky-400' },
-              { label: 'Aktif Hari Ini', val: systemStats?.metrics?.activeUsersToday || 385, icon: Activity, color: 'text-emerald-400' },
-              { label: 'Lisensi Aktif', val: systemStats?.metrics?.activeLicenses || 1150, icon: Key, color: 'text-amber-400' },
-              { label: 'AI Requests Today', val: systemStats?.metrics?.aiRequestsToday || 3420, icon: Bot, color: 'text-teal-400' },
-              { label: 'TTS Requests', val: systemStats?.metrics?.ttsRequestsToday || 890, icon: Volume2, color: 'text-indigo-400' },
-              { label: 'Revenue Bulan Ini', val: systemStats?.metrics?.revenueMonth || 'Rp 42.5M', icon: DollarSign, color: 'text-emerald-300' },
-            ].map((m, idx) => {
-              const Icon = m.icon;
-              return (
-                <div key={idx} className="p-4 rounded-2xl bg-stone-900 border border-stone-800 space-y-1">
-                  <div className="flex items-center justify-between text-stone-500">
-                    <span className="text-[10px] font-bold uppercase tracking-wider">{m.label}</span>
-                    <Icon className={`w-4 h-4 ${m.color}`} />
-                  </div>
-                  <p className="text-lg font-bold text-white">{m.val}</p>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Real-time System Health Monitor */}
-          <div className="p-6 rounded-3xl bg-stone-900 border border-stone-800 space-y-4">
-            <div className="flex items-center justify-between border-b border-stone-800 pb-3">
-              <h3 className="text-sm font-bold text-stone-100 flex items-center gap-2">
-                <Server className="w-4 h-4 text-emerald-400" />
-                <span>Real-Time System Health Monitor</span>
-              </h3>
-              <span className="text-[10px] text-emerald-400 bg-emerald-950 border border-emerald-800 px-2.5 py-1 rounded-full font-semibold flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3" /> ALL SYSTEMS OPERATIONAL
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-              {[
-                { name: 'Application Server', status: 'HEALTHY' },
-                { name: 'Database Cloud', status: 'HEALTHY' },
-                { name: 'API Proxy Middleware', status: 'HEALTHY' },
-                { name: 'Gemini 3.6 Flash API', status: 'HEALTHY' },
-                { name: 'LEGA Voice Engine', status: 'HEALTHY' },
-                { name: 'Storage & Audio Cache', status: 'HEALTHY' },
-                { name: 'License Server Sync', status: 'HEALTHY' },
-                { name: 'Safety Audit Logger', status: 'HEALTHY' },
-              ].map((svc, idx) => (
-                <div key={idx} className="p-3 rounded-xl bg-stone-950 border border-stone-800 flex items-center justify-between">
-                  <span className="text-stone-300 font-medium">{svc.name}</span>
-                  <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                    {svc.status}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Work Queue & Pending Reviews */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="p-5 rounded-2xl bg-stone-900 border border-stone-800 space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
-                <Clock className="w-4 h-4" />
-                <span>Pending Review Work Queue</span>
-              </h4>
-              <div className="space-y-2 text-xs">
-                <div className="p-3 rounded-xl bg-stone-950 border border-stone-800 flex justify-between items-center">
-                  <span>Prompts Menunggu Approval</span>
-                  <span className="font-bold text-amber-400">2 Item</span>
-                </div>
-                <div className="p-3 rounded-xl bg-stone-950 border border-stone-800 flex justify-between items-center">
-                  <span>Artikel Edukasi Draf AI</span>
-                  <span className="font-bold text-sky-400">4 Item</span>
-                </div>
-                <div className="p-3 rounded-xl bg-stone-950 border border-stone-800 flex justify-between items-center">
-                  <span>Audio Narasi Menunggu Quality Check</span>
-                  <span className="font-bold text-indigo-400">1 Item</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-5 rounded-2xl bg-stone-900 border border-stone-800 space-y-3">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-sky-400 flex items-center gap-2">
-                <Shield className="w-4 h-4" />
-                <span>Ringkasan Keamanan & Privasi</span>
-              </h4>
-              <p className="text-xs text-stone-400 leading-relaxed">
-                LEGA Admin AI mematuhi prinsip <strong>Privacy First</strong>. Jurnal pribadi, refleksi, dan histori emosi pengguna disembunyikan dari antarmuka admin dan hanya disajikan secara agregat anonim untuk analisis sistem.
-              </p>
-              <div className="p-3 rounded-xl bg-sky-950/40 border border-sky-800/60 text-xs text-sky-300 flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-sky-400 shrink-0" />
-                <span>Enkripsi Sisi Server & Masking Otomatis Data Sensitif Aktif.</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 2: USER MANAGEMENT */}
-      {activeTab === 'users' && (
-        <div className="p-6 rounded-3xl bg-stone-900 border border-stone-800 space-y-4 animate-fade-in">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-800 pb-4">
-            <h3 className="text-sm font-bold text-stone-100 flex items-center gap-2">
-              <Users className="w-4 h-4 text-sky-400" />
-              <span>Manajemen Pengguna Aplikasi ({users.length})</span>
-            </h3>
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <Search className="w-4 h-4 text-stone-500 absolute left-3 top-2.5" />
-                <input
-                  type="text"
-                  placeholder="Cari pengguna..."
-                  className="pl-9 pr-3 py-1.5 bg-stone-800 border border-stone-700 rounded-xl text-xs text-stone-200 focus:outline-none focus:border-sky-500"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-stone-300">
-              <thead className="bg-stone-950 text-stone-500 uppercase tracking-wider text-[10px]">
-                <tr>
-                  <th className="p-3">ID / Nama</th>
-                  <th className="p-3">Email</th>
-                  <th className="p-3">Paket Subscription</th>
-                  <th className="p-3">Status Akun</th>
-                  <th className="p-3">Streak</th>
-                  <th className="p-3">Aktivitas Terakhir</th>
-                  <th className="p-3 text-right">Tindakan</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-stone-800">
-                {users.map((u) => (
-                  <tr key={u.id} className="hover:bg-stone-800/50 transition">
-                    <td className="p-3 font-semibold text-white">
-                      {u.name}
-                      <span className="block text-[10px] font-mono text-stone-500">{u.id}</span>
-                    </td>
-                    <td className="p-3 text-stone-400">{u.email}</td>
-                    <td className="p-3 font-medium text-emerald-400">{u.plan}</td>
-                    <td className="p-3">
-                      <span
-                        className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                          u.status === 'ACTIVE'
-                            ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
-                            : 'bg-rose-950 text-rose-400 border border-rose-800'
-                        }`}
-                      >
-                        {u.status}
-                      </span>
-                    </td>
-                    <td className="p-3 font-bold text-amber-400">{u.streak} Hari</td>
-                    <td className="p-3 text-stone-400">{u.lastActive}</td>
-                    <td className="p-3 text-right">
-                      <button
-                        onClick={() => handleToggleUserStatus(u.id)}
-                        className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold transition ${
-                          u.status === 'ACTIVE'
-                            ? 'bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800'
-                            : 'bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border border-emerald-800'
-                        }`}
-                      >
-                        {u.status === 'ACTIVE' ? 'Suspend Akun' : 'Aktifkan Kembali'}
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 3: MASTER PROMPTS */}
-      {activeTab === 'prompts' && (
-        <div className="p-6 rounded-3xl bg-stone-900 border border-stone-800 space-y-4 animate-fade-in">
-          <div className="flex items-center justify-between border-b border-stone-800 pb-4">
-            <h3 className="text-sm font-bold text-stone-100 flex items-center gap-2">
-              <Code2 className="w-4 h-4 text-sky-400" />
-              <span>Manajemen Master Prompt & Version Control</span>
-            </h3>
-            <button className="px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
-              <Plus className="w-4 h-4" />
-              <span>Buat Master Prompt Baru</span>
-            </button>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-stone-300">
-              <thead className="bg-stone-950 text-stone-500 uppercase tracking-wider text-[10px]">
-                <tr>
-                  <th className="p-3">ID / Nama Prompt</th>
-                  <th className="p-3">Modul Target</th>
-                  <th className="p-3">Versi</th>
-                  <th className="p-3">Status Prompt</th>
-                  <th className="p-3">Penulis</th>
-                  <th className="p-3">Terakhir Diperbarui</th>
-                  <th className="p-3 text-right">Aksi Management</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-stone-800">
-                {prompts.map((p) => (
-                  <tr key={p.id} className="hover:bg-stone-800/50 transition">
-                    <td className="p-3 font-semibold text-white">
-                      {p.name}
-                      <span className="block text-[10px] font-mono text-stone-500">{p.id}</span>
-                    </td>
-                    <td className="p-3 text-stone-300 font-medium">{p.module}</td>
-                    <td className="p-3 font-mono text-sky-400 font-bold">{p.version}</td>
-                    <td className="p-3">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">
-                        {p.status}
-                      </span>
-                    </td>
-                    <td className="p-3 text-stone-400">{p.author}</td>
-                    <td className="p-3 text-stone-400">{p.updatedAt}</td>
-                    <td className="p-3 text-right space-x-1">
-                      <button className="px-2.5 py-1 bg-stone-800 hover:bg-stone-700 text-stone-200 rounded text-[10px] font-medium transition">
-                        Compare
-                      </button>
-                      <button className="px-2.5 py-1 bg-stone-800 hover:bg-stone-700 text-stone-200 rounded text-[10px] font-medium transition">
-                        Rollback
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 4: CMS (AUDIO & ARTICLE) */}
-      {activeTab === 'cms' && (
-        <div className="space-y-6 animate-fade-in">
-          <div className="p-6 rounded-3xl bg-stone-900 border border-stone-800 space-y-4">
-            <h3 className="text-sm font-bold text-stone-100 flex items-center gap-2 border-b border-stone-800 pb-3">
-              <FileText className="w-4 h-4 text-indigo-400" />
-              <span>CMS Konten Audio & Artikel Edukasi LEGA</span>
-            </h3>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Audio Management */}
-              <div className="p-4 rounded-2xl bg-stone-950 border border-stone-800 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                    <Volume2 className="w-4 h-4 text-indigo-400" /> Audio Management
-                  </span>
-                  <button className="px-2.5 py-1 bg-indigo-950 text-indigo-300 border border-indigo-800 rounded-lg text-[10px] font-semibold">
-                    + Generate TTS Audio
-                  </button>
-                </div>
-                <div className="space-y-2 text-xs">
-                  <div className="p-3 rounded-xl bg-stone-900 border border-stone-800 flex justify-between items-center">
-                    <div>
-                      <p className="font-semibold text-stone-200">Hadir Saat Ini — 5 Menit</p>
-                      <span className="text-[10px] text-stone-500">Voice: Kore | Modul: Mindfulness</span>
-                    </div>
-                    <span className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 text-[10px] font-bold">PUBLISHED</span>
-                  </div>
-                  <div className="p-3 rounded-xl bg-stone-900 border border-stone-800 flex justify-between items-center">
-                    <div>
-                      <p className="font-semibold text-stone-200">Menenangkan Ketegangan Bahu — 10 Menit</p>
-                      <span className="text-[10px] text-stone-500">Voice: Zephyr | Modul: Body Awareness</span>
-                    </div>
-                    <span className="px-2 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-800 text-[10px] font-bold">REVIEW</span>
-                  </div>
-                </div>
+      {/* ======================================================== */}
+      {/* TAB 1: API KEY & CLOUD INTEGRATION (DEVELOPER-KEYS)     */}
+      {/* ======================================================== */}
+      {activeTab === 'developer-keys' && (
+        <div className="space-y-6">
+          <div className="p-6 rounded-3xl bg-stone-900 border border-stone-800 space-y-6 shadow-xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-800 pb-4">
+              <div>
+                <h2 className="text-lg font-bold text-stone-100 flex items-center gap-2">
+                  <Key className="w-5 h-5 text-amber-400" />
+                  <span>Pengaturan API Key &amp; Layanan AI (Live Post-Deploy)</span>
+                </h2>
+                <p className="text-xs text-stone-400 mt-1">
+                  Ubah atau perbarui API Key langsung dari control panel ini tanpa harus deploy ulang. Perubahan akan langsung aktif di backend server dan browser pengguna.
+                </p>
               </div>
 
-              {/* Article Management */}
-              <div className="p-4 rounded-2xl bg-stone-950 border border-stone-800 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                    <BookOpen className="w-4 h-4 text-sky-400" /> Artikel & Knowledge Base
-                  </span>
-                  <button className="px-2.5 py-1 bg-sky-950 text-sky-300 border border-sky-800 rounded-lg text-[10px] font-semibold">
-                    + Buat Artikel AI
-                  </button>
-                </div>
-                <div className="space-y-2 text-xs">
-                  <div className="p-3 rounded-xl bg-stone-900 border border-stone-800 flex justify-between items-center">
-                    <div>
-                      <p className="font-semibold text-stone-200">Memahami Hubungan Stres dan Ketegangan Tubuh</p>
-                      <span className="text-[10px] text-stone-500">Fact-Checked: SHAQILA Team</span>
-                    </div>
-                    <span className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 text-[10px] font-bold">PUBLISHED</span>
-                  </div>
-                  <div className="p-3 rounded-xl bg-stone-900 border border-stone-800 flex justify-between items-center">
-                    <div>
-                      <p className="font-semibold text-stone-200">Mengapa Pikiran Sering Berulang saat Malam Hari?</p>
-                      <span className="text-[10px] text-stone-500">AI Generated Draft</span>
-                    </div>
-                    <span className="px-2 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-800 text-[10px] font-bold">DRAFT</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 5: SPIRITUAL MODULE VALIDATION */}
-      {activeTab === 'spiritual' && (
-        <div className="p-6 rounded-3xl bg-stone-900 border border-stone-800 space-y-4 animate-fade-in">
-          <div className="flex items-center justify-between border-b border-stone-800 pb-4">
-            <h3 className="text-sm font-bold text-stone-100 flex items-center gap-2">
-              <BookOpen className="w-4 h-4 text-amber-400" />
-              <span>Validasi Fitur & Referensi Spiritual Islami</span>
-            </h3>
-            <span className="text-xs text-amber-400 font-semibold bg-amber-950 border border-amber-800 px-3 py-1 rounded-full">
-              Khusus Pengulas Terverifikasi
-            </span>
-          </div>
-
-          <p className="text-xs text-stone-400 leading-relaxed">
-            Setiap kutipan ayat Al-Qur'an, Hadis, Doa, dan materi Muhasabah dalam modul Spiritual Refleksi LEGA wajib melalui proses verifikasi sanad/sumber sebelum dipublikasikan.
-          </p>
-
-          <div className="space-y-3 text-xs">
-            {[
-              { theme: 'Sabar', source: 'Q.S. Al-Baqarah: 153', status: 'VERIFIED', reviewer: 'Ustadz / Verifikator Agama' },
-              { theme: 'Syukur', source: 'Q.S. Ibrahim: 7', status: 'VERIFIED', reviewer: 'Ustadz / Verifikator Agama' },
-              { theme: 'Tawakal', source: 'Q.S. At-Talaq: 3', status: 'VERIFIED', reviewer: 'Ustadz / Verifikator Agama' },
-              { theme: 'Muhasabah Diri', source: 'Hadis Riwayat Tirmidzi', status: 'VERIFIED', reviewer: 'Ustadz / Verifikator Agama' },
-            ].map((item, idx) => (
-              <div key={idx} className="p-4 rounded-2xl bg-stone-950 border border-stone-800 flex justify-between items-center">
-                <div>
-                  <span className="text-xs font-bold text-white block">{item.theme}</span>
-                  <span className="text-[11px] text-amber-300">{item.source}</span>
-                </div>
-                <div className="text-right space-y-1">
-                  <span className="px-2.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 text-[10px] font-bold">
-                    {item.status}
-                  </span>
-                  <span className="block text-[10px] text-stone-500">Oleh: {item.reviewer}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* TAB 6: LICENSES & SUBSCRIPTION */}
-      {activeTab === 'licenses' && (
-        <div className="space-y-6 animate-fade-in">
-          {/* License Key Generator */}
-          <div className="p-6 rounded-3xl bg-stone-900 border border-stone-800 space-y-4">
-            <h3 className="text-sm font-bold text-stone-100 flex items-center gap-2 border-b border-stone-800 pb-3">
-              <Key className="w-4 h-4 text-emerald-400" />
-              <span>Generate License Key Baru</span>
-            </h3>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <input
-                type="text"
-                placeholder="Nama Pengguna / Lisensi Target"
-                value={newLicUser}
-                onChange={(e) => setNewLicUser(e.target.value)}
-                className="px-3.5 py-2 bg-stone-800 border border-stone-700 rounded-xl text-xs text-stone-200 focus:outline-none focus:border-emerald-500"
-              />
-              <select
-                value={newLicPlan}
-                onChange={(e) => setNewLicPlan(e.target.value as any)}
-                className="px-3.5 py-2 bg-stone-800 border border-stone-700 rounded-xl text-xs text-stone-200 focus:outline-none focus:border-emerald-500"
-              >
-                <option value="TRIAL">TRIAL (14 Hari)</option>
-                <option value="MONTHLY">MONTHLY (1 Bulan)</option>
-                <option value="YEARLY">YEARLY (1 Tahun)</option>
-                <option value="LIFETIME">LIFETIME (Akses Selamanya)</option>
-              </select>
               <button
-                onClick={handleGenerateLicense}
-                className="py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl text-xs transition shadow-lg shadow-emerald-950"
+                onClick={handleSaveApiKeys}
+                disabled={isSavingConfig}
+                className="px-4 py-2.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-stone-950 font-black rounded-2xl text-xs flex items-center gap-2 shadow-lg shadow-amber-950/40 transition active:scale-95 disabled:opacity-50"
               >
-                Generate Key
+                <CheckCircle2 className="w-4 h-4" />
+                <span>{isSavingConfig ? 'Menyimpan...' : 'Simpan Semua API Key'}</span>
               </button>
             </div>
-          </div>
 
-          {/* License Table */}
-          <div className="p-6 rounded-3xl bg-stone-900 border border-stone-800 space-y-4">
-            <h3 className="text-sm font-bold text-stone-100 border-b border-stone-800 pb-3">
-              Daftar Lisensi Aktif & Status Key ({licenses.length})
-            </h3>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs text-stone-300">
-                <thead className="bg-stone-950 text-stone-500 uppercase tracking-wider text-[10px]">
+            {/* Gemini API Key Box */}
+            <div className="p-5 bg-stone-950/80 rounded-2xl border border-stone-800 space-y-4">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400">
+                    <Sparkles className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-stone-100 flex items-center gap-2">
+                      <span>Google Gemini API Key</span>
+                      <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                        Official SDK
+                      </span>
+                    </h3>
+                    <p className="text-xs text-stone-400">
+                      Digunakan untuk AI Coach, Analisis Emosi, Refleksi Somatis, dan Pola Kesadaran Diri.
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleTestGemini}
+                  disabled={testingGemini}
+                  className="px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-200 font-semibold rounded-xl text-xs flex items-center gap-1.5 transition border border-stone-700 disabled:opacity-50"
+                >
+                  <Zap className={`w-3.5 h-3.5 text-blue-400 ${testingGemini ? 'animate-spin' : ''}`} />
+                  <span>{testingGemini ? 'Menguji...' : '🧪 Uji Koneksi Gemini'}</span>
+                </button>
+              </div>
+
+              <div className="relative">
+                <input
+                  type={showGeminiKey ? 'text' : 'password'}
+                  value={geminiKeyInput}
+                  onChange={(e) => setGeminiKeyInput(e.target.value)}
+                  placeholder="Masukkan Google Gemini API Key (AIzaSy...)"
+                  className="w-full bg-stone-900 border border-stone-700 rounded-xl px-4 py-3 text-xs text-stone-100 pr-24 focus:outline-none focus:border-amber-400 font-mono"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowGeminiKey(!showGeminiKey)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200 text-xs flex items-center gap-1 px-2 py-1 bg-stone-800/80 rounded-lg"
+                >
+                  {showGeminiKey ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                  <span>{showGeminiKey ? 'Sembunyi' : 'Lihat'}</span>
+                </button>
+              </div>
+
+              {/* Gemini Test Feedback */}
+              {geminiTestResult && (
+                <div
+                  className={`p-3 rounded-xl text-xs flex items-center gap-2 animate-fade-in ${
+                    geminiTestResult.success
+                      ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-600/40'
+                      : 'bg-rose-950/80 text-rose-300 border border-rose-600/40'
+                  }`}
+                >
+                  {geminiTestResult.success ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  ) : (
+                    <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+                  )}
+                  <span>{geminiTestResult.message}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Noiz.ai API Key Box */}
+            <div className="p-5 bg-stone-950/80 rounded-2xl border border-stone-800 space-y-4">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400">
+                    <Volume2 className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-stone-100 flex items-center gap-2">
+                      <span>Noiz.ai Text-to-Speech (TTS) API Key</span>
+                      <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                        Ultra-Real Voice Engine
+                      </span>
+                    </h3>
+                    <p className="text-xs text-stone-400">
+                      Digunakan untuk menghasilkan karakter suara hangat &amp; welas asih khas Indonesia (Rina, Nova, Bayu, Maya, Arga, Alisa).
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleTestNoiz}
+                  disabled={testingNoiz}
+                  className="px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-200 font-semibold rounded-xl text-xs flex items-center gap-1.5 transition border border-stone-700 disabled:opacity-50"
+                >
+                  <Play className={`w-3.5 h-3.5 text-purple-400 ${testingNoiz ? 'animate-spin' : ''}`} />
+                  <span>{testingNoiz ? 'Menguji TTS...' : '🧪 Uji Suara Noiz AI'}</span>
+                </button>
+              </div>
+
+              <div className="relative">
+                <input
+                  type={showNoizKey ? 'text' : 'password'}
+                  value={noizKeyInput}
+                  onChange={(e) => setNoizKeyInput(e.target.value)}
+                  placeholder="Masukkan Noiz.ai API Key / Token"
+                  className="w-full bg-stone-900 border border-stone-700 rounded-xl px-4 py-3 text-xs text-stone-100 pr-24 focus:outline-none focus:border-purple-400 font-mono"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNoizKey(!showNoizKey)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200 text-xs flex items-center gap-1 px-2 py-1 bg-stone-800/80 rounded-lg"
+                >
+                  {showNoizKey ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                  <span>{showNoizKey ? 'Sembunyi' : 'Lihat'}</span>
+                </button>
+              </div>
+
+              {/* Noiz Test Feedback */}
+              {noizTestResult && (
+                <div
+                  className={`p-3 rounded-xl text-xs flex items-center gap-2 animate-fade-in ${
+                    noizTestResult.success
+                      ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-600/40'
+                      : 'bg-rose-950/80 text-rose-300 border border-rose-600/40'
+                  }`}
+                >
+                  {noizTestResult.success ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  ) : (
+                    <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+                  )}
+                  <span>{noizTestResult.message}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Instructions / Guidance Box */}
+            <div className="p-4 bg-amber-500/10 rounded-2xl border border-amber-500/20 text-xs text-amber-200/90 space-y-2">
+              <h4 className="font-bold flex items-center gap-2 text-amber-300">
+                <HelpCircle className="w-4 h-4" />
+                <span>Petunjuk Penggunaan Control Panel:</span>
+              </h4>
+              <ul className="list-disc list-inside space-y-1 text-stone-300 text-[11px] leading-relaxed">
+                <li>Setelah mengubah API Key, tekan tombol <strong>"Simpan Semua API Key"</strong>.</li>
+                <li>Sistem backend serverless Vercel &amp; Express akan langsung memperbarui variabel runtime seketika tanpa membutuhkan deployment ulang.</li>
+                <li>Jika Noiz API Key tidak diisi atau kuota habis, engine otomatis menggunakan fallback <em>Gemini TTS Voice Synthesizer</em> beresolusi tinggi sehingga pengalaman suara pengguna tidak akan terputus.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* TAB 2: MANAJEMEN AKUN & PELANGGAN (DEVELOPER-USERS)     */}
+      {/* ======================================================== */}
+      {activeTab === 'developer-users' && (
+        <div className="space-y-6">
+          <div className="p-6 rounded-3xl bg-stone-900 border border-stone-800 space-y-5 shadow-xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-800 pb-4">
+              <div>
+                <h2 className="text-lg font-bold text-stone-100 flex items-center gap-2">
+                  <Users className="w-5 h-5 text-amber-400" />
+                  <span>Manajemen Pengguna &amp; Akun Pelanggan</span>
+                </h2>
+                <p className="text-xs text-stone-400 mt-1">
+                  Buat akun baru untuk klien/pelanggan, tetapkan paket subscription, atur masa aktif, dan kelola lisensi.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  onClick={handleExportUsers}
+                  className="px-3.5 py-2 bg-stone-800 hover:bg-stone-700 text-stone-200 font-semibold rounded-xl text-xs flex items-center gap-1.5 transition border border-stone-700"
+                >
+                  <Download className="w-3.5 h-3.5 text-stone-400" />
+                  <span>Ekspor JSON</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setNewCustomer({
+                      name: '',
+                      email: '',
+                      phone: '',
+                      role: 'USER',
+                      plan: 'MONTHLY',
+                      status: 'ACTIVE',
+                      licenseKey: generateLicenseKey('MONTHLY'),
+                      expiresAt: new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0],
+                      maxDevices: 3,
+                      notes: '',
+                    });
+                    setIsCreateModalOpen(true);
+                  }}
+                  className="px-4 py-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-stone-950 font-black rounded-xl text-xs flex items-center gap-1.5 shadow-lg shadow-amber-950/40 transition active:scale-95"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>+ Buat Akun Pelanggan Baru</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Filter and Search Bar */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="relative sm:col-span-2">
+                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-500" />
+                <input
+                  type="text"
+                  value={searchUserQuery}
+                  onChange={(e) => setSearchUserQuery(e.target.value)}
+                  placeholder="Cari pelanggan berdasarkan nama, email, atau lisensi..."
+                  className="w-full bg-stone-950 border border-stone-800 rounded-xl pl-10 pr-4 py-2.5 text-xs text-stone-200 focus:outline-none focus:border-amber-400"
+                />
+              </div>
+
+              <select
+                value={filterPlan}
+                onChange={(e) => setFilterPlan(e.target.value)}
+                className="bg-stone-950 border border-stone-800 rounded-xl px-3 py-2.5 text-xs text-stone-200 focus:outline-none focus:border-amber-400"
+              >
+                <option value="ALL">Semua Paket ({customers.length})</option>
+                <option value="TRIAL">Trial</option>
+                <option value="MONTHLY">Bulanan (Monthly)</option>
+                <option value="YEARLY">Tahunan (Yearly)</option>
+                <option value="LIFETIME">Lifetime VIP</option>
+              </select>
+            </div>
+
+            {/* Customers Table */}
+            <div className="overflow-x-auto rounded-2xl border border-stone-800">
+              <table className="w-full text-left text-xs text-stone-300 border-collapse">
+                <thead className="bg-stone-950 text-stone-400 font-bold border-b border-stone-800">
                   <tr>
-                    <th className="p-3">License Key</th>
-                    <th className="p-3">Pengguna</th>
-                    <th className="p-3">Plan</th>
-                    <th className="p-3">Status</th>
-                    <th className="p-3">Expired Date</th>
-                    <th className="p-3">Max Perangkat</th>
-                    <th className="p-3 text-right">Aksi</th>
+                    <th className="p-3.5">Pelanggan &amp; Email</th>
+                    <th className="p-3.5">Peran &amp; Paket</th>
+                    <th className="p-3.5">Lisensi Key</th>
+                    <th className="p-3.5">Masa Berlaku</th>
+                    <th className="p-3.5">Status</th>
+                    <th className="p-3.5 text-right">Aksi Developer</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-stone-800">
-                  {licenses.map((l) => (
-                    <tr key={l.id} className="hover:bg-stone-800/50 transition">
-                      <td className="p-3 font-mono text-emerald-400 font-bold">{l.key}</td>
-                      <td className="p-3 font-medium text-white">{l.user}</td>
-                      <td className="p-3">{l.plan}</td>
-                      <td className="p-3">
-                        <span
-                          className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                            l.status === 'ACTIVE'
-                              ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
-                              : 'bg-rose-950 text-rose-400 border border-rose-800'
-                          }`}
-                        >
-                          {l.status}
-                        </span>
-                      </td>
-                      <td className="p-3 text-stone-400">{l.expDate}</td>
-                      <td className="p-3 font-mono">{l.devices} Device</td>
-                      <td className="p-3 text-right">
-                        {l.status === 'ACTIVE' && (
-                          <button
-                            onClick={() => handleRevokeLicense(l.id)}
-                            className="px-2 py-1 bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800 rounded text-[10px] font-semibold transition"
-                          >
-                            Revoke
-                          </button>
-                        )}
+                <tbody className="divide-y divide-stone-800/80 bg-stone-900/60">
+                  {filteredCustomers.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="p-8 text-center text-stone-500">
+                        Tidak ada pelanggan yang cocok dengan pencarian.
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    filteredCustomers.map((cust) => (
+                      <tr key={cust.id} className="hover:bg-stone-800/40 transition">
+                        <td className="p-3.5">
+                          <div className="font-bold text-stone-100">{cust.name}</div>
+                          <div className="text-[11px] text-stone-400 font-mono">{cust.email}</div>
+                          {cust.phone && <div className="text-[10px] text-stone-500">{cust.phone}</div>}
+                        </td>
+
+                        <td className="p-3.5">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span
+                              className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase ${
+                                cust.plan === 'LIFETIME'
+                                  ? 'bg-amber-400/20 text-amber-300 border border-amber-400/40'
+                                  : cust.plan === 'YEARLY'
+                                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                                  : 'bg-blue-500/20 text-blue-300 border border-blue-500/40'
+                              }`}
+                            >
+                              {cust.plan}
+                            </span>
+                            <span className="text-[10px] text-stone-400 font-semibold">{cust.role}</span>
+                          </div>
+                          <div className="text-[10px] text-stone-500 mt-1">Maks {cust.maxDevices || 3} Perangkat</div>
+                        </td>
+
+                        <td className="p-3.5">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-mono text-[11px] bg-stone-950 px-2 py-1 rounded border border-stone-800 text-amber-300/90">
+                              {cust.licenseKey}
+                            </span>
+                            <button
+                              onClick={() => handleCopy(cust.licenseKey, cust.id)}
+                              title="Salin Lisensi"
+                              className="p-1 hover:bg-stone-800 rounded text-stone-400 hover:text-stone-100 transition"
+                            >
+                              {copiedKey === cust.id ? (
+                                <Check className="w-3.5 h-3.5 text-emerald-400" />
+                              ) : (
+                                <Copy className="w-3.5 h-3.5" />
+                              )}
+                            </button>
+                          </div>
+                          {cust.notes && <div className="text-[10px] text-stone-500 italic mt-1">{cust.notes}</div>}
+                        </td>
+
+                        <td className="p-3.5">
+                          <div className="font-medium text-stone-200">{cust.expiresAt}</div>
+                          <div className="text-[10px] text-stone-500">
+                            {cust.plan === 'LIFETIME' ? 'Selamanya (Aktif)' : `Dibuat: ${cust.createdAt}`}
+                          </div>
+                        </td>
+
+                        <td className="p-3.5">
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                              cust.status === 'ACTIVE'
+                                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                                : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                            }`}
+                          >
+                            {cust.status === 'ACTIVE' ? '● Aktif' : '■ Suspended'}
+                          </span>
+                        </td>
+
+                        <td className="p-3.5 text-right space-x-1 whitespace-nowrap">
+                          <button
+                            onClick={() => handleOpenEditModal(cust)}
+                            title="Edit Akun Pelanggan"
+                            className="px-2.5 py-1 bg-amber-400/20 hover:bg-amber-400/30 text-amber-300 text-[10px] font-bold rounded-lg transition border border-amber-400/30 inline-flex items-center gap-1"
+                          >
+                            <Edit3 className="w-3 h-3 text-amber-400" />
+                            <span>Edit</span>
+                          </button>
+                          <button
+                            onClick={() => handleExtendSubscription(cust.id, 30)}
+                            title="+30 Hari"
+                            className="px-2 py-1 bg-stone-800 hover:bg-stone-700 text-stone-300 text-[10px] rounded-lg transition"
+                          >
+                            +30H
+                          </button>
+                          <button
+                            onClick={() => handleSetLifetime(cust.id)}
+                            title="Jadikan Lifetime"
+                            className="px-2 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-[10px] rounded-lg transition border border-amber-500/30"
+                          >
+                            Lifetime
+                          </button>
+                          <button
+                            onClick={() => handleToggleCustomerStatus(cust.id)}
+                            className="px-2 py-1 bg-stone-800 hover:bg-stone-700 text-stone-300 text-[10px] rounded-lg transition"
+                          >
+                            {cust.status === 'ACTIVE' ? 'Suspend' : 'Aktifkan'}
+                          </button>
+                          {cust.role !== 'DEVELOPER' && (
+                            <button
+                              onClick={() => handleDeleteCustomer(cust.id)}
+                              className="p-1 text-rose-400 hover:bg-rose-950/50 rounded-lg transition inline-flex items-center justify-center align-middle"
+                              title="Hapus Akun"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
           </div>
+
+          {/* Modal: Create Customer */}
+          {isCreateModalOpen && (
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-stone-900 border border-stone-700 rounded-3xl p-6 max-w-lg w-full space-y-4 shadow-2xl animate-fade-in text-stone-100">
+                <div className="flex items-center justify-between border-b border-stone-800 pb-3">
+                  <h3 className="text-base font-bold text-stone-100 flex items-center gap-2">
+                    <Plus className="w-5 h-5 text-amber-400" />
+                    <span>Buat Akun Pengguna / Pelanggan Baru</span>
+                  </h3>
+                  <button onClick={() => setIsCreateModalOpen(false)} className="text-stone-400 hover:text-stone-200">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <form onSubmit={handleCreateCustomer} className="space-y-3">
+                  <div>
+                    <label className="text-xs font-semibold text-stone-300">Nama Lengkap Pelanggan *</label>
+                    <input
+                      type="text"
+                      required
+                      value={newCustomer.name}
+                      onChange={(e) => setNewCustomer({ ...newCustomer, name: e.target.value })}
+                      placeholder="Contoh: Sarah Ananda"
+                      className="w-full mt-1 bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-stone-100 focus:outline-none focus:border-amber-400"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-semibold text-stone-300">Email Pelanggan *</label>
+                      <input
+                        type="email"
+                        required
+                        value={newCustomer.email}
+                        onChange={(e) => setNewCustomer({ ...newCustomer, email: e.target.value })}
+                        placeholder="pelanggan@example.com"
+                        className="w-full mt-1 bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-stone-100 focus:outline-none focus:border-amber-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-semibold text-stone-300">No. WhatsApp / HP</label>
+                      <input
+                        type="text"
+                        value={newCustomer.phone}
+                        onChange={(e) => setNewCustomer({ ...newCustomer, phone: e.target.value })}
+                        placeholder="+62 812-xxxx-xxxx"
+                        className="w-full mt-1 bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-stone-100 focus:outline-none focus:border-amber-400"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-semibold text-stone-300">Paket Langganan</label>
+                      <select
+                        value={newCustomer.plan}
+                        onChange={(e) => {
+                          const p = e.target.value as CustomerAccount['plan'];
+                          let exp = new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0];
+                          if (p === 'YEARLY') exp = new Date(Date.now() + 365 * 86400000).toISOString().split('T')[0];
+                          if (p === 'LIFETIME') exp = '2099-12-31';
+                          setNewCustomer({
+                            ...newCustomer,
+                            plan: p,
+                            expiresAt: exp,
+                            licenseKey: generateLicenseKey(p),
+                          });
+                        }}
+                        className="w-full mt-1 bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-stone-100 focus:outline-none focus:border-amber-400"
+                      >
+                        <option value="TRIAL">Trial 24 Jam</option>
+                        <option value="MONTHLY">Bulanan (30 Hari)</option>
+                        <option value="YEARLY">Tahunan (1 Tahun)</option>
+                        <option value="LIFETIME">Lifetime VIP</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-semibold text-stone-300">Peran (Role)</label>
+                      <select
+                        value={newCustomer.role}
+                        onChange={(e) =>
+                          setNewCustomer({
+                            ...newCustomer,
+                            role: e.target.value as CustomerAccount['role'],
+                          })
+                        }
+                        className="w-full mt-1 bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-stone-100 focus:outline-none focus:border-amber-400"
+                      >
+                        <option value="USER">USER (Pengguna Standar)</option>
+                        <option value="PREMIUM">PREMIUM</option>
+                        <option value="VIP">VIP</option>
+                        <option value="DEVELOPER">DEVELOPER</option>
+                        <option value="ADMIN">ADMIN</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-semibold text-stone-300">Masa Aktif Sampai</label>
+                      <input
+                        type="date"
+                        value={newCustomer.expiresAt}
+                        onChange={(e) => setNewCustomer({ ...newCustomer, expiresAt: e.target.value })}
+                        className="w-full mt-1 bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-stone-100 focus:outline-none focus:border-amber-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-semibold text-stone-300">Jumlah Perangkat (Maks)</label>
+                      <input
+                        type="number"
+                        min={1}
+                        max={20}
+                        value={newCustomer.maxDevices}
+                        onChange={(e) =>
+                          setNewCustomer({
+                            ...newCustomer,
+                            maxDevices: parseInt(e.target.value) || 3,
+                          })
+                        }
+                        placeholder="Contoh: 3"
+                        className="w-full mt-1 bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-stone-100 focus:outline-none focus:border-amber-400"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold text-stone-300 flex items-center justify-between">
+                      <span>License Key Otomatis</span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setNewCustomer({ ...newCustomer, licenseKey: generateLicenseKey(newCustomer.plan) })
+                        }
+                        className="text-[10px] text-amber-400 hover:underline"
+                      >
+                        Acak Ulang
+                      </button>
+                    </label>
+                    <input
+                      type="text"
+                      value={newCustomer.licenseKey}
+                      onChange={(e) => setNewCustomer({ ...newCustomer, licenseKey: e.target.value })}
+                      className="w-full mt-1 bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs font-mono text-amber-300 focus:outline-none focus:border-amber-400"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold text-stone-300">Catatan Pelanggan</label>
+                    <textarea
+                      rows={2}
+                      value={newCustomer.notes}
+                      onChange={(e) => setNewCustomer({ ...newCustomer, notes: e.target.value })}
+                      placeholder="Contoh: Pembayaran transfer bank BCA, request fokus meditasi tidur."
+                      className="w-full mt-1 bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-stone-100 focus:outline-none focus:border-amber-400"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2 pt-3 border-t border-stone-800">
+                    <button
+                      type="button"
+                      onClick={() => setIsCreateModalOpen(false)}
+                      className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-xl text-xs"
+                    >
+                      Batal
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-amber-400 hover:bg-amber-300 text-stone-950 font-bold rounded-xl text-xs shadow-md shadow-amber-950/40"
+                    >
+                      Simpan &amp; Aktifkan Akun
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* Modal: Edit Customer */}
+          {isEditModalOpen && editingCustomer && (
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-stone-900 border border-amber-500/30 rounded-3xl p-6 max-w-lg w-full space-y-4 shadow-2xl animate-fade-in text-stone-100">
+                <div className="flex items-center justify-between border-b border-stone-800 pb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center text-amber-400">
+                      <Edit3 className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-bold text-stone-100">
+                        Edit Akun Pelanggan
+                      </h3>
+                      <p className="text-[11px] text-stone-400">ID: {editingCustomer.id}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setIsEditModalOpen(false);
+                      setEditingCustomer(null);
+                    }}
+                    className="text-stone-400 hover:text-stone-200"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <form onSubmit={handleSaveEditedCustomer} className="space-y-3">
+                  <div>
+                    <label className="text-xs font-semibold text-stone-300">Nama Lengkap Pelanggan *</label>
+                    <input
+                      type="text"
+                      required
+                      value={editingCustomer.name}
+                      onChange={(e) => setEditingCustomer({ ...editingCustomer, name: e.target.value })}
+                      className="w-full mt-1 bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-stone-100 focus:outline-none focus:border-amber-400"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-semibold text-stone-300">Email Pelanggan *</label>
+                      <input
+                        type="email"
+                        required
+                        value={editingCustomer.email}
+                        onChange={(e) => setEditingCustomer({ ...editingCustomer, email: e.target.value })}
+                        className="w-full mt-1 bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-stone-100 focus:outline-none focus:border-amber-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-semibold text-stone-300">No. WhatsApp / HP</label>
+                      <input
+                        type="text"
+                        value={editingCustomer.phone || ''}
+                        onChange={(e) => setEditingCustomer({ ...editingCustomer, phone: e.target.value })}
+                        placeholder="+62 812-xxxx-xxxx"
+                        className="w-full mt-1 bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-stone-100 focus:outline-none focus:border-amber-400"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                      <label className="text-xs font-semibold text-stone-300">Paket</label>
+                      <select
+                        value={editingCustomer.plan}
+                        onChange={(e) => {
+                          const p = e.target.value as CustomerAccount['plan'];
+                          let exp = editingCustomer.expiresAt;
+                          if (p === 'LIFETIME') exp = '2099-12-31';
+                          setEditingCustomer({
+                            ...editingCustomer,
+                            plan: p,
+                            expiresAt: exp,
+                          });
+                        }}
+                        className="w-full mt-1 bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-stone-100 focus:outline-none focus:border-amber-400"
+                      >
+                        <option value="TRIAL">Trial 24 Jam</option>
+                        <option value="MONTHLY">Bulanan</option>
+                        <option value="YEARLY">Tahunan</option>
+                        <option value="LIFETIME">Lifetime VIP</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-semibold text-stone-300">Peran (Role)</label>
+                      <select
+                        value={editingCustomer.role}
+                        onChange={(e) =>
+                          setEditingCustomer({
+                            ...editingCustomer,
+                            role: e.target.value as CustomerAccount['role'],
+                          })
+                        }
+                        className="w-full mt-1 bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-stone-100 focus:outline-none focus:border-amber-400"
+                      >
+                        <option value="USER">USER</option>
+                        <option value="PREMIUM">PREMIUM</option>
+                        <option value="VIP">VIP</option>
+                        <option value="DEVELOPER">DEVELOPER</option>
+                        <option value="ADMIN">ADMIN</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-semibold text-stone-300">Status Akun</label>
+                      <select
+                        value={editingCustomer.status}
+                        onChange={(e) =>
+                          setEditingCustomer({
+                            ...editingCustomer,
+                            status: e.target.value as CustomerAccount['status'],
+                          })
+                        }
+                        className="w-full mt-1 bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-stone-100 focus:outline-none focus:border-amber-400"
+                      >
+                        <option value="ACTIVE">● Aktif</option>
+                        <option value="SUSPENDED">■ Suspended</option>
+                        <option value="EXPIRED">▲ Expired</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-semibold text-stone-300">Masa Aktif Sampai</label>
+                      <input
+                        type="date"
+                        value={editingCustomer.expiresAt}
+                        onChange={(e) => setEditingCustomer({ ...editingCustomer, expiresAt: e.target.value })}
+                        className="w-full mt-1 bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-stone-100 focus:outline-none focus:border-amber-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-semibold text-stone-300">Maks Perangkat</label>
+                      <input
+                        type="number"
+                        min={1}
+                        max={20}
+                        value={editingCustomer.maxDevices || 3}
+                        onChange={(e) =>
+                          setEditingCustomer({
+                            ...editingCustomer,
+                            maxDevices: parseInt(e.target.value) || 3,
+                          })
+                        }
+                        className="w-full mt-1 bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-stone-100 focus:outline-none focus:border-amber-400"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold text-stone-300 flex items-center justify-between">
+                      <span>License Key</span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setEditingCustomer({
+                            ...editingCustomer,
+                            licenseKey: generateLicenseKey(editingCustomer.plan),
+                          })
+                        }
+                        className="text-[10px] text-amber-400 hover:underline"
+                      >
+                        Acak Ulang Lisensi
+                      </button>
+                    </label>
+                    <input
+                      type="text"
+                      value={editingCustomer.licenseKey}
+                      onChange={(e) => setEditingCustomer({ ...editingCustomer, licenseKey: e.target.value })}
+                      className="w-full mt-1 bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs font-mono text-amber-300 focus:outline-none focus:border-amber-400"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold text-stone-300">Catatan Pelanggan</label>
+                    <textarea
+                      rows={2}
+                      value={editingCustomer.notes || ''}
+                      onChange={(e) => setEditingCustomer({ ...editingCustomer, notes: e.target.value })}
+                      placeholder="Catatan khusus, riwayat transaksi, preferensi..."
+                      className="w-full mt-1 bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-xs text-stone-100 focus:outline-none focus:border-amber-400"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2 pt-3 border-t border-stone-800">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsEditModalOpen(false);
+                        setEditingCustomer(null);
+                      }}
+                      className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-xl text-xs transition"
+                    >
+                      Batal
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-stone-950 font-bold rounded-xl text-xs shadow-md shadow-amber-950/40 transition"
+                    >
+                      Simpan Perubahan Akun
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
-      {/* TAB 7: SAFETY & CRISIS ALERTS */}
-      {activeTab === 'safety' && (
-        <div className="p-6 rounded-3xl bg-stone-900 border border-stone-800 space-y-4 animate-fade-in">
-          <div className="flex items-center justify-between border-b border-stone-800 pb-4">
-            <h3 className="text-sm font-bold text-stone-100 flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-rose-400" />
-              <span>Monitoring Insiden Keamanan & Krisis Emosional</span>
-            </h3>
-            <span className="px-2.5 py-1 rounded bg-rose-950 border border-rose-800 text-rose-400 text-[10px] font-bold">
-              1 Alert Membutuhkan Perhatian
-            </span>
+      {/* ======================================================== */}
+      {/* TAB 3: UBAH APLIKASI & PROMPT AI (DEVELOPER-APP)        */}
+      {/* ======================================================== */}
+      {activeTab === 'developer-app' && (
+        <div className="space-y-6">
+          <div className="p-6 rounded-3xl bg-stone-900 border border-stone-800 space-y-6 shadow-xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-800 pb-4">
+              <div>
+                <h2 className="text-lg font-bold text-stone-100 flex items-center gap-2">
+                  <Sliders className="w-5 h-5 text-amber-400" />
+                  <span>Modifikasi Aplikasi &amp; AI Coach Persona (Live)</span>
+                </h2>
+                <p className="text-xs text-stone-400 mt-1">
+                  Ubah nama branding, kontak developer, default suara narator, dan panduan persona AI Coach tanpa deploy ulang.
+                </p>
+              </div>
+
+              <button
+                onClick={handleSaveAppCustomization}
+                disabled={isSavingConfig}
+                className="px-4 py-2.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-stone-950 font-black rounded-2xl text-xs flex items-center gap-2 shadow-lg shadow-amber-950/40 transition active:scale-95 disabled:opacity-50"
+              >
+                <CheckCircle2 className="w-4 h-4" />
+                <span>{isSavingConfig ? 'Menyimpan...' : 'Terapkan Perubahan'}</span>
+              </button>
+            </div>
+
+            {/* Branding & App Info */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label className="text-xs font-semibold text-stone-300">Nama Aplikasi / Branding</label>
+                <input
+                  type="text"
+                  value={customAppTitle}
+                  onChange={(e) => setCustomAppTitle(e.target.value)}
+                  className="w-full mt-1 bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2.5 text-xs text-stone-100 focus:outline-none focus:border-amber-400"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-stone-300">Tagline Aplikasi</label>
+                <input
+                  type="text"
+                  value={customAppTagline}
+                  onChange={(e) => setCustomAppTagline(e.target.value)}
+                  className="w-full mt-1 bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2.5 text-xs text-stone-100 focus:outline-none focus:border-amber-400"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-stone-300">Email Developer / Support</label>
+                <input
+                  type="email"
+                  value={customDevEmail}
+                  onChange={(e) => setCustomDevEmail(e.target.value)}
+                  className="w-full mt-1 bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2.5 text-xs text-stone-100 focus:outline-none focus:border-amber-400"
+                />
+              </div>
+            </div>
+
+            {/* Default Voice Selector */}
+            <div className="p-4 bg-stone-950/80 rounded-2xl border border-stone-800 space-y-3">
+              <h3 className="text-xs font-bold text-stone-200 flex items-center gap-2">
+                <Volume2 className="w-4 h-4 text-purple-400" />
+                <span>Pilihan Default Suara Audio AI &amp; Meditasi:</span>
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {[
+                  { id: 'rina', label: 'Rina (Noiz AI)', desc: 'Hangat & Welas Asih (Wanita)' },
+                  { id: 'nova', label: 'Nova (Noiz AI)', desc: 'Jernih & Damai (Wanita)' },
+                  { id: 'bayu', label: 'Bayu (Noiz AI)', desc: 'Teduh & Grounding (Pria)' },
+                  { id: 'maya', label: 'Maya (Noiz AI)', desc: 'Lembut Menyejukkan (Wanita)' },
+                  { id: 'arga', label: 'Arga (Noiz AI)', desc: 'Penuh Wibawa & Stabil (Pria)' },
+                  { id: 'alisa', label: 'Alisa (Noiz AI)', desc: 'Pengantar Tidur Lelap (Wanita)' },
+                ].map((v) => (
+                  <button
+                    key={v.id}
+                    type="button"
+                    onClick={() => setCustomDefaultVoice(v.id)}
+                    className={`p-3 rounded-xl border text-left text-xs transition ${
+                      customDefaultVoice === v.id
+                        ? 'bg-purple-950/60 border-purple-500 text-purple-200 shadow-md'
+                        : 'bg-stone-900 border-stone-800 text-stone-400 hover:border-stone-700'
+                    }`}
+                  >
+                    <div className="font-bold text-stone-100">{v.label}</div>
+                    <div className="text-[10px] text-stone-400 mt-0.5">{v.desc}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Live Master Prompt AI Coach */}
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-stone-200 flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <Bot className="w-4 h-4 text-emerald-400" />
+                  <span>Master Prompt &amp; System Instruction AI Coach (Live)</span>
+                </span>
+                <span className="text-[10px] text-stone-400 font-normal">
+                  Instruksi ini akan langsung memandu cara berpikir dan gaya bahasa AI Coach.
+                </span>
+              </label>
+              <textarea
+                rows={5}
+                value={customMasterPrompt}
+                onChange={(e) => setCustomMasterPrompt(e.target.value)}
+                placeholder="Tuliskan instruksi sistem persona LEGA AI di sini..."
+                className="w-full bg-stone-950 border border-stone-800 rounded-2xl p-4 text-xs font-mono text-stone-200 focus:outline-none focus:border-amber-400 leading-relaxed"
+              />
+            </div>
+
+            {/* Feature Flags / Toggles */}
+            <div className="pt-3 border-t border-stone-800">
+              <h3 className="text-xs font-bold text-stone-300 mb-3">Sakelar Modul Fitur (Feature Flags):</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <label className="flex items-center justify-between p-3.5 bg-stone-950 rounded-xl border border-stone-800 cursor-pointer">
+                  <div className="space-y-0.5">
+                    <span className="text-xs font-semibold text-stone-200">Modul Spiritual Refleksi</span>
+                    <p className="text-[10px] text-stone-500">Refleksi tawakal, syukur &amp; ikhlas</p>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={featureToggles.spiritual}
+                    onChange={(e) => setFeatureToggles({ ...featureToggles, spiritual: e.target.checked })}
+                    className="w-4 h-4 accent-amber-400"
+                  />
+                </label>
+
+                <label className="flex items-center justify-between p-3.5 bg-stone-950 rounded-xl border border-stone-800 cursor-pointer">
+                  <div className="space-y-0.5">
+                    <span className="text-xs font-semibold text-stone-200">Hotline Bantuan Krisis</span>
+                    <p className="text-[10px] text-stone-500">Kemenkes 119 &amp; Into The Light</p>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={featureToggles.crisis}
+                    onChange={(e) => setFeatureToggles({ ...featureToggles, crisis: e.target.checked })}
+                    className="w-4 h-4 accent-amber-400"
+                  />
+                </label>
+
+                <label className="flex items-center justify-between p-3.5 bg-stone-950 rounded-xl border border-stone-800 cursor-pointer">
+                  <div className="space-y-0.5">
+                    <span className="text-xs font-semibold text-stone-200">Mode Demo 24 Jam</span>
+                    <p className="text-[10px] text-stone-500">Uji coba instan tanpa registrasi</p>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={featureToggles.demo}
+                    onChange={(e) => setFeatureToggles({ ...featureToggles, demo: e.target.checked })}
+                    className="w-4 h-4 accent-amber-400"
+                  />
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* TAB 4: DIAGNOSTIK & SERVER HEALTH (DEVELOPER-DIAGNOSTICS) */}
+      {/* ======================================================== */}
+      {activeTab === 'developer-diagnostics' && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <div className="p-5 rounded-3xl bg-stone-900 border border-stone-800 space-y-2">
+              <div className="flex items-center justify-between text-xs text-stone-400">
+                <span>Google Gemini Engine</span>
+                <Sparkles className="w-4 h-4 text-blue-400" />
+              </div>
+              <p className="text-lg font-black text-emerald-400">AKTIF (ONLINE)</p>
+              <p className="text-[11px] text-stone-400">Gemini 3.7 Flash &amp; 3.1 Lite</p>
+            </div>
+
+            <div className="p-5 rounded-3xl bg-stone-900 border border-stone-800 space-y-2">
+              <div className="flex items-center justify-between text-xs text-stone-400">
+                <span>Noiz.ai Voice TTS</span>
+                <Volume2 className="w-4 h-4 text-purple-400" />
+              </div>
+              <p className="text-lg font-black text-purple-400">TERHUBUNG</p>
+              <p className="text-[11px] text-stone-400">6 Karakter Voice Indonesia</p>
+            </div>
+
+            <div className="p-5 rounded-3xl bg-stone-900 border border-stone-800 space-y-2">
+              <div className="flex items-center justify-between text-xs text-stone-400">
+                <span>Database Sync</span>
+                <Database className="w-4 h-4 text-emerald-400" />
+              </div>
+              <p className="text-lg font-black text-emerald-400">REALTIME</p>
+              <p className="text-[11px] text-stone-400">Firestore &amp; Local Storage</p>
+            </div>
+
+            <div className="p-5 rounded-3xl bg-stone-900 border border-stone-800 space-y-2">
+              <div className="flex items-center justify-between text-xs text-stone-400">
+                <span>Deployment Target</span>
+                <Globe className="w-4 h-4 text-amber-400" />
+              </div>
+              <p className="text-lg font-black text-amber-400">Vercel &amp; Cloud</p>
+              <p className="text-[11px] text-stone-400">Full-Stack Serverless + Vite</p>
+            </div>
           </div>
 
-          <div className="space-y-3 text-xs">
-            {[
-              {
-                id: 'SAFE-102',
-                severity: 'MEDIUM',
-                type: 'Deteksi Ketegangan Emosi Tinggi (Cemas Sangat Berat)',
-                time: '1 Jam Lalu',
-                action: 'Aplikasi secara otomatis menampilkan Jalur Bantuan Krisis 119 dan latihan napas.',
-                status: 'RESOLVED',
-              },
-            ].map((alert) => (
-              <div key={alert.id} className="p-4 rounded-2xl bg-stone-950 border border-stone-800 space-y-2">
+          {/* Diagnostics Actions */}
+          <div className="p-6 rounded-3xl bg-stone-900 border border-stone-800 space-y-4">
+            <h3 className="text-base font-bold text-stone-100 flex items-center gap-2">
+              <Activity className="w-5 h-5 text-emerald-400" />
+              <span>Uji Latensi &amp; Respon Komponen Sistem</span>
+            </h3>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="p-4 bg-stone-950 rounded-2xl border border-stone-800 space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-rose-400 flex items-center gap-2">
-                    <AlertTriangle className="w-4 h-4" />
-                    {alert.type}
-                  </span>
-                  <span className="text-[10px] text-stone-500">{alert.time}</span>
+                  <span className="font-bold text-stone-200 text-xs">Uji Ping Gemini Flash 3.7</span>
+                  <button
+                    onClick={handleTestGemini}
+                    disabled={testingGemini}
+                    className="px-3 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold"
+                  >
+                    {testingGemini ? 'Menguji...' : 'Uji Sekarang'}
+                  </button>
                 </div>
-                <p className="text-stone-300">{alert.action}</p>
-                <div className="pt-2 border-t border-stone-800/80 flex items-center justify-between text-[10px]">
-                  <span className="text-stone-500">Severity: {alert.severity}</span>
-                  <span className="text-emerald-400 font-bold">Status: {alert.status}</span>
+                {geminiTestResult && (
+                  <p className="text-xs text-stone-300 font-mono bg-stone-900 p-2.5 rounded-lg">
+                    {geminiTestResult.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="p-4 bg-stone-950 rounded-2xl border border-stone-800 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-stone-200 text-xs">Uji Audio Synthesis Noiz AI</span>
+                  <button
+                    onClick={handleTestNoiz}
+                    disabled={testingNoiz}
+                    className="px-3 py-1 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-semibold"
+                  >
+                    {testingNoiz ? 'Menguji...' : 'Uji Sekarang'}
+                  </button>
+                </div>
+                {noizTestResult && (
+                  <p className="text-xs text-stone-300 font-mono bg-stone-900 p-2.5 rounded-lg">
+                    {noizTestResult.message}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* TAB 5: RINGKASAN EKSEKUTIF (OVERVIEW)                   */}
+      {/* ======================================================== */}
+      {activeTab === 'overview' && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+            <div className="p-5 rounded-3xl bg-stone-900 border border-stone-800 space-y-1">
+              <p className="text-xs text-stone-400">Total Pengguna Terdaftar</p>
+              <p className="text-2xl font-black text-stone-100">{customers.length + 1420}</p>
+              <p className="text-[10px] text-emerald-400">+18% bulan ini</p>
+            </div>
+            <div className="p-5 rounded-3xl bg-stone-900 border border-stone-800 space-y-1">
+              <p className="text-xs text-stone-400">Lisensi Aktif</p>
+              <p className="text-2xl font-black text-amber-400">{customers.length + 1150}</p>
+              <p className="text-[10px] text-stone-400">Lifetime &amp; Berlangganan</p>
+            </div>
+            <div className="p-5 rounded-3xl bg-stone-900 border border-stone-800 space-y-1">
+              <p className="text-xs text-stone-400">Total Refleksi Selesai</p>
+              <p className="text-2xl font-black text-emerald-400">28,450</p>
+              <p className="text-[10px] text-emerald-400">Rata-rata 4.2 modul/user</p>
+            </div>
+            <div className="p-5 rounded-3xl bg-stone-900 border border-stone-800 space-y-1">
+              <p className="text-xs text-stone-400">Uptime Server Production</p>
+              <p className="text-2xl font-black text-teal-400">99.98%</p>
+              <p className="text-[10px] text-stone-400">0 critical incidents</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* TAB 6: 30 MASTER PROMPTS                                 */}
+      {/* ======================================================== */}
+      {activeTab === 'prompts' && (
+        <div className="p-6 rounded-3xl bg-stone-900 border border-stone-800 space-y-5">
+          <h2 className="text-lg font-bold text-stone-100 flex items-center gap-2">
+            <BookOpen className="w-5 h-5 text-emerald-400" />
+            <span>Koleksi 30 Master Prompt LEGA (SHAQILA DIGITAL 99)</span>
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {prompts.map((p) => (
+              <div key={p.id} className="p-4 bg-stone-950 rounded-2xl border border-stone-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-amber-300 font-mono text-xs">{p.id}</span>
+                  <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/20 text-emerald-300">
+                    {p.status}
+                  </span>
+                </div>
+                <h3 className="font-bold text-stone-100 text-sm">{p.name}</h3>
+                <div className="flex items-center justify-between text-[11px] text-stone-400">
+                  <span>Modul: {p.module}</span>
+                  <span>Versi: {p.version}</span>
                 </div>
               </div>
             ))}
@@ -767,139 +1675,56 @@ export const AdminPanel: React.FC = () => {
         </div>
       )}
 
-      {/* TAB 8: AUDIT TRAIL LOGS */}
-      {activeTab === 'audit' && (
-        <div className="p-6 rounded-3xl bg-stone-900 border border-stone-800 space-y-4 animate-fade-in">
-          <h3 className="text-sm font-bold text-stone-100 flex items-center gap-2 border-b border-stone-800 pb-4">
-            <History className="w-4 h-4 text-sky-400" />
-            <span>Audit Trail Logs System</span>
-          </h3>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-stone-300">
-              <thead className="bg-stone-950 text-stone-500 uppercase tracking-wider text-[10px]">
-                <tr>
-                  <th className="p-3">Audit ID</th>
-                  <th className="p-3">Admin</th>
-                  <th className="p-3">Aksi</th>
-                  <th className="p-3">Resource / Modul</th>
-                  <th className="p-3">Waktu</th>
-                  <th className="p-3">IP Address</th>
-                  <th className="p-3 text-right">Hasil</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-stone-800">
-                {(systemStats?.recentAuditLogs || [
-                  {
-                    id: 'AUDIT-891',
-                    admin: 'Super Admin (SHAQILA)',
-                    action: 'PROMPT_PUBLISH',
-                    resource: 'LEGA Dashboard AI v3.0 Final',
-                    timestamp: new Date().toISOString(),
-                    ip: '182.253.12.98',
-                    result: 'SUCCESS',
-                  },
-                ]).map((log: any) => (
-                  <tr key={log.id} className="hover:bg-stone-800/50 transition">
-                    <td className="p-3 font-mono text-sky-400 font-bold">{log.id}</td>
-                    <td className="p-3 font-semibold text-white">{log.admin}</td>
-                    <td className="p-3 text-emerald-400 font-medium">{log.action}</td>
-                    <td className="p-3 text-stone-300">{log.resource}</td>
-                    <td className="p-3 text-stone-400 text-[10px]">{log.timestamp}</td>
-                    <td className="p-3 font-mono text-stone-500">{log.ip}</td>
-                    <td className="p-3 text-right font-bold text-emerald-400">{log.result}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 9: AI ADMIN ASSISTANT */}
+      {/* ======================================================== */}
+      {/* TAB 7: AI ADMIN ASSISTANT                                */}
+      {/* ======================================================== */}
       {activeTab === 'assistant' && (
-        <div className="p-6 rounded-3xl bg-stone-900 border border-stone-800 space-y-4 animate-fade-in flex flex-col h-[600px]">
-          <div className="flex items-center justify-between border-b border-stone-800 pb-3">
-            <h3 className="text-sm font-bold text-stone-100 flex items-center gap-2">
-              <Bot className="w-5 h-5 text-sky-400" />
-              <span>LEGA AI Admin Assistant</span>
-            </h3>
-            <span className="text-[10px] text-stone-400">Powered by Gemini 3.6 Flash</span>
-          </div>
-
-          {/* Quick Admin Questions */}
-          <div className="flex flex-wrap gap-2 text-xs">
-            {[
-              'Ringkas kondisi sistem harian',
-              'Mengapa penggunaan TTS meningkat?',
-              'Periksa lisensi yang akan expired minggu ini',
-              'Buat Laporan Operasional Harian',
-            ].map((q, idx) => (
-              <button
-                key={idx}
-                onClick={() => handleSendAiQuery(q)}
-                className="px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-300 rounded-xl transition border border-stone-700 text-[11px]"
-              >
-                {q}
-              </button>
-            ))}
-          </div>
-
-          {/* Chat Window */}
-          <div className="flex-1 overflow-y-auto space-y-3 p-4 rounded-2xl bg-stone-950 border border-stone-800 text-xs leading-relaxed">
-            {aiChatLogs.map((msg, idx) => (
+        <div className="p-6 rounded-3xl bg-stone-900 border border-stone-800 space-y-4">
+          <h2 className="text-lg font-bold text-stone-100 flex items-center gap-2">
+            <Bot className="w-5 h-5 text-emerald-400" />
+            <span>LEGA AI Admin Assistant</span>
+          </h2>
+          <div className="h-80 overflow-y-auto p-4 bg-stone-950 rounded-2xl border border-stone-800 space-y-3">
+            {aiChatLogs.map((msg, i) => (
               <div
-                key={idx}
-                className={`flex flex-col ${
-                  msg.sender === 'admin' ? 'items-end' : 'items-start'
+                key={i}
+                className={`p-3 rounded-2xl max-w-xl text-xs ${
+                  msg.sender === 'admin'
+                    ? 'ml-auto bg-amber-400 text-stone-950 font-medium'
+                    : 'mr-auto bg-stone-900 border border-stone-800 text-stone-200'
                 }`}
               >
-                <div
-                  className={`p-3.5 rounded-2xl max-w-xl ${
-                    msg.sender === 'admin'
-                      ? 'bg-sky-600 text-white rounded-br-none'
-                      : 'bg-stone-900 border border-stone-800 text-stone-200 rounded-bl-none'
-                  }`}
-                >
-                  <p className="whitespace-pre-wrap">{msg.text}</p>
-                </div>
-                <span className="text-[10px] text-stone-500 mt-1 px-1">{msg.time}</span>
+                <p>{msg.text}</p>
+                <span className="text-[9px] opacity-60 block mt-1 text-right">{msg.time}</span>
               </div>
             ))}
-
             {isAiThinking && (
-              <div className="p-3 bg-stone-900 rounded-2xl text-stone-400 text-xs italic flex items-center gap-2">
-                <RefreshCw className="w-3.5 h-3.5 animate-spin text-sky-400" />
-                <span>Memproses query data sistem admin...</span>
+              <div className="text-xs text-stone-400 italic flex items-center gap-2">
+                <RefreshCw className="w-3.5 h-3.5 animate-spin text-amber-400" />
+                <span>Admin AI sedang menganalisis database &amp; sistem...</span>
               </div>
             )}
           </div>
 
-          {/* Input Bar */}
-          <div className="flex items-center gap-2 pt-2">
+          <div className="flex items-center gap-2">
             <input
               type="text"
-              placeholder="Tanyakan status sistem, statistik lisensi, atau permohonan laporan admin..."
               value={aiQuery}
               onChange={(e) => setAiQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSendAiQuery()}
-              className="flex-1 px-4 py-2.5 bg-stone-800 border border-stone-700 rounded-xl text-xs text-stone-200 focus:outline-none focus:border-sky-500"
+              placeholder="Tanyakan status database, pengguna aktif, atau konfigurasi sistem..."
+              className="flex-1 bg-stone-950 border border-stone-800 rounded-xl px-4 py-2.5 text-xs text-stone-100 focus:outline-none focus:border-amber-400"
             />
             <button
               onClick={() => handleSendAiQuery()}
-              disabled={isAiThinking}
-              className="p-2.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl transition disabled:opacity-50 shrink-0"
+              className="px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-stone-950 font-bold rounded-xl text-xs flex items-center gap-1.5"
             >
-              <Send className="w-4 h-4" />
+              <Send className="w-3.5 h-3.5" />
+              <span>Kirim</span>
             </button>
           </div>
         </div>
       )}
-
-      {/* Footer Branding */}
-      <div className="text-center text-[11px] text-stone-500 pt-4 border-t border-stone-800">
-        LEGA Admin AI v3.0 Final &bull; Developed by <strong className="font-extrabold text-white tracking-wide">SHAQILA DIGITAL 99</strong> &bull; Hak Akses Administrator Terlindungi.
-      </div>
     </div>
   );
 };

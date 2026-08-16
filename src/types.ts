@@ -318,3 +318,47 @@ export interface PatternAnalysisResult {
   };
 }
 
+export interface DeveloperConfig {
+  geminiApiKey: string;
+  noizApiKey: string;
+  openaiApiKey?: string;
+  isCustomGeminiSet: boolean;
+  isCustomNoizSet: boolean;
+  appTitle: string;
+  appTagline: string;
+  developerName: string;
+  developerEmail: string;
+  defaultVoice: string;
+  defaultMasterVolume: number;
+  enableSpiritualModule: boolean;
+  enableCrisisHotline: boolean;
+  enableDemoMode24h: boolean;
+  customAiCoachPrompt?: string;
+}
+
+export interface CustomerAccount {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  role: 'USER' | 'PREMIUM' | 'VIP' | 'DEVELOPER' | 'ADMIN';
+  plan: 'TRIAL' | 'MONTHLY' | 'YEARLY' | 'LIFETIME';
+  status: 'ACTIVE' | 'SUSPENDED' | 'EXPIRED';
+  licenseKey: string;
+  createdAt: string;
+  expiresAt: string;
+  maxDevices: number;
+  notes?: string;
+  streakCount: number;
+  lastLogin?: string;
+}
+
+export interface ServiceHealthStatus {
+  service: 'gemini' | 'noiz' | 'database' | 'audioEngine' | 'auth';
+  name: string;
+  status: 'ONLINE' | 'DEGRADED' | 'OFFLINE' | 'CHECKING';
+  latencyMs: number;
+  message: string;
+  lastChecked: string;
+}
+

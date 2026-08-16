@@ -118,7 +118,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       items: [
         { id: 'profile', label: 'Profil Saya', icon: User },
         { id: 'settings', label: 'Pengaturan', icon: Settings },
-        { id: 'admin', label: 'Admin & Lisensi', icon: ShieldCheck }
+        { id: 'admin', label: 'Developer Control Panel', icon: ShieldCheck, badge: 'Dev' }
       ]
     }
   ];
