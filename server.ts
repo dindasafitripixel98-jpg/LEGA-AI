@@ -4694,29 +4694,52 @@ app.post('/api/developer/test-connection', async (req, res) => {
     const { service, apiKey } = req.body || {};
 
     if (service === 'gemini') {
-      try {
-        const client = getGeminiClient(apiKey);
-        const testRes = await client.models.generateContent({
-          model: 'gemini-3.7-flash',
-          contents: 'Ping test. Balas hanya 1 kata: "OK".',
-          config: { temperature: 0.1 }
-        });
-        const latencyMs = Date.now() - start;
-        const text = testRes.text || 'OK';
-        return res.json({
-          success: true,
-          latencyMs,
-          message: `Koneksi Google Gemini API Aktif & Cepat (${latencyMs}ms)`,
-          details: { response: text.trim(), model: 'gemini-3.7-flash' }
-        });
-      } catch (geminiErr: any) {
-        const latencyMs = Date.now() - start;
+      const activeKey =
+        (apiKey && typeof apiKey === 'string' ? apiKey.trim() : '') ||
+        runtimeDeveloperConfig.geminiApiKey ||
+        process.env.GEMINI_API_KEY ||
+        process.env.VITE_GEMINI_API_KEY ||
+        process.env.GOOGLE_API_KEY ||
+        process.env.GOOGLE_GENAI_API_KEY;
+
+      if (!activeKey || activeKey === 'MY_GEMINI_API_KEY') {
         return res.json({
           success: false,
-          latencyMs,
-          message: `Uji Gemini Gagal: ${geminiErr?.message || 'API Key tidak valid atau kuota habis.'}`
+          latencyMs: 0,
+          message: 'Google Gemini API Key belum diisi pada form input maupun environment server.'
         });
       }
+
+      const client = getGeminiClient(activeKey);
+      const testModels = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.0-flash-lite', 'gemini-3.7-flash'];
+      let lastError: any = null;
+
+      for (const model of testModels) {
+        try {
+          const testRes = await client.models.generateContent({
+            model,
+            contents: 'Ping test. Balas hanya 1 kata: "OK".',
+            config: { temperature: 0.1 }
+          });
+          const latencyMs = Date.now() - start;
+          const text = (testRes.text || 'OK').trim();
+          return res.json({
+            success: true,
+            latencyMs,
+            message: `Koneksi Google Gemini API Aktif & Cepat (${latencyMs}ms) — Model: ${model}`,
+            details: { response: text, model }
+          });
+        } catch (mErr: any) {
+          lastError = mErr;
+        }
+      }
+
+      const latencyMs = Date.now() - start;
+      return res.json({
+        success: false,
+        latencyMs,
+        message: `Uji Gemini Gagal: ${lastError?.message || 'API Key tidak valid atau kuota habis.'}`
+      });
     }
 
     if (service === 'noiz') {

@@ -5,6 +5,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
+import { checkDemoAccountStatus } from './developerService';
 
 export interface DemoAccountSession {
   isDemo: boolean;
@@ -111,6 +112,15 @@ export function create24HDemoSession(
  * Validate credentials for demo login
  */
 export function validateDemoLogin(identifier: string, passOrCode: string): { success: boolean; message: string; session?: DemoAccountSession } {
+  // Check if demo is currently allowed by Developer/Admin
+  const statusCheck = checkDemoAccountStatus();
+  if (!statusCheck.allowed) {
+    return {
+      success: false,
+      message: statusCheck.reason,
+    };
+  }
+
   const cleanId = (identifier || '').trim().toLowerCase();
   const cleanPass = (passOrCode || '').trim().toUpperCase();
 
@@ -118,6 +128,7 @@ export function validateDemoLogin(identifier: string, passOrCode: string): { suc
     cleanId === 'demo@lega.id' ||
     cleanId === 'demo' ||
     cleanId === 'demo24' ||
+    cleanId === 'demo.user@lega.id' ||
     cleanId === 'demo.24h@lega.id' ||
     cleanId.startsWith('demo-') ||
     cleanId.includes('demo');
@@ -126,8 +137,10 @@ export function validateDemoLogin(identifier: string, passOrCode: string): { suc
     cleanPass === 'LEGA24H' ||
     cleanPass === 'DEMO' ||
     cleanPass === 'DEMO123' ||
+    cleanPass === 'DEMO@LEGA2026' ||
     cleanPass === 'LEGA2026' ||
     cleanPass === 'LEGA-DEMO-24' ||
+    cleanPass === 'LEGA-DEMO-24H-TRIAL' ||
     cleanPass.startsWith('DEMO24-');
 
   if (isIdentifierValid && (isPassValid || cleanPass === '')) {
@@ -212,11 +225,23 @@ export function calculateDemoTimeRemaining(session: DemoAccountSession | null): 
 export function useDemoAuth() {
   const [session, setSession] = useState<DemoAccountSession | null>(getStoredDemoSession);
   const [timeRemaining, setTimeRemaining] = useState<DemoTimeRemaining>(() => calculateDemoTimeRemaining(session));
+  const [demoStatusInfo, setDemoStatusInfo] = useState(() => checkDemoAccountStatus());
 
-  // Auto-tick countdown every 1 second
+  // Auto-tick countdown and status check every 1 second
   useEffect(() => {
     const updateCountdown = () => {
+      const statusCheck = checkDemoAccountStatus();
+      setDemoStatusInfo(statusCheck);
+
       const currentSession = getStoredDemoSession();
+      if (!statusCheck.allowed && currentSession) {
+        // If demo switch was turned OFF or demo account suspended, invalidate demo session
+        saveDemoSession(null);
+        setSession(null);
+        setTimeRemaining(calculateDemoTimeRemaining(null));
+        return;
+      }
+
       setSession(currentSession);
       const remaining = calculateDemoTimeRemaining(currentSession);
       setTimeRemaining(remaining);
@@ -237,6 +262,12 @@ export function useDemoAuth() {
   }, []);
 
   const quickStartDemo = useCallback((name?: string, email?: string) => {
+    const statusCheck = checkDemoAccountStatus();
+    if (!statusCheck.allowed) {
+      saveDemoSession(null);
+      setSession(null);
+      return null;
+    }
     const newSession = create24HDemoSession(name, email);
     setSession(newSession);
     setTimeRemaining(calculateDemoTimeRemaining(newSession));
@@ -244,6 +275,12 @@ export function useDemoAuth() {
   }, []);
 
   const resetDemoSession = useCallback(() => {
+    const statusCheck = checkDemoAccountStatus();
+    if (!statusCheck.allowed) {
+      saveDemoSession(null);
+      setSession(null);
+      return null;
+    }
     const newSession = create24HDemoSession(session?.accountName, session?.accountEmail);
     setSession(newSession);
     setTimeRemaining(calculateDemoTimeRemaining(newSession));
@@ -269,10 +306,15 @@ export function useDemoAuth() {
     setTimeRemaining(calculateDemoTimeRemaining(expiredSession));
   }, [session]);
 
+  const isDemoActive = !!session && !timeRemaining.isExpired && demoStatusInfo.allowed;
+
   return {
-    isDemoActive: !!session && !timeRemaining.isExpired,
+    isDemoActive,
     isDemoSession: !!session,
     isExpired: !!session && timeRemaining.isExpired,
+    isDemoAllowed: demoStatusInfo.allowed,
+    demoBlockedReason: demoStatusInfo.reason,
+    demoStatus: demoStatusInfo.status,
     session,
     timeRemaining,
     loginDemo,

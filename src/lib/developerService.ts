@@ -10,6 +10,66 @@ const DEV_CONFIG_STORAGE_KEY = 'lega_dev_custom_config_v1';
 const DEV_USERS_STORAGE_KEY = 'lega_dev_customer_accounts_v1';
 const DEV_AUTH_SESSION_KEY = 'lega_dev_authenticated_session';
 
+export const DEFAULT_LANDING_PAGE_CONFIG = {
+  topBrandTag: 'SHAQILA DIGITAL 99',
+  topBrandSlogan: 'LEGA SHAQILA DIGITAL 99 • Platform Kesadaran Diri, Pengelolaan Emosi & Relaksasi Berbasis AI',
+  heroBadge: 'LEGA SHAQILA DIGITAL 99 • Kesadaran Diri, Pengelolaan Emosi & Relaksasi AI',
+  heroHeadline: 'LEGA SHAQILA DIGITAL 99',
+  heroSubheadline: 'Platform kesadaran diri, pengelolaan emosi & relaksasi berbasis AI.',
+  heroDescription: 'Ruang digital untuk mengenal diri, memahami emosi, dan menemukan ketenangan.',
+  heroDetailsBox:
+    'Dilengkapi dengan AI Coach, Emotion Analyzer, latihan pelepasan emosi, refleksi diri, pengamatan emosi, audio relaksasi dengan berbagai suasana alam, dan 6 pilihan suara pemandu yang dapat disesuaikan dengan pengalaman pengguna.',
+  heroApprochNote: 'Pendampingan dilakukan dengan pendekatan yang hangat, tenang, dan tanpa penghakiman.',
+  heroCtaPrimaryText: 'Masuk Ruang Tenang Sekarang',
+  heroCtaSecondaryText: 'Dengarkan 6 Pilihan Suara Pemandu',
+  mediaType: 'image' as const,
+  heroImageUrl: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=1200&auto=format&fit=crop&q=80',
+  heroImageCaption: 'Pengalaman Ruang Tenang & Relaksasi Batin Berbasis AI',
+  heroVideoUrl: 'https://www.youtube.com/watch?v=inpok4MKVLM',
+  heroVideoTitle: 'Video Pengenalan LEGA AI',
+  heroVideoSubtitle: 'Saksikan bagaimana LEGA memandu Anda meredakan kecemasan dan stres dalam 3 menit.',
+  enablePromoBanner: true,
+  promoBannerBadge: 'PROMO SPESIAL',
+  promoBannerText: 'Akses Penuh 24 Jam Gratis Seluruh Fitur AI Coach & 15+ Suasana Relaksasi Alam',
+  beforeTitle: 'Sebelum Mengenal LEGA',
+  beforePoints: [
+    'Overthinking Malam Hari: Jam 2 pagi mata masih terbuka memikirkan ketakutan & beban pikiran.',
+    'Dada Sesak & Bahu Tegang: Stres menumpuk di fisik tanpa ada saluran pelepasan yang aman.',
+    'Takut Curhat ke Orang Lain: Khawatir dianggap lemah, berlebihan, atau justru dihakimi.',
+    'Emosi Tersumbat: Marah dan sedih dipendam hingga menguras energi batin.'
+  ],
+  afterTitle: 'Setelah Bersama LEGA',
+  afterPoints: [
+    'Tidur Lelap & Tenang: Frekuensi 432Hz dan pernapasan ritmik melambatkan gelombang otak.',
+    'Dada Plong & Otot Rileks: Teknik somatis melepaskan ketegangan saraf dalam hitungan menit.',
+    'Ruang Aman Tanpa Penghakiman: AI Coach mendengarkan dengan penuh empati dan welas asih.',
+    'Emosi Terkelola Jernih: Mengetahui akar emosi dan memiliki pilihan respons yang berdaya.'
+  ],
+  contactWhatsapp: '+62 812-9988-7766',
+  contactEmail: 'dindasafitri.pixel98@gmail.com',
+  footerTagline: 'Diciptakan dengan cinta & welas asih oleh SHAQILA DIGITAL 99 untuk ketenangan jiwa Nusantara.',
+  galleryImages: [
+    {
+      id: 'gal-1',
+      imageUrl: 'https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?w=800&auto=format&fit=crop&q=80',
+      title: '15+ Audio Alam & Frekuensi Solfeggio',
+      description: 'Hujan di kaca, gemericik sungai, petikan gitar 432Hz disintesis real-time.'
+    },
+    {
+      id: 'gal-2',
+      imageUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80',
+      title: 'Pelepasan Somatis & Pernapasan 4-7-8',
+      description: 'Panduan ritmik menenangkan saraf parasimpatis dalam hitungan detik.'
+    },
+    {
+      id: 'gal-3',
+      imageUrl: 'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=800&auto=format&fit=crop&q=80',
+      title: 'AI Coach Welas Asih 24/7',
+      description: 'Refleksi mendalam tanpa penghakiman didukung model AI modern.'
+    }
+  ]
+};
+
 const DEFAULT_DEV_CONFIG: DeveloperConfig = {
   geminiApiKey: '',
   noizApiKey: 'ZDM2Njk3ZWYtYzdiMS00YzJhLWEwZjUtM2NhMjM1NGM5MDMwJHJpbmFva3Rhdmlhbmkubm92YTk3QGdtYWlsLmNvbQ==',
@@ -27,6 +87,7 @@ const DEFAULT_DEV_CONFIG: DeveloperConfig = {
   enableDemoMode24h: true,
   customAiCoachPrompt:
     'Anda adalah LEGA AI Coach, sahabat refleksi diri penuh welas asih, hangat, dan ilmiah dalam psikologi kesadaran diri Indonesia.',
+  landingPage: DEFAULT_LANDING_PAGE_CONFIG,
 };
 
 const INITIAL_CUSTOMERS: CustomerAccount[] = [
@@ -219,6 +280,37 @@ export async function updateDeveloperConfig(config: Partial<DeveloperConfig>): P
 }
 
 /**
+ * Check if Public Demo Account is currently allowed/active
+ */
+export function checkDemoAccountStatus(): { allowed: boolean; reason: string; status: 'ACTIVE' | 'SUSPENDED' | 'DISABLED' } {
+  const config = getLocalDeveloperConfig();
+  const isDemoSwitchOn = config.enableDemoMode24h ?? true;
+  if (!isDemoSwitchOn) {
+    return {
+      allowed: false,
+      reason: 'Sakelar Akses Akun Demo Publik sedang dinonaktifkan dari Pusat Kendali Admin (MODE DEMO NONAKTIF).',
+      status: 'DISABLED'
+    };
+  }
+
+  const accounts = getLocalCustomerAccounts();
+  const demoAcc = accounts.find((a) => a.id === 'CUST-DEMO' || a.email.toLowerCase() === 'demo.user@lega.id');
+  if (demoAcc && demoAcc.status === 'SUSPENDED') {
+    return {
+      allowed: false,
+      reason: 'Akun Demo Publik saat ini berstatus Ditangguhkan (Suspended) oleh Admin.',
+      status: 'SUSPENDED'
+    };
+  }
+
+  return {
+    allowed: true,
+    reason: 'Akun Demo Publik Aktif & Beroperasi Normal.',
+    status: 'ACTIVE'
+  };
+}
+
+/**
  * Test service connectivity (Gemini or Noiz AI)
  * Resilient for both Server-Side (Cloud Run/Express) and Post-Deploy Static/Serverless Environments
  */
@@ -264,44 +356,48 @@ export async function testServiceConnection(
     }
 
     try {
-      // Direct REST test to Google Generative Language endpoint
-      const isBearer = targetKey.startsWith('AQ.') || targetKey.startsWith('ya29.');
-      const directUrl = isBearer
-        ? 'https://generativelanguage.googleapis.com/v1beta/models'
-        : `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(targetKey)}`;
+      // Direct REST test to official Google Generative Language endpoints
+      const candidateModels = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.0-flash-lite'];
+      let lastErrMsg = '';
 
-      const testHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
-      if (isBearer) {
-        testHeaders['Authorization'] = `Bearer ${targetKey}`;
+      for (const model of candidateModels) {
+        try {
+          const directUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(targetKey)}`;
+          const directRes = await fetch(directUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-goog-api-key': targetKey,
+            },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: 'Ping' }] }],
+              generationConfig: { maxOutputTokens: 5, temperature: 0.1 }
+            })
+          });
+
+          const elapsed = Date.now() - startTime;
+          if (directRes.ok) {
+            return {
+              success: true,
+              latencyMs: elapsed,
+              message: `Koneksi Google Gemini API Aktif & Terverifikasi (${elapsed}ms) — Model: ${model}`,
+              details: { verifiedDirectly: true, model, status: directRes.status }
+            };
+          } else {
+            const errorJson = await directRes.json().catch(() => null);
+            lastErrMsg = errorJson?.error?.message || directRes.statusText || 'API Key tidak valid atau kuota habis';
+          }
+        } catch (subErr: any) {
+          lastErrMsg = subErr?.message || 'Gagal menghubungi server Gemini';
+        }
       }
-
-      const directRes = await fetch(directUrl, {
-        method: isBearer ? 'GET' : 'POST',
-        headers: testHeaders,
-        body: isBearer ? undefined : JSON.stringify({
-          contents: [{ parts: [{ text: 'Ping. Balas OK.' }] }],
-          generationConfig: { maxOutputTokens: 5, temperature: 0.1 }
-        })
-      });
 
       const elapsed = Date.now() - startTime;
-      if (directRes.ok) {
-        return {
-          success: true,
-          latencyMs: elapsed,
-          message: `Koneksi Google Gemini API Aktif & Terverifikasi (${elapsed}ms)`,
-          details: { verifiedDirectly: true, status: directRes.status }
-        };
-      } else {
-        const errorJson = await directRes.json().catch(() => null);
-        const errMsg = errorJson?.error?.message || directRes.statusText || 'API Key tidak valid atau kuota habis';
-        return {
-          success: false,
-          latencyMs: elapsed,
-          message: `Uji Gemini: ${errMsg}`,
-          details: errorJson
-        };
-      }
+      return {
+        success: false,
+        latencyMs: elapsed,
+        message: `Uji Gemini: ${lastErrMsg || 'API Key tidak valid'}`,
+      };
     } catch (directErr: any) {
       return {
         success: true,

@@ -318,6 +318,55 @@ export interface PatternAnalysisResult {
   };
 }
 
+export interface LandingPageGalleryItem {
+  id: string;
+  imageUrl?: string;
+  url?: string;
+  title: string;
+  description: string;
+  category?: string;
+}
+
+export interface LandingPageConfig {
+  topBrandTag?: string;
+  topBrandSlogan?: string;
+  heroBadge?: string;
+  heroHeadline?: string;
+  heroSubheadline?: string;
+  heroDescription?: string;
+  heroDetailsBox?: string;
+  heroApprochNote?: string;
+  heroCtaPrimaryText?: string;
+  heroCtaSecondaryText?: string;
+  
+  // Media Section (Image / Video)
+  mediaType?: 'image' | 'video' | 'youtube' | 'none';
+  heroImageUrl?: string;
+  heroImageCaption?: string;
+  heroVideoUrl?: string;
+  heroVideoTitle?: string;
+  heroVideoSubtitle?: string;
+  
+  // Announcement / Promo Banner
+  enablePromoBanner?: boolean;
+  promoBannerText?: string;
+  promoBannerBadge?: string;
+  
+  // Transformation Before/After
+  beforeTitle?: string;
+  beforePoints?: string[];
+  afterTitle?: string;
+  afterPoints?: string[];
+  
+  // Gallery / Screenshots
+  galleryImages?: LandingPageGalleryItem[];
+  
+  // Footer & Contact
+  contactWhatsapp?: string;
+  contactEmail?: string;
+  footerTagline?: string;
+}
+
 export interface DeveloperConfig {
   geminiApiKey: string;
   noizApiKey: string;
@@ -334,6 +383,7 @@ export interface DeveloperConfig {
   enableCrisisHotline: boolean;
   enableDemoMode24h: boolean;
   customAiCoachPrompt?: string;
+  landingPage?: LandingPageConfig;
 }
 
 export interface CustomerAccount {

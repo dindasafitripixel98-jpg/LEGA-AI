@@ -50,7 +50,11 @@ import {
   LifeBuoy,
   Edit,
   Edit3,
-  Power
+  Power,
+  Film,
+  Image as ImageIcon,
+  Video,
+  MessageCircle
 } from 'lucide-react';
 import { getAdminSystemStats, askAdminAI } from '../lib/geminiApi';
 import {
@@ -65,14 +69,16 @@ import {
   verifyDeveloperAuth,
   isDeveloperSessionUnlocked,
   lockDeveloperSession,
-  getLocalDeveloperConfig
+  getLocalDeveloperConfig,
+  DEFAULT_LANDING_PAGE_CONFIG
 } from '../lib/developerService';
-import { CustomerAccount, DeveloperConfig } from '../types';
+import { CustomerAccount, DeveloperConfig, LandingPageConfig, LandingPageGalleryItem } from '../types';
 
 type AdminTab =
   | 'developer-keys'
   | 'developer-users'
   | 'developer-app'
+  | 'developer-landing'
   | 'developer-diagnostics'
   | 'overview'
   | 'prompts'
@@ -185,6 +191,13 @@ export const AdminPanel: React.FC = () => {
     demo: devConfig.enableDemoMode24h ?? true,
   });
 
+  // Landing Page Editor State
+  const [landingConfigState, setLandingConfigState] = useState<LandingPageConfig>(DEFAULT_LANDING_PAGE_CONFIG);
+  const [newGalleryTitle, setNewGalleryTitle] = useState<string>('');
+  const [newGalleryDesc, setNewGalleryDesc] = useState<string>('');
+  const [newGalleryUrl, setNewGalleryUrl] = useState<string>('');
+  const [newGalleryCategory, setNewGalleryCategory] = useState<string>('Fitur');
+
   // System Diagnostics & Admin AI Assistant State
   const [systemStats, setSystemStats] = useState<any>(null);
   const [loadingStats, setLoadingStats] = useState<boolean>(false);
@@ -225,6 +238,10 @@ export const AdminPanel: React.FC = () => {
         crisis: cfg.enableCrisisHotline ?? true,
         demo: cfg.enableDemoMode24h ?? true,
       });
+
+      if (cfg.landingPage) {
+        setLandingConfigState({ ...DEFAULT_LANDING_PAGE_CONFIG, ...cfg.landingPage });
+      }
 
       const usersList = await fetchCustomerAccounts();
       setCustomers(usersList);
@@ -301,6 +318,47 @@ export const AdminPanel: React.FC = () => {
       setSaveSuccessNotice('Pengaturan Aplikasi & Prompt AI Berhasil Disimpan!');
       setTimeout(() => setSaveSuccessNotice(''), 5000);
     }
+  };
+
+  // Save Landing Page Customization
+  const handleSaveLandingPage = async () => {
+    setIsSavingConfig(true);
+    const res = await updateDeveloperConfig({
+      landingPage: landingConfigState,
+    });
+    setIsSavingConfig(false);
+    if (res.success) {
+      setDevConfig(res.config);
+      setSaveSuccessNotice('Teks, Gambar & Video Landing Page berhasil disimpan dan dipublikasikan!');
+      setTimeout(() => setSaveSuccessNotice(''), 5000);
+    }
+  };
+
+  // Add Gallery Image Item
+  const handleAddGalleryItem = () => {
+    if (!newGalleryUrl.trim() || !newGalleryTitle.trim()) return;
+    const newItem: LandingPageGalleryItem = {
+      id: 'gal-' + Date.now(),
+      title: newGalleryTitle.trim(),
+      description: newGalleryDesc.trim(),
+      url: newGalleryUrl.trim(),
+      category: newGalleryCategory.trim() || 'Fitur',
+    };
+    setLandingConfigState((prev) => ({
+      ...prev,
+      galleryImages: [...(prev.galleryImages || []), newItem],
+    }));
+    setNewGalleryTitle('');
+    setNewGalleryDesc('');
+    setNewGalleryUrl('');
+  };
+
+  // Remove Gallery Image Item
+  const handleRemoveGalleryItem = (id: string) => {
+    setLandingConfigState((prev) => ({
+      ...prev,
+      galleryImages: (prev.galleryImages || []).filter((item) => item.id !== id),
+    }));
   };
 
   // Create Customer Account Action
@@ -547,6 +605,18 @@ export const AdminPanel: React.FC = () => {
         >
           <Sliders className="w-4 h-4" />
           <span>Ubah Aplikasi &amp; Prompt AI</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('developer-landing')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all shrink-0 ${
+            activeTab === 'developer-landing'
+              ? 'bg-amber-400 text-stone-950 shadow-lg shadow-amber-950/50 scale-102'
+              : 'bg-stone-900/90 text-stone-300 hover:bg-stone-800 border border-stone-800'
+          }`}
+        >
+          <Film className="w-4 h-4" />
+          <span>Edit Landing Page, Gambar &amp; Video</span>
         </button>
 
         <button
@@ -1666,6 +1736,872 @@ export const AdminPanel: React.FC = () => {
                   />
                 </label>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* TAB: EDIT LANDING PAGE, GAMBAR & VIDEO (DEVELOPER-LANDING) */}
+      {/* ======================================================== */}
+      {activeTab === 'developer-landing' && (
+        <div className="space-y-6 animate-fade-in">
+          <div className="p-6 rounded-3xl bg-stone-900 border border-stone-800 space-y-6 shadow-xl">
+            {/* Header & Save Button */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-800 pb-4">
+              <div>
+                <h2 className="text-lg font-bold text-stone-100 flex items-center gap-2">
+                  <Film className="w-5 h-5 text-amber-400" />
+                  <span>Editor Teks, Media Gambar &amp; Video Landing Page (Live)</span>
+                </h2>
+                <p className="text-xs text-stone-400 mt-1">
+                  Atur semua tulisan, gambar poster, video YouTube/MP4, fitur galeri, dan kontak di halaman depan (landing page) secara langsung tanpa perlu deploy ulang.
+                </p>
+              </div>
+
+              <button
+                onClick={handleSaveLandingPage}
+                disabled={isSavingConfig}
+                className="px-5 py-2.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-stone-950 font-black rounded-2xl text-xs flex items-center gap-2 shadow-lg shadow-amber-950/40 transition active:scale-95 disabled:opacity-50"
+              >
+                <CheckCircle2 className="w-4 h-4" />
+                <span>{isSavingConfig ? 'Menyimpan...' : 'Simpan & Publikasikan Landing Page'}</span>
+              </button>
+            </div>
+
+            {/* Quick Media Presets Banner */}
+            <div className="p-4 rounded-2xl bg-amber-950/30 border border-amber-500/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+              <div className="space-y-0.5">
+                <span className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-amber-400" />
+                  <span>Preset Cepat Media Relaksasi &amp; Video</span>
+                </span>
+                <p className="text-[11px] text-stone-400">
+                  Gunakan preset siap pakai untuk mengisi URL video YouTube atau wallpaper berkualitas tinggi dengan 1 klik:
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLandingConfigState((prev) => ({
+                      ...prev,
+                      mediaType: 'youtube',
+                      heroVideoUrl: 'https://www.youtube.com/watch?v=1ZYbU88GEz4',
+                      heroVideoTitle: 'Suasana Hening Relaksasi Alam & Hujan Teduh',
+                      heroVideoSubtitle: 'Pemandu visual suara alam untuk meredakan ketegangan saraf & overthinking.',
+                    }));
+                  }}
+                  className="px-3 py-1.5 bg-stone-900 hover:bg-stone-800 border border-amber-400/40 text-amber-200 rounded-xl text-[11px] font-semibold flex items-center gap-1.5 transition"
+                >
+                  <Video className="w-3.5 h-3.5 text-red-400" />
+                  <span>Preset Video YouTube</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLandingConfigState((prev) => ({
+                      ...prev,
+                      mediaType: 'image',
+                      heroImageUrl: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1400&q=80',
+                      heroImageCaption: 'Pusat Keheningan Alam & Kesadaran Somatis LEGA SHAQILA DIGITAL 99',
+                    }));
+                  }}
+                  className="px-3 py-1.5 bg-stone-900 hover:bg-stone-800 border border-emerald-400/40 text-emerald-200 rounded-xl text-[11px] font-semibold flex items-center gap-1.5 transition"
+                >
+                  <ImageIcon className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Preset Gambar Zen</span>
+                </button>
+              </div>
+            </div>
+
+            {/* SECTION 1: TOP BRAND & PROMO BANNER */}
+            <div className="p-5 bg-stone-950/80 rounded-2xl border border-stone-800 space-y-4">
+              <h3 className="text-sm font-bold text-stone-100 flex items-center gap-2 border-b border-stone-850 pb-2">
+                <Globe className="w-4 h-4 text-amber-400" />
+                <span>1. Header Atas, Nama Brand &amp; Banner Pengumuman Promo</span>
+              </h3>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-semibold text-stone-300">Badge Label Brand Atas</label>
+                  <input
+                    type="text"
+                    value={landingConfigState.topBrandTag || ''}
+                    onChange={(e) =>
+                      setLandingConfigState({ ...landingConfigState, topBrandTag: e.target.value })
+                    }
+                    placeholder="Contoh: SHAQILA DIGITAL 99"
+                    className="w-full mt-1 bg-stone-900 border border-stone-800 rounded-xl px-3.5 py-2 text-xs text-stone-100 focus:outline-none focus:border-amber-400"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-stone-300">Slogan Teks Berjalan Atas</label>
+                  <input
+                    type="text"
+                    value={landingConfigState.topBrandSlogan || ''}
+                    onChange={(e) =>
+                      setLandingConfigState({ ...landingConfigState, topBrandSlogan: e.target.value })
+                    }
+                    placeholder="Contoh: LEGA SHAQILA DIGITAL 99 • Platform Kesadaran Diri..."
+                    className="w-full mt-1 bg-stone-900 border border-stone-800 rounded-xl px-3.5 py-2 text-xs text-stone-100 focus:outline-none focus:border-amber-400"
+                  />
+                </div>
+              </div>
+
+              {/* Promo Banner Toggle & Content */}
+              <div className="p-4 bg-stone-900/60 rounded-xl border border-stone-800/80 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-stone-200 flex items-center gap-2">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Aktifkan Banner Promo / Pengumuman Teratas</span>
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={landingConfigState.enablePromoBanner ?? true}
+                    onChange={(e) =>
+                      setLandingConfigState({ ...landingConfigState, enablePromoBanner: e.target.checked })
+                    }
+                    className="w-4 h-4 accent-amber-400"
+                  />
+                </div>
+
+                {landingConfigState.enablePromoBanner && (
+                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 pt-2">
+                    <div>
+                      <label className="text-xs font-semibold text-stone-400">Teks Badge Promo</label>
+                      <input
+                        type="text"
+                        value={landingConfigState.promoBannerBadge || ''}
+                        onChange={(e) =>
+                          setLandingConfigState({
+                            ...landingConfigState,
+                            promoBannerBadge: e.target.value,
+                          })
+                        }
+                        placeholder="Contoh: PROMO SPESIAL"
+                        className="w-full mt-1 bg-stone-950 border border-stone-800 rounded-xl px-3 py-1.5 text-xs text-amber-300 focus:outline-none focus:border-amber-400"
+                      />
+                    </div>
+                    <div className="sm:col-span-3">
+                      <label className="text-xs font-semibold text-stone-400">Isi Pesan Banner Promo</label>
+                      <input
+                        type="text"
+                        value={landingConfigState.promoBannerText || ''}
+                        onChange={(e) =>
+                          setLandingConfigState({
+                            ...landingConfigState,
+                            promoBannerText: e.target.value,
+                          })
+                        }
+                        placeholder="Contoh: Akses Penuh 24 Jam Gratis Seluruh Fitur AI Coach & 15+ Suasana Relaksasi Alam"
+                        className="w-full mt-1 bg-stone-950 border border-stone-800 rounded-xl px-3 py-1.5 text-xs text-stone-200 focus:outline-none focus:border-amber-400"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* SECTION 2: HERO SECTION COPYWRITING & CTAs */}
+            <div className="p-5 bg-stone-950/80 rounded-2xl border border-stone-800 space-y-4">
+              <h3 className="text-sm font-bold text-stone-100 flex items-center gap-2 border-b border-stone-850 pb-2">
+                <FileText className="w-4 h-4 text-emerald-400" />
+                <span>2. Tulisan &amp; Copywriting Hero Section (Halaman Depan)</span>
+              </h3>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-semibold text-stone-300">Badge Atas Judul</label>
+                  <input
+                    type="text"
+                    value={landingConfigState.heroBadge || ''}
+                    onChange={(e) =>
+                      setLandingConfigState({ ...landingConfigState, heroBadge: e.target.value })
+                    }
+                    placeholder="Contoh: LEGA SHAQILA DIGITAL 99"
+                    className="w-full mt-1 bg-stone-900 border border-stone-800 rounded-xl px-3.5 py-2 text-xs text-stone-100 focus:outline-none focus:border-amber-400"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-stone-300">Judul Utama (Headline Besar)</label>
+                  <input
+                    type="text"
+                    value={landingConfigState.heroHeadline || ''}
+                    onChange={(e) =>
+                      setLandingConfigState({ ...landingConfigState, heroHeadline: e.target.value })
+                    }
+                    placeholder="Contoh: LEGA SHAQILA DIGITAL 99"
+                    className="w-full mt-1 bg-stone-900 border border-stone-800 rounded-xl px-3.5 py-2 text-xs font-bold text-stone-100 focus:outline-none focus:border-amber-400"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-stone-300">Sub-Judul (Sub-Headline)</label>
+                <input
+                  type="text"
+                  value={landingConfigState.heroSubheadline || ''}
+                  onChange={(e) =>
+                    setLandingConfigState({ ...landingConfigState, heroSubheadline: e.target.value })
+                  }
+                  placeholder="Contoh: Platform kesadaran diri, pengelolaan emosi & relaksasi berbasis AI."
+                  className="w-full mt-1 bg-stone-900 border border-stone-800 rounded-xl px-3.5 py-2 text-xs text-amber-200 focus:outline-none focus:border-amber-400"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-stone-300">Deskripsi Ringkas Platform</label>
+                <textarea
+                  rows={2}
+                  value={landingConfigState.heroDescription || ''}
+                  onChange={(e) =>
+                    setLandingConfigState({ ...landingConfigState, heroDescription: e.target.value })
+                  }
+                  placeholder="Deskripsi singkat yang tampil di bawah subjudul..."
+                  className="w-full mt-1 bg-stone-900 border border-stone-800 rounded-xl p-3 text-xs text-stone-200 focus:outline-none focus:border-amber-400 leading-relaxed"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-semibold text-stone-300">Kotak Penjelasan Detail</label>
+                  <textarea
+                    rows={3}
+                    value={landingConfigState.heroDetailsBox || ''}
+                    onChange={(e) =>
+                      setLandingConfigState({ ...landingConfigState, heroDetailsBox: e.target.value })
+                    }
+                    placeholder="Teks penjelasan kapabilitas komprehensif..."
+                    className="w-full mt-1 bg-stone-900 border border-stone-800 rounded-xl p-3 text-xs text-stone-300 focus:outline-none focus:border-amber-400"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-stone-300">Kutipan Filosofi / Pendekatan</label>
+                  <textarea
+                    rows={3}
+                    value={landingConfigState.heroApprochNote || ''}
+                    onChange={(e) =>
+                      setLandingConfigState({ ...landingConfigState, heroApprochNote: e.target.value })
+                    }
+                    placeholder="Kutipan pendekatan 'Bukan sekadar pereda stres instan...' "
+                    className="w-full mt-1 bg-stone-900 border border-stone-800 rounded-xl p-3 text-xs text-stone-300 focus:outline-none focus:border-amber-400 italic"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                <div>
+                  <label className="text-xs font-semibold text-stone-300">Teks Tombol CTA Utama</label>
+                  <input
+                    type="text"
+                    value={landingConfigState.heroCtaPrimaryText || ''}
+                    onChange={(e) =>
+                      setLandingConfigState({
+                        ...landingConfigState,
+                        heroCtaPrimaryText: e.target.value,
+                      })
+                    }
+                    placeholder="Contoh: Masuk Ruang Tenang Sekarang"
+                    className="w-full mt-1 bg-stone-900 border border-stone-800 rounded-xl px-3.5 py-2 text-xs text-stone-100 focus:outline-none focus:border-amber-400"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-stone-300">Teks Tombol CTA Kedua (Audio)</label>
+                  <input
+                    type="text"
+                    value={landingConfigState.heroCtaSecondaryText || ''}
+                    onChange={(e) =>
+                      setLandingConfigState({
+                        ...landingConfigState,
+                        heroCtaSecondaryText: e.target.value,
+                      })
+                    }
+                    placeholder="Contoh: Dengarkan 6 Pilihan Suara Pemandu"
+                    className="w-full mt-1 bg-stone-900 border border-stone-800 rounded-xl px-3.5 py-2 text-xs text-stone-100 focus:outline-none focus:border-amber-400"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* SECTION 3: HERO MEDIA (GAMBAR & VIDEO LANDING PAGE) */}
+            <div className="p-5 bg-stone-950/80 rounded-2xl border border-stone-800 space-y-4">
+              <h3 className="text-sm font-bold text-stone-100 flex items-center justify-between border-b border-stone-850 pb-2 flex-wrap gap-2">
+                <span className="flex items-center gap-2">
+                  <Video className="w-4 h-4 text-purple-400" />
+                  <span>3. Media Utama Hero (Gambar Poster atau Video Player / YouTube)</span>
+                </span>
+                <span className="text-[11px] font-mono text-purple-300 bg-purple-950/50 px-2.5 py-1 rounded-full border border-purple-500/30">
+                  Tipe Aktif: {landingConfigState.mediaType.toUpperCase()}
+                </span>
+              </h3>
+
+              {/* Media Type Selector */}
+              <div>
+                <label className="text-xs font-semibold text-stone-300 mb-2 block">
+                  Pilih Format Tampilan Media di Bawah Tombol Aksi:
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {[
+                    { id: 'image', label: 'Gambar Poster HD', icon: ImageIcon, desc: 'Foto alam zen / poster' },
+                    { id: 'youtube', label: 'Video YouTube', icon: Video, desc: 'Embed YouTube langsung' },
+                    { id: 'video', label: 'Video MP4 / Link', icon: Play, desc: 'HTML5 Video player' },
+                    { id: 'none', label: 'Tanpa Media', icon: EyeOff, desc: 'Sembunyikan media showcase' },
+                  ].map((m) => {
+                    const IconComp = m.icon;
+                    const isSelected = landingConfigState.mediaType === m.id;
+                    return (
+                      <button
+                        key={m.id}
+                        type="button"
+                        onClick={() =>
+                          setLandingConfigState({
+                            ...landingConfigState,
+                            mediaType: m.id as any,
+                          })
+                        }
+                        className={`p-3 rounded-2xl border text-left transition ${
+                          isSelected
+                            ? 'bg-amber-950/60 border-amber-400 text-amber-200 shadow-md'
+                            : 'bg-stone-900 border-stone-800 text-stone-400 hover:border-stone-700'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 font-bold text-xs text-stone-100">
+                          <IconComp className={`w-4 h-4 ${isSelected ? 'text-amber-400' : 'text-stone-400'}`} />
+                          <span>{m.label}</span>
+                        </div>
+                        <p className="text-[10px] text-stone-400 mt-1">{m.desc}</p>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Conditional Media Config: IMAGE */}
+              {landingConfigState.mediaType === 'image' && (
+                <div className="p-4 bg-stone-900 rounded-xl border border-stone-800 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-stone-200 flex items-center gap-1.5">
+                      <ImageIcon className="w-4 h-4 text-emerald-400" />
+                      <span>Pengaturan Gambar Poster Hero</span>
+                    </span>
+                    <span className="text-[10px] text-stone-400">Mendukung format JPG, PNG, WEBP, Unsplash URL</span>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold text-stone-300">URL Gambar (Image Link)</label>
+                    <input
+                      type="url"
+                      value={landingConfigState.heroImageUrl || ''}
+                      onChange={(e) =>
+                        setLandingConfigState({ ...landingConfigState, heroImageUrl: e.target.value })
+                      }
+                      placeholder="https://images.unsplash.com/photo-..."
+                      className="w-full mt-1 bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2 text-xs text-stone-100 focus:outline-none focus:border-amber-400 font-mono"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold text-stone-300">Teks Keterangan Gambar (Caption)</label>
+                    <input
+                      type="text"
+                      value={landingConfigState.heroImageCaption || ''}
+                      onChange={(e) =>
+                        setLandingConfigState({ ...landingConfigState, heroImageCaption: e.target.value })
+                      }
+                      placeholder="Contoh: Pusat Keheningan & Relaksasi Berbasis AI"
+                      className="w-full mt-1 bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2 text-xs text-stone-200 focus:outline-none focus:border-amber-400"
+                    />
+                  </div>
+
+                  {/* Preset Image Options */}
+                  <div className="pt-2 border-t border-stone-800/80">
+                    <span className="text-[11px] font-semibold text-stone-400">Pilihan Cepat Wallpaper Zen:</span>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-1.5">
+                      {[
+                        { name: 'Hutan Tropis Berkabut', url: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1400&q=80' },
+                        { name: 'Pantai & Ombak Tenang', url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1400&q=80' },
+                        { name: 'Batu Zen & Air Terjun', url: 'https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?auto=format&fit=crop&w=1400&q=80' },
+                        { name: 'Langit Malam Bertabur Bintang', url: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1400&q=80' },
+                      ].map((preset, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() =>
+                            setLandingConfigState({
+                              ...landingConfigState,
+                              heroImageUrl: preset.url,
+                              heroImageCaption: preset.name,
+                            })
+                          }
+                          className="p-2 bg-stone-950 hover:bg-stone-800 border border-stone-800 rounded-xl text-left text-[10px] text-stone-300 transition"
+                        >
+                          <span className="font-semibold text-stone-200 block truncate">{preset.name}</span>
+                          <span className="text-[9px] text-stone-500 truncate block mt-0.5">Terapkan</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Image Preview Box */}
+                  {landingConfigState.heroImageUrl && (
+                    <div className="mt-3 p-3 bg-stone-950 rounded-xl border border-stone-800 space-y-1.5">
+                      <span className="text-[10px] font-bold text-stone-400">Live Preview Gambar Hero:</span>
+                      <div className="w-full h-44 rounded-lg overflow-hidden border border-stone-800 bg-stone-900 relative">
+                        <img
+                          src={landingConfigState.heroImageUrl}
+                          alt="Hero Preview"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as any).src = 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1400&q=80';
+                          }}
+                        />
+                        {landingConfigState.heroImageCaption && (
+                          <div className="absolute bottom-0 inset-x-0 bg-stone-950/80 backdrop-blur-sm p-2 text-center text-xs text-amber-200">
+                            {landingConfigState.heroImageCaption}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Conditional Media Config: VIDEO / YOUTUBE */}
+              {(landingConfigState.mediaType === 'video' || landingConfigState.mediaType === 'youtube') && (
+                <div className="p-4 bg-stone-900 rounded-xl border border-stone-800 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-stone-200 flex items-center gap-1.5">
+                      <Video className="w-4 h-4 text-purple-400" />
+                      <span>Pengaturan Video {landingConfigState.mediaType === 'youtube' ? 'YouTube Embed' : 'Player MP4'}</span>
+                    </span>
+                    <span className="text-[10px] text-stone-400">Masukkan link YouTube (youtube.com/watch?v=... atau youtu.be/...)</span>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold text-stone-300">
+                      {landingConfigState.mediaType === 'youtube' ? 'URL Video YouTube' : 'URL File Video Direct (MP4/WebM)'}
+                    </label>
+                    <input
+                      type="url"
+                      value={landingConfigState.heroVideoUrl || ''}
+                      onChange={(e) =>
+                        setLandingConfigState({ ...landingConfigState, heroVideoUrl: e.target.value })
+                      }
+                      placeholder={
+                        landingConfigState.mediaType === 'youtube'
+                          ? 'https://www.youtube.com/watch?v=1ZYbU88GEz4'
+                          : 'https://cdn.example.com/videos/meditation.mp4'
+                      }
+                      className="w-full mt-1 bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2 text-xs text-stone-100 focus:outline-none focus:border-amber-400 font-mono"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-semibold text-stone-300">Judul Video</label>
+                      <input
+                        type="text"
+                        value={landingConfigState.heroVideoTitle || ''}
+                        onChange={(e) =>
+                          setLandingConfigState({ ...landingConfigState, heroVideoTitle: e.target.value })
+                        }
+                        placeholder="Contoh: Suasana Hening Relaksasi Alam"
+                        className="w-full mt-1 bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2 text-xs text-stone-200 focus:outline-none focus:border-amber-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-semibold text-stone-300">Subjudul / Deskripsi Video</label>
+                      <input
+                        type="text"
+                        value={landingConfigState.heroVideoSubtitle || ''}
+                        onChange={(e) =>
+                          setLandingConfigState({ ...landingConfigState, heroVideoSubtitle: e.target.value })
+                        }
+                        placeholder="Contoh: Pemandu visual audio untuk meredakan kecemasan"
+                        className="w-full mt-1 bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-2 text-xs text-stone-200 focus:outline-none focus:border-amber-400"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Preset YouTube Videos */}
+                  <div className="pt-2 border-t border-stone-800/80">
+                    <span className="text-[11px] font-semibold text-stone-400">Pilihan Cepat Video YouTube Relaksasi:</span>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-1.5">
+                      {[
+                        {
+                          title: 'Suara Hujan & Keheningan 4K',
+                          url: 'https://www.youtube.com/watch?v=1ZYbU88GEz4',
+                          desc: 'Audio alam hujan & ketenangan',
+                        },
+                        {
+                          title: 'Ombak Pantai Meditatif',
+                          url: 'https://www.youtube.com/watch?v=bn9F19Hi1Lk',
+                          desc: 'Gelombang laut menenangkan',
+                        },
+                        {
+                          title: 'Alunan Piano & Suasana Hutan',
+                          url: 'https://www.youtube.com/watch?v=2OEL4P1Rz04',
+                          desc: 'Instrumen teduh pengantar istirahat',
+                        },
+                      ].map((item, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() =>
+                            setLandingConfigState({
+                              ...landingConfigState,
+                              mediaType: 'youtube',
+                              heroVideoUrl: item.url,
+                              heroVideoTitle: item.title,
+                              heroVideoSubtitle: item.desc,
+                            })
+                          }
+                          className="p-2.5 bg-stone-950 hover:bg-stone-800 border border-stone-800 rounded-xl text-left text-xs transition"
+                        >
+                          <span className="font-bold text-amber-300 block truncate">{item.title}</span>
+                          <span className="text-[10px] text-stone-400 block truncate mt-0.5">{item.desc}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Live Video Preview Box */}
+                  {landingConfigState.heroVideoUrl && (
+                    <div className="mt-3 p-3 bg-stone-950 rounded-xl border border-stone-800 space-y-1.5">
+                      <span className="text-[10px] font-bold text-stone-400">Live Preview Video:</span>
+                      <div className="w-full aspect-video max-h-56 rounded-lg overflow-hidden border border-stone-800 bg-stone-900 flex items-center justify-center">
+                        {landingConfigState.mediaType === 'youtube' ? (
+                          <iframe
+                            src={
+                              landingConfigState.heroVideoUrl.includes('watch?v=')
+                                ? `https://www.youtube.com/embed/${landingConfigState.heroVideoUrl.split('watch?v=')[1]?.split('&')[0]}`
+                                : landingConfigState.heroVideoUrl.includes('youtu.be/')
+                                ? `https://www.youtube.com/embed/${landingConfigState.heroVideoUrl.split('youtu.be/')[1]?.split('?')[0]}`
+                                : landingConfigState.heroVideoUrl
+                            }
+                            title="Video Preview"
+                            className="w-full h-full border-0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          />
+                        ) : (
+                          <video
+                            src={landingConfigState.heroVideoUrl}
+                            controls
+                            className="w-full h-full object-cover"
+                          />
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* SECTION 4: TRANSFORMATION MATRIX (SEBELUM VS SESUDAH) */}
+            <div className="p-5 bg-stone-950/80 rounded-2xl border border-stone-800 space-y-4">
+              <h3 className="text-sm font-bold text-stone-100 flex items-center gap-2 border-b border-stone-850 pb-2">
+                <RotateCcw className="w-4 h-4 text-amber-400" />
+                <span>4. Matriks Transformasi Batin (Sebelum vs Sesudah Mengenal LEGA)</span>
+              </h3>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                {/* Before Column */}
+                <div className="p-4 bg-stone-900/80 rounded-2xl border border-red-500/20 space-y-3">
+                  <div className="flex items-center gap-2 text-rose-400 text-xs font-bold">
+                    <span className="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block" />
+                    <span>Kolom Sebelum (Titik Sakit &amp; Kebingungan)</span>
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-semibold text-stone-400">Judul Kolom Sebelum</label>
+                    <input
+                      type="text"
+                      value={landingConfigState.beforeTitle || ''}
+                      onChange={(e) =>
+                        setLandingConfigState({ ...landingConfigState, beforeTitle: e.target.value })
+                      }
+                      placeholder="Contoh: Sebelum Mengenal LEGA"
+                      className="w-full mt-1 bg-stone-950 border border-stone-800 rounded-xl px-3 py-1.5 text-xs text-stone-200 focus:outline-none focus:border-rose-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-semibold text-stone-400 flex items-center justify-between">
+                      <span>Daftar Poin Masalah (1 baris = 1 poin)</span>
+                    </label>
+                    <textarea
+                      rows={5}
+                      value={(landingConfigState.beforePoints || []).join('\n')}
+                      onChange={(e) =>
+                        setLandingConfigState({
+                          ...landingConfigState,
+                          beforePoints: e.target.value.split('\n').filter((x) => x.trim().length > 0),
+                        })
+                      }
+                      placeholder="Terjebak dalam spiral overthinking tiada henti&#10;Emosi meledak-ledak atau sebaliknya mati rasa&#10;Nafas pendek dan dada sering terasa sesak"
+                      className="w-full mt-1 bg-stone-950 border border-stone-800 rounded-xl p-3 text-xs font-mono text-stone-200 focus:outline-none focus:border-rose-400 leading-relaxed"
+                    />
+                  </div>
+                </div>
+
+                {/* After Column */}
+                <div className="p-4 bg-stone-900/80 rounded-2xl border border-emerald-500/20 space-y-3">
+                  <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block" />
+                    <span>Kolom Sesudah (Keheningan &amp; Kesadaran Baru)</span>
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-semibold text-stone-400">Judul Kolom Sesudah</label>
+                    <input
+                      type="text"
+                      value={landingConfigState.afterTitle || ''}
+                      onChange={(e) =>
+                        setLandingConfigState({ ...landingConfigState, afterTitle: e.target.value })
+                      }
+                      placeholder="Contoh: Setelah Bersama LEGA SHAQILA DIGITAL 99"
+                      className="w-full mt-1 bg-stone-950 border border-stone-800 rounded-xl px-3 py-1.5 text-xs text-stone-200 focus:outline-none focus:border-emerald-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-semibold text-stone-400 flex items-center justify-between">
+                      <span>Daftar Poin Transformasi (1 baris = 1 poin)</span>
+                    </label>
+                    <textarea
+                      rows={5}
+                      value={(landingConfigState.afterPoints || []).join('\n')}
+                      onChange={(e) =>
+                        setLandingConfigState({
+                          ...landingConfigState,
+                          afterPoints: e.target.value.split('\n').filter((x) => x.trim().length > 0),
+                        })
+                      }
+                      placeholder="Pola pemicu emosi terpetakan jelas lewat AI Coach&#10;Ketenangan somatis & nafas dalam hadir setiap saat&#10;Tidur lebih lelap dengan audio 6 narator berfrekuensi damai"
+                      className="w-full mt-1 bg-stone-950 border border-stone-800 rounded-xl p-3 text-xs font-mono text-stone-200 focus:outline-none focus:border-emerald-400 leading-relaxed"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* SECTION 5: GALLERY SHOWCASE (TAMBAH & KELOLA GAMBAR) */}
+            <div className="p-5 bg-stone-950/80 rounded-2xl border border-stone-800 space-y-4">
+              <div className="flex items-center justify-between border-b border-stone-850 pb-2 flex-wrap gap-2">
+                <h3 className="text-sm font-bold text-stone-100 flex items-center gap-2">
+                  <ImageIcon className="w-4 h-4 text-emerald-400" />
+                  <span>5. Galeri Visual &amp; Foto Showcase Landing Page ({landingConfigState.galleryImages?.length || 0} Gambar)</span>
+                </h3>
+                <span className="text-[11px] text-stone-400">
+                  Tambahkan gambar suasana, fitur, screenshot modul, atau atmosfer ketenangan.
+                </span>
+              </div>
+
+              {/* Add New Gallery Item Form */}
+              <div className="p-4 bg-stone-900 rounded-2xl border border-stone-800 space-y-3">
+                <span className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                  <Plus className="w-4 h-4 text-amber-400" />
+                  <span>Tambah Gambar Baru ke Galeri Showcase:</span>
+                </span>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="text-[11px] font-semibold text-stone-300">Judul Gambar *</label>
+                    <input
+                      type="text"
+                      value={newGalleryTitle}
+                      onChange={(e) => setNewGalleryTitle(e.target.value)}
+                      placeholder="Contoh: AI Coach & Refleksi 24/7"
+                      className="w-full mt-1 bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-xs text-stone-100 focus:outline-none focus:border-amber-400"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-semibold text-stone-300">Kategori / Label</label>
+                    <select
+                      value={newGalleryCategory}
+                      onChange={(e) => setNewGalleryCategory(e.target.value)}
+                      className="w-full mt-1 bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-xs text-stone-100 focus:outline-none focus:border-amber-400"
+                    >
+                      <option value="Fitur">Fitur Utama</option>
+                      <option value="Suasana">Suasana Relaksasi</option>
+                      <option value="Suara">Audio Narator</option>
+                      <option value="Spiritual">Spiritual & Ikhlas</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-semibold text-stone-300">Deskripsi Singkat</label>
+                    <input
+                      type="text"
+                      value={newGalleryDesc}
+                      onChange={(e) => setNewGalleryDesc(e.target.value)}
+                      placeholder="Contoh: Percakapan hangat berwawasan somatis"
+                      className="w-full mt-1 bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-xs text-stone-100 focus:outline-none focus:border-amber-400"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-semibold text-stone-300">URL Gambar (Image Link) *</label>
+                  <div className="flex gap-2 mt-1">
+                    <input
+                      type="url"
+                      value={newGalleryUrl}
+                      onChange={(e) => setNewGalleryUrl(e.target.value)}
+                      placeholder="https://images.unsplash.com/photo-..."
+                      className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3 py-2 text-xs font-mono text-stone-100 focus:outline-none focus:border-amber-400"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddGalleryItem}
+                      disabled={!newGalleryTitle.trim() || !newGalleryUrl.trim()}
+                      className="px-4 py-2 bg-amber-400 hover:bg-amber-300 text-stone-950 font-bold rounded-xl text-xs flex items-center gap-1.5 shrink-0 disabled:opacity-40 transition"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Tambahkan</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Preset Quick Images for Galeri */}
+                <div className="pt-2 border-t border-stone-800/80 flex flex-wrap items-center gap-2">
+                  <span className="text-[10px] text-stone-400">Preset Foto Cepat:</span>
+                  {[
+                    { title: 'Sesi Meditasi Hening', cat: 'Suasana', desc: 'Atmosfer damai ruang hening', url: 'https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=800&q=80' },
+                    { title: 'Terapi Suara Alami', cat: 'Suara', desc: 'Frekuensi suara gemericik air & burung', url: 'https://images.unsplash.com/photo-1511497584788-87676104235f?auto=format&fit=crop&w=800&q=80' },
+                    { title: 'Tidur Berkualitas & Nyaman', cat: 'Fitur', desc: 'Pengantar tidur gelombang delta', url: 'https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?auto=format&fit=crop&w=800&q=80' },
+                  ].map((p, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => {
+                        setNewGalleryTitle(p.title);
+                        setNewGalleryCategory(p.cat);
+                        setNewGalleryDesc(p.desc);
+                        setNewGalleryUrl(p.url);
+                      }}
+                      className="px-2.5 py-1 bg-stone-950 hover:bg-stone-800 border border-stone-800 text-stone-300 rounded-lg text-[10px] transition"
+                    >
+                      + {p.title}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Active Gallery Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-2">
+                {(landingConfigState.galleryImages || []).map((img) => (
+                  <div
+                    key={img.id}
+                    className="p-3 bg-stone-900 rounded-2xl border border-stone-800 space-y-2 group relative overflow-hidden"
+                  >
+                    <div className="w-full h-36 rounded-xl overflow-hidden bg-stone-950 relative">
+                      <img
+                        src={img.url}
+                        alt={img.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                        onError={(e) => {
+                          (e.target as any).src = 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80';
+                        }}
+                      />
+                      <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[9px] font-bold bg-stone-950/80 text-amber-300 backdrop-blur-sm border border-stone-700">
+                        {img.category}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveGalleryItem(img.id)}
+                        className="absolute top-2 right-2 p-1.5 rounded-lg bg-red-950/90 text-red-300 hover:bg-red-900 hover:text-white border border-red-500/40 transition"
+                        title="Hapus gambar ini"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    <div>
+                      <h4 className="text-xs font-bold text-stone-100 truncate">{img.title}</h4>
+                      <p className="text-[10px] text-stone-400 truncate mt-0.5">{img.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* SECTION 6: CONTACT & FOOTER BRANDING */}
+            <div className="p-5 bg-stone-950/80 rounded-2xl border border-stone-800 space-y-4">
+              <h3 className="text-sm font-bold text-stone-100 flex items-center gap-2 border-b border-stone-850 pb-2">
+                <MessageCircle className="w-4 h-4 text-emerald-400" />
+                <span>6. Kontak WhatsApp, Email CS &amp; Hak Cipta Footer</span>
+              </h3>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="text-xs font-semibold text-stone-300">Nomor WhatsApp Customer Service</label>
+                  <input
+                    type="text"
+                    value={landingConfigState.contactWhatsapp || ''}
+                    onChange={(e) =>
+                      setLandingConfigState({
+                        ...landingConfigState,
+                        contactWhatsapp: e.target.value,
+                      })
+                    }
+                    placeholder="Contoh: 6281234567890"
+                    className="w-full mt-1 bg-stone-900 border border-stone-800 rounded-xl px-3.5 py-2 text-xs text-stone-100 focus:outline-none focus:border-amber-400"
+                  />
+                  <p className="text-[10px] text-stone-500 mt-1">Gunakan format internasional tanpa spasi/tanda + (cth: 6281234567890)</p>
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-stone-300">Email Bantuan &amp; Dukungan</label>
+                  <input
+                    type="email"
+                    value={landingConfigState.contactEmail || ''}
+                    onChange={(e) =>
+                      setLandingConfigState({
+                        ...landingConfigState,
+                        contactEmail: e.target.value,
+                      })
+                    }
+                    placeholder="dindasafitri.pixel98@gmail.com"
+                    className="w-full mt-1 bg-stone-900 border border-stone-800 rounded-xl px-3.5 py-2 text-xs text-stone-100 focus:outline-none focus:border-amber-400"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-stone-300">Teks Hak Cipta / Tagline Footer</label>
+                  <input
+                    type="text"
+                    value={landingConfigState.footerTagline || ''}
+                    onChange={(e) =>
+                      setLandingConfigState({
+                        ...landingConfigState,
+                        footerTagline: e.target.value,
+                      })
+                    }
+                    placeholder="LEGA SHAQILA DIGITAL 99 • Hak Cipta Dilindungi"
+                    className="w-full mt-1 bg-stone-900 border border-stone-800 rounded-xl px-3.5 py-2 text-xs text-stone-100 focus:outline-none focus:border-amber-400"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Save Action Bar */}
+            <div className="pt-4 border-t border-stone-800 flex items-center justify-between flex-wrap gap-3">
+              <span className="text-xs text-stone-400">
+                Semua perubahan landing page langsung aktif dan dapat diakses publik setelah menekan tombol Simpan.
+              </span>
+              <button
+                onClick={handleSaveLandingPage}
+                disabled={isSavingConfig}
+                className="px-6 py-3 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-stone-950 font-black rounded-2xl text-xs flex items-center gap-2 shadow-xl shadow-amber-950/50 transition active:scale-95 disabled:opacity-50"
+              >
+                <CheckCircle2 className="w-4 h-4" />
+                <span>{isSavingConfig ? 'Menyimpan...' : 'Simpan & Publikasikan Landing Page'}</span>
+              </button>
             </div>
           </div>
         </div>

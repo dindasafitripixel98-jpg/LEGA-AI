@@ -4,7 +4,7 @@
  * SHAQILA DIGITAL 99
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Sparkles,
   Play,
@@ -32,10 +32,17 @@ import {
   Flame,
   Coffee,
   Smile,
-  Compass
+  Compass,
+  Image as ImageIcon,
+  Video,
+  Film,
+  MessageCircle,
+  ExternalLink
 } from 'lucide-react';
 import { VOICE_CHARACTERS, playCalmMeditationChime } from '../lib/audioEngine';
 import { previewVoiceCharacterAudio, stopVoicePreview } from '../lib/voiceService';
+import { getLocalDeveloperConfig, fetchDeveloperConfig, DEFAULT_LANDING_PAGE_CONFIG } from '../lib/developerService';
+import { LandingPageConfig } from '../types';
 
 interface LuxuryLandingPageProps {
   onGetStarted: () => void;
@@ -43,15 +50,57 @@ interface LuxuryLandingPageProps {
   onDirectAppAccess: () => void;
 }
 
+// Helper: Extract YouTube Embed URL or direct video URL
+function parseVideoEmbedUrl(url?: string): { isYouTube: boolean; embedUrl: string } {
+  if (!url) return { isYouTube: false, embedUrl: '' };
+  const trimmed = url.trim();
+  const ytMatch = trimmed.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+  if (ytMatch && ytMatch[1]) {
+    return {
+      isYouTube: true,
+      embedUrl: `https://www.youtube.com/embed/${ytMatch[1]}?rel=0&modestbranding=1`,
+    };
+  }
+  return {
+    isYouTube: false,
+    embedUrl: trimmed,
+  };
+}
+
 export const LuxuryLandingPage: React.FC<LuxuryLandingPageProps> = ({
   onGetStarted,
   onLoginClick,
   onDirectAppAccess
 }) => {
+  const [landingConfig, setLandingConfig] = useState<LandingPageConfig>(() => {
+    const devCfg = getLocalDeveloperConfig();
+    return { ...DEFAULT_LANDING_PAGE_CONFIG, ...(devCfg.landingPage || {}) };
+  });
+
   const [activeVoicePreview, setActiveVoicePreview] = useState<string | null>(null);
   const [selectedStressQuiz, setSelectedStressQuiz] = useState<string | null>('overthinking');
   const [isQuizAnalyzed, setIsQuizAnalyzed] = useState(false);
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
+
+  useEffect(() => {
+    const syncConfig = async () => {
+      const cfg = await fetchDeveloperConfig();
+      if (cfg.landingPage) {
+        setLandingConfig({ ...DEFAULT_LANDING_PAGE_CONFIG, ...cfg.landingPage });
+      }
+    };
+    syncConfig();
+
+    const handleStorageChange = () => {
+      const devCfg = getLocalDeveloperConfig();
+      if (devCfg.landingPage) {
+        setLandingConfig({ ...DEFAULT_LANDING_PAGE_CONFIG, ...devCfg.landingPage });
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   const handlePreviewVoice = (vName: string) => {
     if (activeVoicePreview === vName) {
@@ -157,10 +206,11 @@ export const LuxuryLandingPage: React.FC<LuxuryLandingPageProps> = ({
         <div className="max-w-7xl mx-auto flex items-center justify-between text-xs">
           <div className="flex items-center gap-2.5 mx-auto sm:mx-0">
             <span className="px-2.5 py-0.5 rounded-md bg-gradient-to-r from-amber-400 to-amber-300 text-stone-950 font-black text-[11px] tracking-wider uppercase shadow-sm">
-              SHAQILA DIGITAL 99
+              {landingConfig.topBrandTag || 'SHAQILA DIGITAL 99'}
             </span>
             <span className="text-amber-200 font-bold text-[11px] sm:text-xs">
-              LEGA SHAQILA DIGITAL 99 &bull; Platform Kesadaran Diri, Pengelolaan Emosi &amp; Relaksasi Berbasis AI
+              {landingConfig.topBrandSlogan ||
+                'LEGA SHAQILA DIGITAL 99 • Platform Kesadaran Diri, Pengelolaan Emosi & Relaksasi Berbasis AI'}
             </span>
           </div>
           <div className="hidden sm:flex items-center gap-2 text-stone-400 text-[11px]">
@@ -169,6 +219,19 @@ export const LuxuryLandingPage: React.FC<LuxuryLandingPageProps> = ({
           </div>
         </div>
       </div>
+
+      {/* 0.1 SPECIAL PROMO BANNER (IF ENABLED) */}
+      {landingConfig.enablePromoBanner && (
+        <div className="bg-gradient-to-r from-amber-900/90 via-amber-800/80 to-amber-900/90 border-b border-amber-500/50 px-4 py-2 text-center text-xs text-amber-100 font-medium relative z-40 flex items-center justify-center gap-2 flex-wrap">
+          <span className="px-2 py-0.5 rounded-full bg-amber-400 text-stone-950 font-black text-[10px] uppercase tracking-wider">
+            {landingConfig.promoBannerBadge || 'PROMO'}
+          </span>
+          <span>
+            {landingConfig.promoBannerText ||
+              'Akses Penuh 24 Jam Gratis Seluruh Fitur AI Coach & 15+ Suasana Relaksasi Alam'}
+          </span>
+        </div>
+      )}
 
       {/* 1. LUXURY TOP NAVIGATION BAR */}
       <header className="sticky top-0 z-40 bg-stone-950/80 backdrop-blur-xl border-b border-stone-800/80 px-4 sm:px-8 py-3.5 transition-all">
@@ -185,11 +248,11 @@ export const LuxuryLandingPage: React.FC<LuxuryLandingPageProps> = ({
                   LEGA
                 </span>
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 font-black tracking-wider uppercase">
-                  SHAQILA DIGITAL 99
+                  {landingConfig.topBrandTag || 'SHAQILA DIGITAL 99'}
                 </span>
               </div>
               <p className="text-[10px] text-stone-400 font-medium tracking-tight">
-                Platform Kesadaran Diri, Pengelolaan Emosi &amp; Relaksasi Berbasis AI
+                {landingConfig.heroSubheadline || 'Platform Kesadaran Diri, Pengelolaan Emosi & Relaksasi Berbasis AI'}
               </p>
             </div>
           </div>
@@ -197,6 +260,9 @@ export const LuxuryLandingPage: React.FC<LuxuryLandingPageProps> = ({
           <div className="hidden md:flex items-center gap-7 text-xs font-medium text-stone-300">
             <a href="#fitur-utama" className="hover:text-amber-300 transition-colors">
               Fitur Utama
+            </a>
+            <a href="#media-showcase" className="hover:text-amber-300 transition-colors">
+              Media &amp; Video
             </a>
             <a href="#6-suara-pemandu" className="hover:text-amber-300 transition-colors">
               6 Suara Pemandu
@@ -243,32 +309,34 @@ export const LuxuryLandingPage: React.FC<LuxuryLandingPageProps> = ({
           {/* Top Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-stone-900/90 border border-amber-500/30 text-amber-200 text-xs font-medium shadow-xl shadow-amber-950/40 backdrop-blur-md">
             <Sparkle className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-            <span className="font-bold text-amber-300">LEGA SHAQILA DIGITAL 99</span>
-            <span className="text-stone-400 hidden sm:inline">• Kesadaran Diri, Pengelolaan Emosi &amp; Relaksasi AI</span>
+            <span className="font-bold text-amber-300">{landingConfig.heroBadge || 'LEGA SHAQILA DIGITAL 99'}</span>
           </div>
 
           {/* Main Headline */}
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.2] text-stone-100 font-serif">
-            LEGA SHAQILA DIGITAL 99
+            {landingConfig.heroHeadline || 'LEGA SHAQILA DIGITAL 99'}
           </h1>
 
           <p className="text-lg sm:text-2xl font-semibold text-amber-200 max-w-3xl mx-auto">
-            Platform kesadaran diri, pengelolaan emosi &amp; relaksasi berbasis AI.
+            {landingConfig.heroSubheadline || 'Platform kesadaran diri, pengelolaan emosi & relaksasi berbasis AI.'}
           </p>
 
           <p className="text-base sm:text-lg text-stone-300 max-w-3xl mx-auto leading-relaxed">
-            Ruang digital untuk mengenal diri, memahami emosi, dan menemukan ketenangan.
+            {landingConfig.heroDescription ||
+              'Ruang digital untuk mengenal diri, memahami emosi, dan menemukan ketenangan.'}
           </p>
 
           {/* Detailed Platform Capabilities Block */}
-          <div className="max-w-3xl mx-auto p-5 sm:p-6 rounded-2xl bg-stone-900/80 border border-stone-800 backdrop-blur-md text-stone-300 text-sm sm:text-base leading-relaxed text-center space-y-3">
-            <p>
-              Dilengkapi dengan <strong className="text-stone-100 font-semibold">AI Coach</strong>, <strong className="text-stone-100 font-semibold">Emotion Analyzer</strong>, latihan pelepasan emosi, refleksi diri, pengamatan emosi, audio relaksasi dengan berbagai suasana alam, dan <strong className="text-amber-300 font-semibold">6 pilihan suara pemandu</strong> yang dapat disesuaikan dengan pengalaman pengguna.
-            </p>
-            <p className="text-amber-200/90 font-medium italic">
-              Pendampingan dilakukan dengan pendekatan yang hangat, tenang, dan tanpa penghakiman.
-            </p>
-          </div>
+          {landingConfig.heroDetailsBox && (
+            <div className="max-w-3xl mx-auto p-5 sm:p-6 rounded-2xl bg-stone-900/80 border border-stone-800 backdrop-blur-md text-stone-300 text-sm sm:text-base leading-relaxed text-center space-y-3">
+              <p>{landingConfig.heroDetailsBox}</p>
+              {landingConfig.heroApprochNote && (
+                <p className="text-amber-200/90 font-medium italic">
+                  {landingConfig.heroApprochNote}
+                </p>
+              )}
+            </div>
+          )}
 
           {/* Primary Action Group */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-3">
@@ -277,7 +345,7 @@ export const LuxuryLandingPage: React.FC<LuxuryLandingPageProps> = ({
               className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 hover:from-amber-300 hover:to-amber-200 text-stone-950 font-extrabold text-base shadow-2xl shadow-amber-500/40 hover:shadow-amber-400/60 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2.5 group"
             >
               <Zap className="w-5 h-5 text-stone-950 fill-stone-950" />
-              <span>Masuk Ruang Tenang Sekarang</span>
+              <span>{landingConfig.heroCtaPrimaryText || 'Masuk Ruang Tenang Sekarang'}</span>
               <ArrowRight className="w-4 h-4 stroke-[3] group-hover:translate-x-1 transition-transform" />
             </button>
 
@@ -289,7 +357,7 @@ export const LuxuryLandingPage: React.FC<LuxuryLandingPageProps> = ({
               className="w-full sm:w-auto px-6 py-4 rounded-2xl bg-stone-900/90 hover:bg-stone-800 border border-stone-700 hover:border-amber-500/50 text-stone-200 font-semibold text-sm transition-all flex items-center justify-center gap-2"
             >
               <Headphones className="w-4 h-4 text-amber-400" />
-              <span>Dengarkan 6 Pilihan Suara Pemandu</span>
+              <span>{landingConfig.heroCtaSecondaryText || 'Dengarkan 6 Pilihan Suara Pemandu'}</span>
             </button>
           </div>
 
@@ -309,6 +377,91 @@ export const LuxuryLandingPage: React.FC<LuxuryLandingPageProps> = ({
             </div>
           </div>
         </div>
+
+        {/* 2.5 DYNAMIC MEDIA SHOWCASE (HERO IMAGE OR VIDEO EMBED) */}
+        {landingConfig.mediaType !== 'none' && (landingConfig.heroImageUrl || landingConfig.heroVideoUrl) && (
+          <div id="media-showcase" className="max-w-5xl mx-auto mt-12 relative z-10">
+            {/* If Video/YouTube selected */}
+            {(landingConfig.mediaType === 'video' || landingConfig.mediaType === 'youtube') &&
+            landingConfig.heroVideoUrl ? (
+              <div className="bg-stone-900/90 border border-stone-800 rounded-3xl p-4 sm:p-6 shadow-2xl shadow-black space-y-4 backdrop-blur-xl">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-800 pb-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-red-500/20 border border-red-500/40 flex items-center justify-center text-red-400">
+                      <Film className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-stone-100">
+                        {landingConfig.heroVideoTitle || 'Video Pengenalan LEGA AI'}
+                      </h3>
+                      <p className="text-xs text-stone-400">
+                        {landingConfig.heroVideoSubtitle ||
+                          'Saksikan bagaimana LEGA memandu Anda meredakan kecemasan dan stres.'}
+                      </p>
+                    </div>
+                  </div>
+                  <span className="px-2.5 py-1 rounded-full bg-stone-950 border border-stone-800 text-[10px] font-mono text-amber-400 flex items-center gap-1.5 self-start sm:self-auto">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping" />
+                    <span>PREVIEW MEDIA</span>
+                  </span>
+                </div>
+
+                <div className="aspect-video w-full rounded-2xl overflow-hidden bg-stone-950 border border-stone-800 relative group">
+                  {parseVideoEmbedUrl(landingConfig.heroVideoUrl).isYouTube ? (
+                    <iframe
+                      src={parseVideoEmbedUrl(landingConfig.heroVideoUrl).embedUrl}
+                      title={landingConfig.heroVideoTitle || 'Video Preview'}
+                      className="w-full h-full border-0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  ) : (
+                    <video
+                      src={landingConfig.heroVideoUrl}
+                      controls
+                      poster={landingConfig.heroImageUrl}
+                      className="w-full h-full object-cover"
+                    >
+                      Browser Anda tidak mendukung pemutaran video langsung.
+                    </video>
+                  )}
+                </div>
+              </div>
+            ) : (
+              /* If Image selected */
+              landingConfig.heroImageUrl && (
+                <div className="bg-stone-900/90 border border-stone-800 rounded-3xl p-3 sm:p-5 shadow-2xl shadow-black backdrop-blur-xl relative overflow-hidden group">
+                  <div className="relative rounded-2xl overflow-hidden border border-stone-800/80 max-h-[500px]">
+                    <img
+                      src={landingConfig.heroImageUrl}
+                      alt={landingConfig.heroImageCaption || 'Hero Preview'}
+                      className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-700"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-stone-950/90 via-stone-950/20 to-transparent flex items-end p-6">
+                      <div className="flex items-center justify-between w-full">
+                        <div>
+                          <span className="px-2.5 py-0.5 rounded-md bg-amber-400 text-stone-950 text-[10px] font-black tracking-wider uppercase mb-1 inline-block">
+                            VISUAL SHOWCASE
+                          </span>
+                          <h4 className="text-sm sm:text-base font-bold text-stone-100">
+                            {landingConfig.heroImageCaption || 'Ruang Tenang & Relaksasi Batin Berbasis AI'}
+                          </h4>
+                        </div>
+                        <button
+                          onClick={onGetStarted}
+                          className="hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-xl bg-stone-900/90 hover:bg-stone-800 border border-amber-400/40 text-amber-300 text-xs font-bold transition shadow-lg"
+                        >
+                          <span>Jelajahi Sekarang</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )
+            )}
+          </div>
+        )}
 
         {/* 3. HERO INTERACTIVE AUDIO PLAYER PREVIEW TEASER */}
         <div className="max-w-4xl mx-auto mt-12 bg-gradient-to-b from-stone-900/90 via-stone-900/70 to-stone-950/90 border border-stone-800/90 rounded-3xl p-5 sm:p-8 shadow-2xl shadow-black relative overflow-hidden backdrop-blur-xl">
@@ -390,7 +543,7 @@ export const LuxuryLandingPage: React.FC<LuxuryLandingPageProps> = ({
         </div>
       </section>
 
-      {/* 4. BEFORE VS AFTER TRANSFORMATION MATRIX (CLICKBAIT & EMOTIONAL HOOK) */}
+      {/* 4. BEFORE VS AFTER TRANSFORMATION MATRIX */}
       <section className="py-16 px-4 sm:px-8 border-y border-stone-800/80 bg-stone-900/30">
         <div className="max-w-6xl mx-auto space-y-12">
           <div className="text-center space-y-3">
@@ -413,28 +566,28 @@ export const LuxuryLandingPage: React.FC<LuxuryLandingPageProps> = ({
                   ✕
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-rose-300">Sebelum Mengenal LEGA</h3>
+                  <h3 className="text-base font-bold text-rose-300">
+                    {landingConfig.beforeTitle || 'Sebelum Mengenal LEGA'}
+                  </h3>
                   <p className="text-xs text-stone-500">Kondisi pikiran yang terjebak</p>
                 </div>
               </div>
 
               <ul className="space-y-3.5 text-xs text-stone-300">
-                <li className="flex items-start gap-2.5">
-                  <span className="text-rose-400 mt-0.5">•</span>
-                  <span><strong>Overthinking Malam Hari:</strong> Jam 2 pagi mata masih terbuka memikirkan kesalahan masa lalu &amp; ketakutan masa depan.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <span className="text-rose-400 mt-0.5">•</span>
-                  <span><strong>Dada Sesak &amp; Bahu Tegang:</strong> Stres menumpuk di fisik tanpa ada saluran pelepasan yang aman.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <span className="text-rose-400 mt-0.5">•</span>
-                  <span><strong>Takut Curhat ke Orang Lain:</strong> Khawatir dianggap lemah, berlebihan, atau justru dihakimi dan digurui.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <span className="text-rose-400 mt-0.5">•</span>
-                  <span><strong>Emosi Tersumbat:</strong> Marah dan sedih dipendam hingga meledak di saat yang tidak tepat.</span>
-                </li>
+                {(landingConfig.beforePoints && landingConfig.beforePoints.length > 0
+                  ? landingConfig.beforePoints
+                  : [
+                      'Overthinking Malam Hari: Jam 2 pagi mata masih terbuka memikirkan ketakutan & beban pikiran.',
+                      'Dada Sesak & Bahu Tegang: Stres menumpuk di fisik tanpa ada saluran pelepasan yang aman.',
+                      'Takut Curhat ke Orang Lain: Khawatir dianggap lemah, berlebihan, atau justru dihakimi.',
+                      'Emosi Tersumbat: Marah dan sedih dipendam hingga menguras energi batin.'
+                    ]
+                ).map((pt, pIdx) => (
+                  <li key={pIdx} className="flex items-start gap-2.5">
+                    <span className="text-rose-400 mt-0.5">•</span>
+                    <span>{pt}</span>
+                  </li>
+                ))}
               </ul>
             </div>
 
@@ -449,28 +602,28 @@ export const LuxuryLandingPage: React.FC<LuxuryLandingPageProps> = ({
                   ✓
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-emerald-300">Setelah Bersama LEGA</h3>
+                  <h3 className="text-base font-bold text-emerald-300">
+                    {landingConfig.afterTitle || 'Setelah Bersama LEGA'}
+                  </h3>
                   <p className="text-xs text-emerald-400/80">Ketenangan &amp; kejernihan batin</p>
                 </div>
               </div>
 
               <ul className="space-y-3.5 text-xs text-stone-200">
-                <li className="flex items-start gap-2.5">
-                  <span className="text-emerald-400 mt-0.5">✓</span>
-                  <span><strong>Tidur Lelap &amp; Tenang:</strong> Frekuensi 432Hz dan pernapasan ritmik melambatkan gelombang otak menuju tidur pulas.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <span className="text-emerald-400 mt-0.5">✓</span>
-                  <span><strong>Pelepasan Somatis Instan:</strong> Tubuh diajak melepaskan ketegangan rahang, leher, dan dada dalam hitungan menit.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <span className="text-emerald-400 mt-0.5">✓</span>
-                  <span><strong>Ruang Aman 24/7:</strong> AI Coach mendengarkan dengan welas asih penuh, memberi perspektif jernih tanpa menghakimi.</span>
-                </li>
-                <li className="flex items-start gap-2.5">
-                  <span className="text-emerald-400 mt-0.5">✓</span>
-                  <span><strong>Penguasaan Diri:</strong> Memahami pola emosi sendiri dan memiliki jangkar batin saat badai hidup datang.</span>
-                </li>
+                {(landingConfig.afterPoints && landingConfig.afterPoints.length > 0
+                  ? landingConfig.afterPoints
+                  : [
+                      'Tidur Lelap & Tenang: Frekuensi 432Hz dan pernapasan ritmik melambatkan gelombang otak.',
+                      'Dada Plong & Otot Rileks: Teknik somatis melepaskan ketegangan saraf dalam hitungan menit.',
+                      'Ruang Aman Tanpa Penghakiman: AI Coach mendengarkan dengan penuh empati dan welas asih.',
+                      'Emosi Terkelola Jernih: Mengetahui akar emosi dan memiliki pilihan respons yang berdaya.'
+                    ]
+                ).map((pt, pIdx) => (
+                  <li key={pIdx} className="flex items-start gap-2.5">
+                    <span className="text-emerald-400 mt-0.5">✓</span>
+                    <span>{pt}</span>
+                  </li>
+                ))}
               </ul>
             </div>
           </div>
@@ -723,6 +876,62 @@ export const LuxuryLandingPage: React.FC<LuxuryLandingPageProps> = ({
         </div>
       </section>
 
+      {/* 8.5 DYNAMIC VISUAL GALLERY SHOWCASE (IF ITEMS EXIST) */}
+      {landingConfig.galleryImages && landingConfig.galleryImages.length > 0 && (
+        <section className="py-20 px-4 sm:px-8 border-t border-stone-800/80 bg-stone-900/20">
+          <div className="max-w-6xl mx-auto space-y-10">
+            <div className="text-center space-y-2">
+              <span className="text-xs font-mono uppercase tracking-widest text-amber-400 font-bold">
+                Galeri Visual &amp; Fitur
+              </span>
+              <h2 className="text-2xl sm:text-4xl font-extrabold text-stone-100 font-serif">
+                Suasana &amp; Tampilan Aplikasi LEGA
+              </h2>
+              <p className="text-xs sm:text-sm text-stone-400 max-w-xl mx-auto">
+                Eksplorasi keindahan visual antarmuka premium dan ketenangan ruang meditasi yang dirancang khusus untuk kenyamanan Anda.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {landingConfig.galleryImages.map((imgItem) => (
+                <div
+                  key={imgItem.id}
+                  className="bg-stone-950 border border-stone-800 rounded-3xl overflow-hidden shadow-xl hover:border-amber-500/40 transition-all group flex flex-col"
+                >
+                  <div className="aspect-[4/3] w-full overflow-hidden relative bg-stone-900">
+                    <img
+                      src={imgItem.url || imgItem.imageUrl || 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80'}
+                      alt={imgItem.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      onError={(e) => {
+                        (e.target as any).src = 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80';
+                      }}
+                    />
+                    {imgItem.category && (
+                      <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-stone-950/80 backdrop-blur-md border border-stone-700 text-amber-300 text-[10px] font-bold font-mono">
+                        {imgItem.category}
+                      </span>
+                    )}
+                  </div>
+                  <div className="p-5 space-y-1.5 flex-1 flex flex-col justify-between">
+                    <div>
+                      <h4 className="text-sm font-bold text-stone-100 group-hover:text-amber-300 transition-colors">
+                        {imgItem.title}
+                      </h4>
+                      {imgItem.description && (
+                        <p className="text-xs text-stone-400 mt-1 leading-relaxed">
+                          {imgItem.description}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* 9. BOTTOM LUXURY CALL-TO-ACTION BANNER */}
       <section className="py-20 px-4 sm:px-8 relative overflow-hidden">
         <div className="max-w-5xl mx-auto bg-gradient-to-br from-amber-950/60 via-stone-900 to-emerald-950/60 border border-amber-500/40 rounded-3xl p-8 sm:p-14 text-center space-y-6 shadow-2xl relative">
@@ -739,14 +948,28 @@ export const LuxuryLandingPage: React.FC<LuxuryLandingPageProps> = ({
             Bergabunglah sekarang dalam ruang tenang LEGA. Nikmati 24 jam akses bebas ke seluruh suara pemandu, musik 432Hz, dan bimbingan AI.
           </p>
 
-          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4 flex-wrap">
             <button
               onClick={onGetStarted}
               className="w-full sm:w-auto px-10 py-4 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 hover:from-amber-300 hover:to-amber-200 text-stone-950 font-extrabold text-base shadow-2xl shadow-amber-500/50 hover:shadow-amber-400/70 transition-all transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
             >
-              <span>Masuk Ruang Tenang Sekarang — Gratis</span>
+              <span>{landingConfig.heroCtaPrimaryText || 'Masuk Ruang Tenang Sekarang — Gratis'}</span>
               <ArrowRight className="w-4 h-4 stroke-[3]" />
             </button>
+
+            {landingConfig.contactWhatsapp && (
+              <a
+                href={`https://wa.me/${landingConfig.contactWhatsapp.replace(/\D/g, '')}?text=${encodeURIComponent(
+                  'Halo Tim LEGA SHAQILA DIGITAL 99, saya ingin berkonsultasi mengenai aplikasi LEGA.'
+                )}`}
+                target="_blank"
+                rel="noreferrer"
+                className="w-full sm:w-auto px-6 py-4 rounded-2xl bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/50 hover:border-emerald-400 text-emerald-200 font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-lg"
+              >
+                <MessageCircle className="w-4 h-4 text-emerald-400" />
+                <span>Konsultasi via WhatsApp</span>
+              </a>
+            )}
           </div>
 
           <p className="text-[11px] text-stone-400 pt-2">
@@ -760,9 +983,9 @@ export const LuxuryLandingPage: React.FC<LuxuryLandingPageProps> = ({
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <span className="font-bold text-stone-300 font-serif">LEGA AI Platform</span>
-            <span>• SHAQILA DIGITAL 99</span>
+            <span>• {landingConfig.topBrandTag || 'SHAQILA DIGITAL 99'}</span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 flex-wrap justify-center">
             <button onClick={onLoginClick} className="hover:text-stone-300 transition">
               Menu Masuk
             </button>
@@ -772,8 +995,27 @@ export const LuxuryLandingPage: React.FC<LuxuryLandingPageProps> = ({
             <button onClick={onDirectAppAccess} className="hover:text-stone-300 transition">
               Buka Aplikasi Langsung
             </button>
+            {landingConfig.contactWhatsapp && (
+              <a
+                href={`https://wa.me/${landingConfig.contactWhatsapp.replace(/\D/g, '')}`}
+                target="_blank"
+                rel="noreferrer"
+                className="text-emerald-400 hover:text-emerald-300 transition flex items-center gap-1 font-semibold"
+              >
+                <MessageCircle className="w-3.5 h-3.5" />
+                <span>WhatsApp Admin</span>
+              </a>
+            )}
+            {landingConfig.contactEmail && (
+              <a
+                href={`mailto:${landingConfig.contactEmail}`}
+                className="text-amber-400/90 hover:text-amber-300 transition"
+              >
+                {landingConfig.contactEmail}
+              </a>
+            )}
           </div>
-          <p>© {new Date().getFullYear()} LEGA. Hak Cipta Dilindungi Undang-Undang.</p>
+          <p>© {new Date().getFullYear()} {landingConfig.footerTagline || 'LEGA. Hak Cipta Dilindungi Undang-Undang.'}</p>
         </div>
       </footer>
     </div>

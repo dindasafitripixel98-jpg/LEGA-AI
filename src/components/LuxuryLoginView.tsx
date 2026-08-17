@@ -24,10 +24,18 @@ import {
 } from 'lucide-react';
 import { playCalmMeditationChime } from '../lib/audioEngine';
 import { signInWithGoogle } from '../lib/firebase';
-import { getLocalDeveloperConfig, getLocalCustomerAccounts } from '../lib/developerService';
+import { getLocalDeveloperConfig, getLocalCustomerAccounts, checkDemoAccountStatus } from '../lib/developerService';
+
+export interface LoggedInUserData {
+  name: string;
+  email: string;
+  isDemo?: boolean;
+  role?: string;
+  plan?: string;
+}
 
 interface LuxuryLoginViewProps {
-  onLoginSuccess: (userData?: { name: string; email: string }) => void;
+  onLoginSuccess: (userData?: LoggedInUserData) => void;
   onBackToLanding: () => void;
 }
 
@@ -35,8 +43,8 @@ export const LuxuryLoginView: React.FC<LuxuryLoginViewProps> = ({
   onLoginSuccess,
   onBackToLanding
 }) => {
-  const devConfig = getLocalDeveloperConfig();
-  const isDemoEnabled = devConfig.enableDemoMode24h ?? true;
+  const demoStatus = checkDemoAccountStatus();
+  const isDemoEnabled = demoStatus.allowed;
 
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('');
@@ -53,9 +61,23 @@ export const LuxuryLoginView: React.FC<LuxuryLoginViewProps> = ({
       setErrorMessage(null);
       const user = await signInWithGoogle();
       if (user) {
+        // Check if user is registered in customer list
+        const registeredAccounts = getLocalCustomerAccounts();
+        const matched = registeredAccounts.find(
+          (acc) => acc.email.toLowerCase() === (user.email || '').toLowerCase()
+        );
+
+        if (matched && matched.status === 'SUSPENDED') {
+          setErrorMessage('Akun Google ini sedang ditangguhkan (Suspended) oleh Administrator.');
+          return;
+        }
+
         onLoginSuccess({
-          name: user.displayName || 'Teman LEGA',
-          email: user.email || ''
+          name: matched?.name || user.displayName || 'Teman LEGA',
+          email: user.email || '',
+          role: matched?.role || 'USER',
+          plan: matched?.plan || 'MONTHLY',
+          isDemo: false
         });
       }
     } catch (err: any) {
@@ -74,11 +96,21 @@ export const LuxuryLoginView: React.FC<LuxuryLoginViewProps> = ({
     setIsLoading(true);
     setErrorMessage(null);
 
+    const check = checkDemoAccountStatus();
+    if (!check.allowed) {
+      setIsLoading(false);
+      setErrorMessage(check.reason);
+      return;
+    }
+
     setTimeout(() => {
       setIsLoading(false);
       onLoginSuccess({
-        name: 'Teman Tenang LEGA',
-        email: 'tamu.lega@shaqila.id'
+        name: 'Pengguna Demo 24 Jam',
+        email: 'demo.user@lega.id',
+        isDemo: true,
+        role: 'USER',
+        plan: 'TRIAL'
       });
     }, 700);
   };
@@ -105,13 +137,41 @@ export const LuxuryLoginView: React.FC<LuxuryLoginViewProps> = ({
           setErrorMessage('Akun ini sedang ditangguhkan (Suspended). Silakan hubungi admin SHAQILA DIGITAL 99.');
           return;
         }
+        if (matchedAccount.id === 'CUST-DEMO' || matchedAccount.email.toLowerCase() === 'demo.user@lega.id') {
+          const check = checkDemoAccountStatus();
+          if (!check.allowed) {
+            setErrorMessage(check.reason);
+            return;
+          }
+        }
         if (matchedAccount.password && cleanPassword && matchedAccount.password !== cleanPassword) {
           setErrorMessage('Kata sandi yang Anda masukkan salah. Silakan coba lagi.');
           return;
         }
+        const isDemoAcc = matchedAccount.id === 'CUST-DEMO' || matchedAccount.email.toLowerCase() === 'demo.user@lega.id';
         onLoginSuccess({
           name: matchedAccount.name,
           email: matchedAccount.email,
+          role: matchedAccount.role,
+          plan: matchedAccount.plan,
+          isDemo: isDemoAcc
+        });
+        return;
+      }
+
+      // Check if user is trying generic demo
+      if (cleanEmail === 'demo@lega.id' || cleanEmail === 'demo' || cleanEmail.includes('demo')) {
+        const check = checkDemoAccountStatus();
+        if (!check.allowed) {
+          setErrorMessage(check.reason);
+          return;
+        }
+        onLoginSuccess({
+          name: 'Pengguna Demo 24 Jam',
+          email: 'demo.user@lega.id',
+          isDemo: true,
+          role: 'USER',
+          plan: 'TRIAL'
         });
         return;
       }
@@ -119,7 +179,10 @@ export const LuxuryLoginView: React.FC<LuxuryLoginViewProps> = ({
       const chosenName = name.trim() || email.split('@')[0] || 'Teman LEGA';
       onLoginSuccess({
         name: chosenName,
-        email: email.trim() || 'user@lega.id'
+        email: email.trim() || 'user@lega.id',
+        isDemo: false,
+        role: 'USER',
+        plan: 'MONTHLY'
       });
     }, 800);
   };

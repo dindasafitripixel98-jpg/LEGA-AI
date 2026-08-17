@@ -5,7 +5,7 @@
  * SHAQILA DIGITAL 99
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ModuleType, UserProfile, EmotionLog, JournalEntry, EmotionCategory } from './types';
 import { INITIAL_EMOTION_LOGS, INITIAL_JOURNALS } from './data/initialData';
 
@@ -52,13 +52,38 @@ import { LuxuryLandingPage } from './components/LuxuryLandingPage';
 import { LuxuryLoginView } from './components/LuxuryLoginView';
 import { LuxuryOnboardingView } from './components/LuxuryOnboardingView';
 import { useDemoAuth } from './lib/demoAuthManager';
-import { DemoBanner } from './components/DemoBanner';
+import { DemoBanner, ActiveAccountInfo } from './components/DemoBanner';
 import { DemoAuthModal } from './components/DemoAuthModal';
 import { DemoExpirationScreen } from './components/DemoExpirationScreen';
 import { setStoredVoiceName } from './lib/voiceService';
 import { FirebaseProvider, useFirebase } from './context/FirebaseContext';
+import { getLocalCustomerAccounts, checkDemoAccountStatus } from './lib/developerService';
+import { ShieldAlert, LogOut } from 'lucide-react';
 
 export type AppFlowStage = 'landing' | 'login' | 'onboarding' | 'app';
+
+const ACTIVE_ACCOUNT_KEY = 'lega_active_user_account';
+
+function getStoredActiveAccount(): ActiveAccountInfo | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem(ACTIVE_ACCOUNT_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function saveStoredActiveAccount(acc: ActiveAccountInfo | null) {
+  if (typeof window === 'undefined') return;
+  try {
+    if (!acc) {
+      localStorage.removeItem(ACTIVE_ACCOUNT_KEY);
+    } else {
+      localStorage.setItem(ACTIVE_ACCOUNT_KEY, JSON.stringify(acc));
+    }
+  } catch (e) {}
+}
 
 function AppContent() {
   const getInitialFlowStage = (): AppFlowStage => {
@@ -90,6 +115,7 @@ function AppContent() {
   const [isCrisisOpen, setIsCrisisOpen] = useState<boolean>(false);
   const [isPwaModalOpen, setIsPwaModalOpen] = useState<boolean>(false);
   const [isDemoModalOpen, setIsDemoModalOpen] = useState<boolean>(false);
+  const [activeAccount, setActiveAccount] = useState<ActiveAccountInfo | null>(getStoredActiveAccount);
 
   // Demo Account 24-Hour Auth Hook
   const demoState = useDemoAuth();
@@ -105,6 +131,44 @@ function AppContent() {
     updateProfile,
     isCloudSynced
   } = useFirebase();
+
+  // Real-time Check for Account Suspension in Customer Database
+  const [isAccountSuspended, setIsAccountSuspended] = useState(false);
+  const [suspensionReason, setSuspensionReason] = useState('');
+
+  useEffect(() => {
+    const checkSuspension = () => {
+      if (!activeAccount) {
+        setIsAccountSuspended(false);
+        return;
+      }
+
+      if (activeAccount.isDemo) {
+        const demoStatus = checkDemoAccountStatus();
+        if (!demoStatus.allowed) {
+          setIsAccountSuspended(true);
+          setSuspensionReason(demoStatus.reason);
+          return;
+        }
+      }
+
+      const allAccounts = getLocalCustomerAccounts();
+      const matched = allAccounts.find(
+        (a) => a.email.toLowerCase() === activeAccount.email.toLowerCase()
+      );
+
+      if (matched && matched.status === 'SUSPENDED') {
+        setIsAccountSuspended(true);
+        setSuspensionReason(`Akun ${matched.name} (${matched.email}) telah ditangguhkan (SUSPENDED) oleh Administrator SHAQILA DIGITAL 99.`);
+      } else {
+        setIsAccountSuspended(false);
+      }
+    };
+
+    checkSuspension();
+    const interval = setInterval(checkSuspension, 2000);
+    return () => clearInterval(interval);
+  }, [activeAccount]);
 
   const handleSaveEmotionLog = (log: EmotionLog) => {
     saveEmotionLog(log);
@@ -125,6 +189,14 @@ function AppContent() {
       notes: 'Pencatatan emosi cepat dari Dashboard',
     };
     saveEmotionLog(quickLog);
+  };
+
+  const handleLogoutAll = () => {
+    demoState.logoutDemo();
+    saveStoredActiveAccount(null);
+    setActiveAccount(null);
+    setIsAccountSuspended(false);
+    setFlowStage('landing');
   };
 
   const renderModuleView = () => {
@@ -332,7 +404,7 @@ function AppContent() {
           <ProfileView
             userProfile={userProfile}
             onUpdateProfile={(p) => setUserProfile(p)}
-            onLogout={() => setFlowStage('landing')}
+            onLogout={handleLogoutAll}
             demoState={demoState}
           />
         );
@@ -372,7 +444,34 @@ function AppContent() {
           if (userData?.name) {
             setUserProfile((prev) => ({ ...prev, name: userData.name }));
           }
-          demoState.quickStartDemo(userData?.name, userData?.email);
+
+          if (userData?.isDemo) {
+            demoState.quickStartDemo(userData.name, userData.email);
+            const newAcc: ActiveAccountInfo = {
+              name: userData.name,
+              email: userData.email,
+              role: 'USER',
+              plan: 'TRIAL',
+              isDemo: true,
+              status: 'ACTIVE'
+            };
+            setActiveAccount(newAcc);
+            saveStoredActiveAccount(newAcc);
+          } else {
+            // Official / Developer / Member login - disable demo countdown
+            demoState.logoutDemo();
+            const newAcc: ActiveAccountInfo = {
+              name: userData?.name || 'Teman LEGA',
+              email: userData?.email || 'user@lega.id',
+              role: userData?.role || 'DEVELOPER',
+              plan: userData?.plan || 'LIFETIME',
+              isDemo: false,
+              status: 'ACTIVE'
+            };
+            setActiveAccount(newAcc);
+            saveStoredActiveAccount(newAcc);
+          }
+
           setFlowStage('onboarding');
         }}
         onBackToLanding={() => setFlowStage('landing')}
@@ -404,11 +503,47 @@ function AppContent() {
     );
   }
 
+  // Suspended Account Blocker Screen
+  if (isAccountSuspended) {
+    return (
+      <div className="fixed inset-0 z-50 bg-stone-950 flex items-center justify-center p-4 font-sans text-stone-100">
+        <div className="w-full max-w-md bg-stone-900 border border-rose-800/80 rounded-3xl p-6 text-center space-y-4 shadow-2xl">
+          <div className="w-14 h-14 rounded-2xl bg-rose-950/80 border border-rose-700/80 flex items-center justify-center text-rose-400 mx-auto">
+            <ShieldAlert className="w-8 h-8" />
+          </div>
+          <div className="space-y-1.5">
+            <span className="px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[10px] font-bold uppercase tracking-wider">
+              STATUS AKUN: DINONAKTIFKAN / DISUSPEND
+            </span>
+            <h3 className="text-lg font-bold text-white pt-1">
+              Akses Akun Ditangguhkan
+            </h3>
+            <p className="text-xs text-stone-300 leading-relaxed">
+              {suspensionReason || 'Akun ini telah dinonaktifkan atau ditangguhkan oleh Administrator SHAQILA DIGITAL 99.'}
+            </p>
+          </div>
+          <div className="pt-3 border-t border-stone-800 flex flex-col gap-2">
+            <button
+              onClick={handleLogoutAll}
+              className="w-full py-2.5 bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-semibold rounded-xl border border-stone-700 transition flex items-center justify-center gap-2"
+            >
+              <LogOut className="w-4 h-4 text-stone-400" />
+              <span>Keluar & Kembali ke Halaman Utama</span>
+            </button>
+            <p className="text-[11px] text-stone-500">
+              Hubungi Administrator untuk mengaktifkan kembali akun Anda.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // 4. MAIN CORE APPLICATION
   return (
     <div className="flex h-screen bg-stone-950 font-sans text-stone-100 overflow-hidden antialiased">
       {/* 24-Hour Expiration Blocker */}
-      {demoState.isExpired && (
+      {demoState.isExpired && (!activeAccount || activeAccount.isDemo) && (
         <DemoExpirationScreen
           onRenewDemo={() => demoState.resetDemoSession()}
           onOpenLoginModal={() => setIsDemoModalOpen(true)}
@@ -423,7 +558,7 @@ function AppContent() {
         onToggleMobile={() => setIsOpenMobile(!isOpenMobile)}
         onOpenCrisis={() => setIsCrisisOpen(true)}
         onOpenPwaModal={() => setIsPwaModalOpen(true)}
-        onLogout={() => setFlowStage('landing')}
+        onLogout={handleLogoutAll}
       />
 
       {/* Main Content Viewport */}
@@ -447,10 +582,12 @@ function AppContent() {
           </div>
         </div>
 
-        {/* Top 24-Hour Demo Notification Status Bar */}
+        {/* Top Account & Demo Notification Status Bar */}
         <DemoBanner
           demoState={demoState}
+          activeAccount={activeAccount}
           onOpenModal={() => setIsDemoModalOpen(true)}
+          onSelectModule={(mod) => setCurrentModule(mod)}
         />
 
         <Header
@@ -463,7 +600,7 @@ function AppContent() {
           demoState={demoState}
           onOpenDemoModal={() => setIsDemoModalOpen(true)}
           onNavigateLanding={() => setFlowStage('landing')}
-          onLogout={() => setFlowStage('landing')}
+          onLogout={handleLogoutAll}
           isCloudSynced={isCloudSynced}
         />
 
