@@ -368,6 +368,15 @@ export interface LandingPageConfig {
   footerTagline?: string;
 }
 
+export interface SupabaseConfig {
+  url: string;
+  anonKey: string;
+  serviceRoleKey?: string;
+  isEnabled: boolean;
+  autoSync: boolean;
+  tablePrefix?: string;
+}
+
 export interface DeveloperConfig {
   geminiApiKey: string;
   noizApiKey: string;
@@ -385,6 +394,7 @@ export interface DeveloperConfig {
   enableDemoMode24h: boolean;
   customAiCoachPrompt?: string;
   landingPage?: LandingPageConfig;
+  supabase?: SupabaseConfig;
 }
 
 export interface CustomerAccount {
@@ -406,7 +416,7 @@ export interface CustomerAccount {
 }
 
 export interface ServiceHealthStatus {
-  service: 'gemini' | 'noiz' | 'database' | 'audioEngine' | 'auth';
+  service: 'gemini' | 'noiz' | 'database' | 'supabase' | 'audioEngine' | 'auth';
   name: string;
   status: 'ONLINE' | 'DEGRADED' | 'OFFLINE' | 'CHECKING';
   latencyMs: number;

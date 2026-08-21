@@ -5,6 +5,7 @@
  */
 
 import { CustomerAccount, DeveloperConfig, ServiceHealthStatus } from '../types';
+import { DEFAULT_SUPABASE_CONFIG, testSupabaseConnection } from './supabase';
 
 const DEV_CONFIG_STORAGE_KEY = 'lega_dev_custom_config_v1';
 const DEV_USERS_STORAGE_KEY = 'lega_dev_customer_accounts_v1';
@@ -88,6 +89,7 @@ const DEFAULT_DEV_CONFIG: DeveloperConfig = {
   customAiCoachPrompt:
     'Anda adalah LEGA AI Coach, sahabat refleksi diri penuh welas asih, hangat, dan ilmiah dalam psikologi kesadaran diri Indonesia.',
   landingPage: DEFAULT_LANDING_PAGE_CONFIG,
+  supabase: DEFAULT_SUPABASE_CONFIG,
 };
 
 const INITIAL_CUSTOMERS: CustomerAccount[] = [
@@ -434,6 +436,12 @@ export async function testServiceConnection(
         message: 'Format Noiz AI API Key tidak valid. Pastikan menggunakan token resmi dari Noiz.ai.',
       };
     }
+  }
+
+  if (service === 'supabase') {
+    const devCfg = getLocalDeveloperConfig();
+    const supabaseConfig = devCfg.supabase || DEFAULT_SUPABASE_CONFIG;
+    return await testSupabaseConnection(supabaseConfig);
   }
 
   return {

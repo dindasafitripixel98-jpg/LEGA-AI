@@ -72,10 +72,20 @@ import {
   getLocalDeveloperConfig,
   DEFAULT_LANDING_PAGE_CONFIG
 } from '../lib/developerService';
-import { CustomerAccount, DeveloperConfig, LandingPageConfig, LandingPageGalleryItem } from '../types';
+import { CustomerAccount, DeveloperConfig, LandingPageConfig, LandingPageGalleryItem, SupabaseConfig } from '../types';
+import {
+  getStoredSupabaseConfig,
+  saveStoredSupabaseConfig,
+  testSupabaseConnection,
+  SUPABASE_SCHEMA_SQL,
+  syncCustomerAccountsToSupabase,
+  syncDeveloperConfigToSupabase,
+  DEFAULT_SUPABASE_CONFIG
+} from '../lib/supabase';
 
 type AdminTab =
   | 'developer-keys'
+  | 'developer-supabase'
   | 'developer-users'
   | 'developer-app'
   | 'developer-landing'
@@ -130,6 +140,18 @@ export const AdminPanel: React.FC = () => {
   const [geminiTestResult, setGeminiTestResult] = useState<{ success: boolean; message: string; latency?: number } | null>(null);
   const [testingNoiz, setTestingNoiz] = useState<boolean>(false);
   const [noizTestResult, setNoizTestResult] = useState<{ success: boolean; message: string; latency?: number } | null>(null);
+
+  // Supabase Database & Backend State
+  const [supabaseConfig, setSupabaseConfig] = useState<SupabaseConfig>(() => {
+    return devConfig.supabase || getStoredSupabaseConfig();
+  });
+  const [showSupabaseKey, setShowSupabaseKey] = useState<boolean>(false);
+  const [showServiceRoleKey, setShowServiceRoleKey] = useState<boolean>(false);
+  const [testingSupabase, setTestingSupabase] = useState<boolean>(false);
+  const [supabaseTestResult, setSupabaseTestResult] = useState<{ success: boolean; message: string; latencyMs?: number } | null>(null);
+  const [copiedSql, setCopiedSql] = useState<boolean>(false);
+  const [isSyncingSupabase, setIsSyncingSupabase] = useState<boolean>(false);
+  const [supabaseSyncResult, setSupabaseSyncResult] = useState<string | null>(null);
 
   // Customers / Users Management State
   const [customers, setCustomers] = useState<CustomerAccount[]>([]);
@@ -297,6 +319,61 @@ export const AdminPanel: React.FC = () => {
       message: result.message,
       latency: result.latencyMs,
     });
+  };
+
+  // Save Supabase Configuration
+  const handleSaveSupabaseConfig = async () => {
+    setIsSavingConfig(true);
+    setSaveSuccessNotice('');
+    saveStoredSupabaseConfig(supabaseConfig);
+    const res = await updateDeveloperConfig({
+      supabase: supabaseConfig,
+    });
+    setIsSavingConfig(false);
+    if (res.success) {
+      setDevConfig(res.config);
+      setSaveSuccessNotice('Konfigurasi Supabase PostgreSQL & Backend Berhasil Disimpan!');
+      setTimeout(() => setSaveSuccessNotice(''), 5000);
+    }
+  };
+
+  // Test Supabase Connection
+  const handleTestSupabase = async () => {
+    setTestingSupabase(true);
+    setSupabaseTestResult(null);
+    const result = await testSupabaseConnection(supabaseConfig);
+    setTestingSupabase(false);
+    setSupabaseTestResult({
+      success: result.success,
+      message: result.message,
+      latencyMs: result.latencyMs,
+    });
+  };
+
+  // Sync All Data to Supabase PostgreSQL Tables
+  const handleSyncAllToSupabase = async () => {
+    setIsSyncingSupabase(true);
+    setSupabaseSyncResult(null);
+    try {
+      const okAccounts = await syncCustomerAccountsToSupabase(customers);
+      const okConfig = await syncDeveloperConfigToSupabase(devConfig);
+      setIsSyncingSupabase(false);
+      if (okAccounts || okConfig) {
+        setSupabaseSyncResult(`Sinkronisasi Sukses! ${customers.length} data akun pelanggan & konfigurasi aplikasi berhasil disinkronkan ke Supabase.`);
+      } else {
+        setSupabaseSyncResult('Gagal sinkronisasi data. Pastikan tabel schema Supabase sudah dibuat dan Anon Key valid.');
+      }
+    } catch (err: any) {
+      setIsSyncingSupabase(false);
+      setSupabaseSyncResult(`Terjadi kesalahan sinkronisasi: ${err?.message || 'Error'}`);
+    }
+  };
+
+  // Copy Schema SQL
+  const handleCopySchemaSql = () => {
+    navigator.clipboard.writeText(SUPABASE_SCHEMA_SQL);
+    setCopiedSql(true);
+    setTimeout(() => setCopiedSql(false), 3000);
   };
 
   // Save App Customization & Toggles
@@ -584,6 +661,21 @@ export const AdminPanel: React.FC = () => {
         </button>
 
         <button
+          onClick={() => setActiveTab('developer-supabase')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all shrink-0 ${
+            activeTab === 'developer-supabase'
+              ? 'bg-emerald-400 text-stone-950 shadow-lg shadow-emerald-950/50 scale-102 font-black'
+              : 'bg-stone-900/90 text-stone-300 hover:bg-stone-800 border border-stone-800'
+          }`}
+        >
+          <Database className="w-4 h-4 text-emerald-400" />
+          <span>Database Supabase (PostgreSQL)</span>
+          <span className="px-1.5 py-0.2 rounded-full text-[9px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+            {supabaseConfig.isEnabled ? 'ON' : 'OFF'}
+          </span>
+        </button>
+
+        <button
           onClick={() => setActiveTab('developer-users')}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all shrink-0 ${
             activeTab === 'developer-users'
@@ -842,6 +934,278 @@ export const AdminPanel: React.FC = () => {
                 <li>Sistem backend serverless Vercel &amp; Express akan langsung memperbarui variabel runtime seketika tanpa membutuhkan deployment ulang.</li>
                 <li>Jika Noiz API Key tidak diisi atau kuota habis, engine otomatis menggunakan fallback <em>Gemini TTS Voice Synthesizer</em> beresolusi tinggi sehingga pengalaman suara pengguna tidak akan terputus.</li>
               </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* TAB: DATABASE SUPABASE (POSTGRESQL & BACKEND)           */}
+      {/* ======================================================== */}
+      {activeTab === 'developer-supabase' && (
+        <div className="space-y-6">
+          <div className="p-6 rounded-3xl bg-stone-900 border border-emerald-500/30 space-y-6 shadow-xl relative overflow-hidden">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-800 pb-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-emerald-500 text-stone-950 uppercase tracking-wider">
+                    POSTGRESQL BACKEND
+                  </span>
+                  <span className="text-xs text-stone-400">Database Engine</span>
+                </div>
+                <h2 className="text-lg font-bold text-stone-100 flex items-center gap-2 mt-1">
+                  <Database className="w-5 h-5 text-emerald-400" />
+                  <span>Integrasi Backend &amp; Database Supabase</span>
+                </h2>
+                <p className="text-xs text-stone-400 mt-1">
+                  Hubungkan LEGA SHAQILA DIGITAL 99 ke database Supabase (PostgreSQL) untuk penyimpanan terpusat akun, jurnal refleksi, pelacak emosi, dan sinkronisasi real-time.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={handleTestSupabase}
+                  disabled={testingSupabase}
+                  className="px-4 py-2.5 bg-stone-800 hover:bg-stone-700 text-emerald-300 font-bold rounded-2xl text-xs flex items-center gap-2 border border-emerald-500/30 transition shadow-sm active:scale-95 disabled:opacity-50"
+                >
+                  <Zap className={`w-4 h-4 text-emerald-400 ${testingSupabase ? 'animate-spin' : ''}`} />
+                  <span>{testingSupabase ? 'Menguji Koneksi...' : '🧪 Uji Koneksi Supabase'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleSaveSupabaseConfig}
+                  disabled={isSavingConfig}
+                  className="px-4 py-2.5 bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-300 hover:to-teal-400 text-stone-950 font-black rounded-2xl text-xs flex items-center gap-2 shadow-lg shadow-emerald-950/40 transition active:scale-95 disabled:opacity-50"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>{isSavingConfig ? 'Menyimpan...' : 'Simpan Konfigurasi Supabase'}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Live Connection Test Feedback */}
+            {supabaseTestResult && (
+              <div
+                className={`p-4 rounded-2xl text-xs flex items-start gap-3 animate-fade-in ${
+                  supabaseTestResult.success
+                    ? 'bg-emerald-950/90 text-emerald-200 border border-emerald-500/50 shadow-lg'
+                    : 'bg-rose-950/90 text-rose-200 border border-rose-500/50 shadow-lg'
+                }`}
+              >
+                {supabaseTestResult.success ? (
+                  <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                ) : (
+                  <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
+                )}
+                <div>
+                  <div className="font-bold text-sm">
+                    {supabaseTestResult.success ? 'Koneksi Supabase Berhasil!' : 'Koneksi Supabase Gagal / Belum Siap'}
+                  </div>
+                  <div className="mt-1 text-xs opacity-90">{supabaseTestResult.message}</div>
+                  {supabaseTestResult.latencyMs && (
+                    <div className="mt-1 font-mono text-[10px] text-emerald-300">
+                      Latency: {supabaseTestResult.latencyMs}ms
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Supabase Credentials Inputs */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {/* Project URL */}
+              <div className="p-5 bg-stone-950/80 rounded-2xl border border-stone-800 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-stone-200 flex items-center gap-2">
+                    <Globe className="w-4 h-4 text-emerald-400" />
+                    <span>Supabase Project URL</span>
+                  </label>
+                  <span className="text-[10px] text-stone-400">Contoh: https://xyz.supabase.co</span>
+                </div>
+                <input
+                  type="text"
+                  value={supabaseConfig.url}
+                  onChange={(e) => setSupabaseConfig({ ...supabaseConfig, url: e.target.value.trim() })}
+                  placeholder="https://your-project-id.supabase.co"
+                  className="w-full bg-stone-900 border border-stone-700 rounded-xl px-4 py-3 text-xs text-stone-100 focus:outline-none focus:border-emerald-400 font-mono"
+                />
+                <p className="text-[11px] text-stone-400">
+                  Ditemukan di Supabase Dashboard &rarr; Project Settings &rarr; API &rarr; Project URL.
+                </p>
+              </div>
+
+              {/* Anon Public Key */}
+              <div className="p-5 bg-stone-950/80 rounded-2xl border border-stone-800 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-stone-200 flex items-center gap-2">
+                    <Key className="w-4 h-4 text-emerald-400" />
+                    <span>Supabase Anon Public Key (API Key)</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowSupabaseKey(!showSupabaseKey)}
+                    className="text-stone-400 hover:text-stone-200 text-[10px] flex items-center gap-1"
+                  >
+                    {showSupabaseKey ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                    <span>{showSupabaseKey ? 'Sembunyi' : 'Lihat'}</span>
+                  </button>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showSupabaseKey ? 'text' : 'password'}
+                    value={supabaseConfig.anonKey}
+                    onChange={(e) => setSupabaseConfig({ ...supabaseConfig, anonKey: e.target.value.trim() })}
+                    placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    className="w-full bg-stone-900 border border-stone-700 rounded-xl px-4 py-3 text-xs text-stone-100 focus:outline-none focus:border-emerald-400 font-mono"
+                  />
+                </div>
+                <p className="text-[11px] text-stone-400">
+                  Ditemukan di Supabase Dashboard &rarr; Project Settings &rarr; API &rarr; Project API keys (anon public).
+                </p>
+              </div>
+
+              {/* Service Role Key (Optional) */}
+              <div className="p-5 bg-stone-950/80 rounded-2xl border border-stone-800 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-stone-200 flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-teal-400" />
+                    <span>Service Role Secret Key (Opsional)</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowServiceRoleKey(!showServiceRoleKey)}
+                    className="text-stone-400 hover:text-stone-200 text-[10px] flex items-center gap-1"
+                  >
+                    {showServiceRoleKey ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                    <span>{showServiceRoleKey ? 'Sembunyi' : 'Lihat'}</span>
+                  </button>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showServiceRoleKey ? 'text' : 'password'}
+                    value={supabaseConfig.serviceRoleKey || ''}
+                    onChange={(e) => setSupabaseConfig({ ...supabaseConfig, serviceRoleKey: e.target.value.trim() })}
+                    placeholder="Kunci rahasia server untuk administrasi backend tingkat tinggi"
+                    className="w-full bg-stone-900 border border-stone-700 rounded-xl px-4 py-3 text-xs text-stone-100 focus:outline-none focus:border-teal-400 font-mono"
+                  />
+                </div>
+                <p className="text-[11px] text-stone-400">
+                  Hanya digunakan untuk operasi server admin (tidak diekspos ke client browser).
+                </p>
+              </div>
+
+              {/* Integration Toggles */}
+              <div className="p-5 bg-stone-950/80 rounded-2xl border border-stone-800 space-y-4">
+                <label className="text-xs font-bold text-stone-200 flex items-center gap-2">
+                  <Sliders className="w-4 h-4 text-emerald-400" />
+                  <span>Pengaturan Fitur &amp; Sinkronisasi Otomatis</span>
+                </label>
+
+                <div className="space-y-3">
+                  <label className="flex items-center justify-between p-2.5 rounded-xl bg-stone-900 border border-stone-800 cursor-pointer hover:border-emerald-500/40 transition">
+                    <div>
+                      <div className="text-xs font-bold text-stone-200">Aktifkan Supabase Backend</div>
+                      <div className="text-[10px] text-stone-400">Gunakan Supabase sebagai penyedia database utama aplikasi</div>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={supabaseConfig.isEnabled}
+                      onChange={(e) => setSupabaseConfig({ ...supabaseConfig, isEnabled: e.target.checked })}
+                      className="w-4 h-4 rounded text-emerald-500 accent-emerald-500"
+                    />
+                  </label>
+
+                  <label className="flex items-center justify-between p-2.5 rounded-xl bg-stone-900 border border-stone-800 cursor-pointer hover:border-emerald-500/40 transition">
+                    <div>
+                      <div className="text-xs font-bold text-stone-200">Auto-Sync Real-time</div>
+                      <div className="text-[10px] text-stone-400">Sinkronkan otomatis setiap log emosi &amp; jurnal baru ke PostgreSQL</div>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={supabaseConfig.autoSync}
+                      onChange={(e) => setSupabaseConfig({ ...supabaseConfig, autoSync: e.target.checked })}
+                      className="w-4 h-4 rounded text-emerald-500 accent-emerald-500"
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Realtime Data Sync Station */}
+            <div className="p-5 bg-gradient-to-r from-emerald-950/40 via-stone-950 to-teal-950/30 rounded-2xl border border-emerald-500/30 space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-sm font-bold text-stone-100 flex items-center gap-2">
+                    <RefreshCw className={`w-4 h-4 text-emerald-400 ${isSyncingSupabase ? 'animate-spin' : ''}`} />
+                    <span>Sinkronisasi Data Lokal &rarr; Supabase Cloud</span>
+                  </h3>
+                  <p className="text-xs text-stone-400 mt-0.5">
+                    Unggah seluruh data akun pelanggan ({customers.length} akun) dan konfigurasi aplikasi langsung ke tabel PostgreSQL Supabase.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleSyncAllToSupabase}
+                  disabled={isSyncingSupabase || !supabaseConfig.url || !supabaseConfig.anonKey}
+                  className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-bold rounded-xl text-xs flex items-center gap-2 transition active:scale-95 disabled:opacity-50 shrink-0"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isSyncingSupabase ? 'animate-spin' : ''}`} />
+                  <span>{isSyncingSupabase ? 'Menyinkronkan...' : 'Sinkronkan Semua Data Sekarang'}</span>
+                </button>
+              </div>
+
+              {supabaseSyncResult && (
+                <div className="p-3 bg-stone-900/90 rounded-xl border border-emerald-500/40 text-xs text-emerald-300 flex items-center gap-2 animate-fade-in">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>{supabaseSyncResult}</span>
+                </div>
+              )}
+            </div>
+
+            {/* SQL Schema Migration Script Viewer */}
+            <div className="p-5 bg-stone-950 rounded-2xl border border-stone-800 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-sm font-bold text-stone-100 flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-amber-400" />
+                    <span>Skrip SQL Schema Supabase (Auto Table Generator)</span>
+                  </h3>
+                  <p className="text-xs text-stone-400 mt-0.5">
+                    Salin skrip SQL ini lalu jalankan di <strong>Supabase Dashboard &rarr; SQL Editor &rarr; New Query &rarr; Run</strong>.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleCopySchemaSql}
+                  className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-amber-300 font-bold rounded-xl text-xs flex items-center gap-2 transition border border-amber-500/40 active:scale-95 shrink-0"
+                >
+                  {copiedSql ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-amber-400" />}
+                  <span>{copiedSql ? '✓ Tersalin ke Clipboard!' : 'Salin Skrip SQL Schema'}</span>
+                </button>
+              </div>
+
+              <div className="relative">
+                <pre className="p-4 bg-stone-900/90 border border-stone-800 rounded-xl text-[11px] text-emerald-300/90 font-mono overflow-x-auto max-h-60 leading-relaxed scrollbar-thin scrollbar-thumb-stone-700">
+                  {SUPABASE_SCHEMA_SQL}
+                </pre>
+              </div>
+
+              <div className="p-3.5 bg-emerald-950/30 rounded-xl border border-emerald-500/20 text-xs text-stone-300 space-y-1.5">
+                <div className="font-bold text-emerald-300 flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>3 Langkah Cepat Menghubungkan Supabase:</span>
+                </div>
+                <ol className="list-decimal list-inside text-[11px] text-stone-400 space-y-1">
+                  <li>Buat proyek baru di <a href="https://supabase.com" target="_blank" rel="noreferrer" className="text-emerald-400 underline font-semibold">supabase.com</a>.</li>
+                  <li>Buka <strong>SQL Editor</strong> di dashboard Supabase, klik <em>"New Query"</em>, tempel skrip SQL di atas, lalu klik <strong>"Run"</strong>.</li>
+                  <li>Salin <strong>Project URL</strong> dan <strong>Anon Public Key</strong> dari menu <em>Project Settings &rarr; API</em> ke formulir di atas, lalu klik <strong>"Simpan Konfigurasi Supabase"</strong>.</li>
+                </ol>
+              </div>
             </div>
           </div>
         </div>

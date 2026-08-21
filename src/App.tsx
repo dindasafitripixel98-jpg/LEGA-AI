@@ -58,6 +58,7 @@ import { DemoExpirationScreen } from './components/DemoExpirationScreen';
 import { setStoredVoiceName } from './lib/voiceService';
 import { FirebaseProvider, useFirebase } from './context/FirebaseContext';
 import { getLocalCustomerAccounts, checkDemoAccountStatus } from './lib/developerService';
+import { syncEmotionLogToSupabase, syncJournalToSupabase, syncUserProfileToSupabase } from './lib/supabase';
 import { ShieldAlert, LogOut } from 'lucide-react';
 
 export type AppFlowStage = 'landing' | 'login' | 'onboarding' | 'app';
@@ -212,10 +213,14 @@ function AppContent() {
 
   const handleSaveEmotionLog = (log: EmotionLog) => {
     saveEmotionLog(log);
+    // Background auto-sync to Supabase
+    syncEmotionLogToSupabase(log, userProfile.email || activeAccount?.email || 'user@lega.id');
   };
 
   const handleAddJournal = (entry: JournalEntry) => {
     addJournal(entry);
+    // Background auto-sync to Supabase
+    syncJournalToSupabase(entry, userProfile.email || activeAccount?.email || 'user@lega.id');
   };
 
   const handleQuickLogMood = (emotion: EmotionCategory, intensity: number) => {
@@ -229,6 +234,8 @@ function AppContent() {
       notes: 'Pencatatan emosi cepat dari Dashboard',
     };
     saveEmotionLog(quickLog);
+    // Background auto-sync to Supabase
+    syncEmotionLogToSupabase(quickLog, userProfile.email || activeAccount?.email || 'user@lega.id');
   };
 
   const handleLogoutAll = () => {
@@ -443,7 +450,10 @@ function AppContent() {
         return (
           <ProfileView
             userProfile={userProfile}
-            onUpdateProfile={(p) => setUserProfile(p)}
+            onUpdateProfile={(p) => {
+              setUserProfile(p);
+              syncUserProfileToSupabase(p);
+            }}
             onLogout={handleLogoutAll}
             demoState={demoState}
           />

@@ -4842,6 +4842,49 @@ app.delete('/api/developer/users/:id', (req, res) => {
   res.json({ success: true, message: 'Akun berhasil dihapus.' });
 });
 
+// 13. Supabase Backend Health & Status
+app.get('/api/supabase/status', async (req, res) => {
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
+  const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || '';
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return res.json({
+      configured: false,
+      status: 'NOT_CONFIGURED',
+      message: 'Supabase URL dan Anon Key belum dikonfigurasi pada environment server atau Control Panel.'
+    });
+  }
+
+  const startTime = Date.now();
+  try {
+    const testUrl = `${supabaseUrl.replace(/\/$/, '')}/rest/v1/`;
+    const response = await fetch(testUrl, {
+      headers: {
+        'apikey': supabaseAnonKey,
+        'Authorization': `Bearer ${supabaseAnonKey}`
+      }
+    });
+
+    const latencyMs = Date.now() - startTime;
+    return res.json({
+      configured: true,
+      status: response.ok || response.status === 404 ? 'ONLINE' : 'DEGRADED',
+      latencyMs,
+      supabaseUrl,
+      httpStatus: response.status,
+      message: `Koneksi Supabase Server Terverifikasi (${latencyMs}ms)`
+    });
+  } catch (err: any) {
+    return res.json({
+      configured: true,
+      status: 'OFFLINE',
+      latencyMs: Date.now() - startTime,
+      message: `Gagal menghubungi Supabase: ${err?.message || 'Network error'}`
+    });
+  }
+});
+
+
 // Vite Middleware for dev & static serving for standalone prod server
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
