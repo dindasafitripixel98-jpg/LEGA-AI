@@ -170,6 +170,46 @@ function AppContent() {
     return () => clearInterval(interval);
   }, [activeAccount]);
 
+  const handleDeveloperDirectLogin = (targetModule: ModuleType = 'dashboard') => {
+    demoState.logoutDemo();
+    const devAcc: ActiveAccountInfo = {
+      name: 'Dinda Safitri (Owner & Developer)',
+      email: 'dindasafitri.pixel98@gmail.com',
+      role: 'DEVELOPER',
+      plan: 'LIFETIME',
+      isDemo: false,
+      status: 'ACTIVE'
+    };
+    setUserProfile((prev) => ({
+      ...prev,
+      name: 'Dinda Safitri (Owner & Developer)',
+      email: 'dindasafitri.pixel98@gmail.com'
+    }));
+    setActiveAccount(devAcc);
+    saveStoredActiveAccount(devAcc);
+    setIsAccountSuspended(false);
+    setCurrentModule(targetModule);
+    setFlowStage('app');
+  };
+
+  // URL Query Parameter Auto-Login Check for Developer
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const isDevParam =
+        params.get('dev') === 'true' ||
+        params.get('mode') === 'developer' ||
+        params.get('access') === 'developer' ||
+        params.get('login') === 'developer' ||
+        params.get('admin') === 'true';
+
+      if (isDevParam) {
+        const mod = (params.get('module') as ModuleType) || 'dashboard';
+        handleDeveloperDirectLogin(mod);
+      }
+    }
+  }, []);
+
   const handleSaveEmotionLog = (log: EmotionLog) => {
     saveEmotionLog(log);
   };
@@ -433,6 +473,7 @@ function AppContent() {
         onGetStarted={() => setFlowStage('login')}
         onLoginClick={() => setFlowStage('login')}
         onDirectAppAccess={() => setFlowStage('app')}
+        onDeveloperDirectAccess={() => handleDeveloperDirectLogin('dashboard')}
       />
     );
   }

@@ -48,6 +48,7 @@ interface LuxuryLandingPageProps {
   onGetStarted: () => void;
   onLoginClick: () => void;
   onDirectAppAccess: () => void;
+  onDeveloperDirectAccess?: () => void;
 }
 
 // Helper: Extract YouTube Embed URL or direct video URL
@@ -70,7 +71,8 @@ function parseVideoEmbedUrl(url?: string): { isYouTube: boolean; embedUrl: strin
 export const LuxuryLandingPage: React.FC<LuxuryLandingPageProps> = ({
   onGetStarted,
   onLoginClick,
-  onDirectAppAccess
+  onDirectAppAccess,
+  onDeveloperDirectAccess
 }) => {
   const [landingConfig, setLandingConfig] = useState<LandingPageConfig>(() => {
     const devCfg = getLocalDeveloperConfig();
@@ -278,7 +280,19 @@ export const LuxuryLandingPage: React.FC<LuxuryLandingPageProps> = ({
             </a>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
+            {onDeveloperDirectAccess && (
+              <button
+                onClick={onDeveloperDirectAccess}
+                title="Akses Langsung Akun Developer / Owner (Dinda Safitri)"
+                className="px-3 py-1.5 rounded-xl text-xs font-bold text-amber-300 hover:text-amber-200 bg-amber-950/60 hover:bg-amber-900/80 border border-amber-500/50 shadow-sm transition flex items-center gap-1.5"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                <span className="hidden sm:inline">👑 Akses Developer</span>
+                <span className="sm:hidden">👑 Dev</span>
+              </button>
+            )}
+
             <button
               onClick={onLoginClick}
               className="px-3.5 py-2 rounded-xl text-xs font-semibold text-stone-300 hover:text-stone-100 hover:bg-stone-900 border border-transparent hover:border-stone-700 transition flex items-center gap-1.5"
@@ -986,6 +1000,15 @@ export const LuxuryLandingPage: React.FC<LuxuryLandingPageProps> = ({
             <span>• {landingConfig.topBrandTag || 'SHAQILA DIGITAL 99'}</span>
           </div>
           <div className="flex items-center gap-4 flex-wrap justify-center">
+            {onDeveloperDirectAccess && (
+              <button
+                onClick={onDeveloperDirectAccess}
+                className="text-amber-300 hover:text-amber-200 font-bold flex items-center gap-1 transition"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>👑 Akses Langsung Developer</span>
+              </button>
+            )}
             <button onClick={onLoginClick} className="hover:text-stone-300 transition">
               Menu Masuk
             </button>

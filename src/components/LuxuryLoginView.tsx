@@ -115,6 +115,23 @@ export const LuxuryLoginView: React.FC<LuxuryLoginViewProps> = ({
     }, 700);
   };
 
+  const handleInstantDeveloperLogin = () => {
+    playCalmMeditationChime('bowl', 0.18);
+    setIsLoading(true);
+    setErrorMessage(null);
+
+    setTimeout(() => {
+      setIsLoading(false);
+      onLoginSuccess({
+        name: 'Dinda Safitri (Owner & Developer)',
+        email: 'dindasafitri.pixel98@gmail.com',
+        isDemo: false,
+        role: 'DEVELOPER',
+        plan: 'LIFETIME'
+      });
+    }, 600);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     playCalmMeditationChime('bowl', 0.15);
@@ -253,10 +270,21 @@ export const LuxuryLoginView: React.FC<LuxuryLoginViewProps> = ({
 
           {/* Google Sign In with Firebase Cloud Sync */}
           <div className="space-y-2.5">
+            {/* 👑 Instant 1-Click Developer Direct Access Button */}
+            <button
+              onClick={handleInstantDeveloperLogin}
+              disabled={isLoading}
+              className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-stone-950 font-black text-xs sm:text-sm shadow-xl shadow-amber-500/25 transition-all transform hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2.5 border border-amber-300"
+            >
+              <Sparkles className="w-4 h-4 text-stone-950 fill-stone-950" />
+              <span>👑 Masuk Langsung Akun Developer (Owner)</span>
+              <ArrowRight className="w-4 h-4 stroke-[3]" />
+            </button>
+
             <button
               onClick={handleGoogleSignIn}
               disabled={isLoading}
-              className="w-full py-3 px-4 rounded-2xl bg-white hover:bg-stone-100 text-stone-900 font-bold text-xs sm:text-sm shadow-lg shadow-white/10 transition-all transform hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-3 border border-stone-300"
+              className="w-full py-2.5 px-4 rounded-2xl bg-white hover:bg-stone-100 text-stone-900 font-bold text-xs sm:text-sm shadow-md shadow-white/10 transition-all transform hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-3 border border-stone-300"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24">
                 <path
@@ -284,14 +312,14 @@ export const LuxuryLoginView: React.FC<LuxuryLoginViewProps> = ({
               <button
                 onClick={handleInstantDemoLogin}
                 disabled={isLoading}
-                className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 hover:from-amber-300 hover:to-amber-200 text-stone-950 font-extrabold text-xs sm:text-sm shadow-md shadow-amber-500/20 hover:shadow-amber-400/30 transition-all transform hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2"
+                className="w-full py-2.5 px-4 rounded-2xl bg-stone-900 hover:bg-stone-800 text-amber-300 hover:text-amber-200 border border-amber-500/40 font-bold text-xs shadow-sm transition-all transform hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2"
               >
-                <Zap className="w-4 h-4 text-stone-950 fill-stone-950" />
-                <span>Masuk Cepat 1-Klik (Akses Tamu 24 Jam)</span>
-                <ArrowRight className="w-3.5 h-3.5 stroke-[3]" />
+                <Zap className="w-3.5 h-3.5 text-amber-400" />
+                <span>Masuk Cepat (Akses Tamu 24 Jam)</span>
+                <ArrowRight className="w-3.5 h-3.5" />
               </button>
             ) : (
-              <div className="p-3 bg-stone-900/60 rounded-2xl border border-stone-800 text-center">
+              <div className="p-2.5 bg-stone-900/60 rounded-xl border border-stone-800 text-center">
                 <p className="text-[11px] text-stone-400">
                   🔒 Akses tamu demo saat ini dinonaktifkan oleh administrator. Silakan masuk dengan akun terdaftar Anda.
                 </p>
@@ -303,7 +331,7 @@ export const LuxuryLoginView: React.FC<LuxuryLoginViewProps> = ({
           <div className="flex items-center gap-3">
             <div className="flex-1 h-px bg-stone-800" />
             <span className="text-[10px] text-stone-400 uppercase font-mono tracking-wider">
-              {isDemoEnabled ? 'atau akun terdaftar' : 'masuk dengan email terdaftar'}
+              {isDemoEnabled ? 'atau login manual' : 'masuk dengan email terdaftar'}
             </span>
             <div className="flex-1 h-px bg-stone-800" />
           </div>
@@ -328,10 +356,38 @@ export const LuxuryLoginView: React.FC<LuxuryLoginViewProps> = ({
             )}
 
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-stone-300 flex items-center gap-1.5">
-                <Mail className="w-3.5 h-3.5 text-stone-400" />
-                <span>Alamat Email</span>
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-stone-300 flex items-center gap-1.5">
+                  <Mail className="w-3.5 h-3.5 text-stone-400" />
+                  <span>Alamat Email</span>
+                </label>
+                {authMode === 'login' && (
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEmail('dindasafitri.pixel98@gmail.com');
+                        setPassword('Dinda@Owner99');
+                      }}
+                      className="text-[10px] text-amber-300 hover:text-amber-200 underline font-semibold"
+                    >
+                      👑 Akun Developer
+                    </button>
+                    {isDemoEnabled && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEmail('demo.user@lega.id');
+                          setPassword('LEGA24JAM');
+                        }}
+                        className="text-[10px] text-stone-400 hover:text-stone-300 underline font-medium"
+                      >
+                        Demo
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
               <input
                 type="email"
                 required
@@ -348,18 +404,6 @@ export const LuxuryLoginView: React.FC<LuxuryLoginViewProps> = ({
                   <Key className="w-3.5 h-3.5 text-stone-400" />
                   <span>Kata Sandi / Kode Akses</span>
                 </label>
-                {authMode === 'login' && isDemoEnabled && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEmail('demo.user@lega.id');
-                      setPassword('LEGA24JAM');
-                    }}
-                    className="text-[10px] text-amber-400 hover:text-amber-300 underline font-medium"
-                  >
-                    Gunakan Akun Demo
-                  </button>
-                )}
               </div>
               <div className="relative">
                 <input
