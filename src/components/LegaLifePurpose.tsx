@@ -265,7 +265,7 @@ Visi & Goals Translation:
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           text: track.textPrompt,
-          voiceName: 'Kore'
+          voiceName: 'rina'
         })
       });
 
@@ -904,7 +904,7 @@ Visi & Goals Translation:
                       <h4 className="text-sm font-bold text-stone-200 group-hover:text-indigo-300 transition">
                         {track.title}
                       </h4>
-                      <span className="text-[11px] text-stone-500">{track.duration} • Suara Kore</span>
+                      <span className="text-[11px] text-stone-500">{track.duration} • Suara Noiz Rina</span>
                     </div>
 
                     <button

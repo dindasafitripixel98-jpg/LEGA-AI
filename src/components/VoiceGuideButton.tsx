@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Volume2, VolumeX, Loader2, Sparkles, Pause, Play, Radio } from 'lucide-react';
-import { playVoiceNarration, stopVoiceNarration, subscribeVoiceState, VoiceState, VoiceOptions } from '../lib/voiceService';
+import { playVoiceNarration, stopVoiceNarration, subscribeVoiceState, VoiceState, VoiceOptions, getStoredVoiceName } from '../lib/voiceService';
 
 interface VoiceGuideButtonProps {
   text: string;
@@ -8,7 +8,7 @@ interface VoiceGuideButtonProps {
   subtitle?: string;
   label?: string;
   variant?: 'pill' | 'compact' | 'icon' | 'banner' | 'card';
-  voiceName?: 'Kore' | 'Aoede' | 'Puck' | 'Fenrir' | 'Leda' | 'Charon';
+  voiceName?: string;
   className?: string;
   onPlay?: () => void;
 }
@@ -32,7 +32,7 @@ export const VoiceGuideButton: React.FC<VoiceGuideButtonProps> = ({
     currentTime: 0,
     duration: 0,
     engine: 'none',
-    voiceName: 'Kore'
+    voiceName: getStoredVoiceName() || 'rina'
   }));
 
   useEffect(() => {

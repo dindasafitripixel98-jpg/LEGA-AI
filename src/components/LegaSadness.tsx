@@ -253,7 +253,7 @@ Langkah Kecil: ${reflectionResult.reflectiveInsights?.gentleNextStep || '-'}`;
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           text: track.textPrompt,
-          voiceName: 'Kore' // Warm calm female voice
+          voiceName: 'rina' // Warm calm female voice
         })
       });
 
@@ -1079,7 +1079,7 @@ Langkah Kecil: ${reflectionResult.reflectiveInsights?.gentleNextStep || '-'}`;
                         )}
                       </button>
 
-                      <span className="text-[11px] text-stone-500 italic">Gemini Voice • Kore</span>
+                      <span className="text-[11px] text-stone-500 italic">Noiz Voice • Rina</span>
                     </div>
                   </div>
                 );

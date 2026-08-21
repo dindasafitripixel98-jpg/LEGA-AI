@@ -16,6 +16,7 @@ import {
 import { ConversationMessage, UserProfile } from '../types';
 import { sendChatMessage, generateGeminiTts } from '../lib/geminiApi';
 import { speakIndonesianNarration, stopIndonesianNarration } from '../lib/audioEngine';
+import { getStoredVoiceName } from '../lib/voiceService';
 import { VoiceGuideButton } from './VoiceGuideButton';
 
 interface AICoachProps {
@@ -162,7 +163,8 @@ export const AICoach: React.FC<AICoachProps> = ({
     }
 
     setTtsLoadingId(msgId);
-    const audioData = await generateGeminiTts(textToSpeak, 'Kore');
+    const activeVoice = getStoredVoiceName() || 'rina';
+    const audioData = await generateGeminiTts(textToSpeak, activeVoice);
     setTtsLoadingId(null);
 
     if (audioData) {

@@ -68,6 +68,8 @@ import {
 import {
   setStoredVoiceName,
   getStoredVoiceName,
+  getVoiceDisplayName,
+  migrateLegacyVoiceKey,
   previewVoiceCharacterAudio,
   previewNoizAiVoiceAudio,
   stopVoicePreview,
@@ -723,7 +725,7 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
   const [audioMode, setAudioMode] = useState<'guided' | 'gentle' | 'reflective' | 'sleep' | 'emergency_calming'>('gentle');
   const [spiritualMode, setSpiritualMode] = useState<boolean>(false);
   const [customGoal, setCustomGoal] = useState<string>('Kesegaran dan ketenangan pagi bersama suara alam');
-  const [voiceName, setVoiceName] = useState<string>('Kore');
+  const [voiceName, setVoiceName] = useState<string>(() => migrateLegacyVoiceKey(getStoredVoiceName()));
   const [speechSpeed, setSpeechSpeed] = useState<'perlahan' | 'normal' | 'santai'>('perlahan');
 
   // Soundscape & Acoustic Mixing Controls
@@ -904,47 +906,41 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
   // Handle Voice Character Selection
   const handleVoiceSelect = async (vName: string) => {
     stopVoicePreview();
-    setVoiceName(vName);
-    setStoredVoiceName(vName);
+    const canonical = migrateLegacyVoiceKey(vName);
+    console.log(`[AudioPlayerView] Voice selected: "${canonical}" (from input: "${vName}")`);
+    setVoiceName(canonical);
+    setStoredVoiceName(canonical);
     setAudioUrl(null); // Invalidate old voice audio URL
 
     if (isPlaying) {
       if (voiceAudioRef.current) voiceAudioRef.current.pause();
       stopIndonesianNarration();
-      await startPlaybackForMode(playbackSource, undefined, null, vName);
+      await startPlaybackForMode(playbackSource, undefined, null, canonical);
     }
   };
 
   // Preview Voice Character Sample (Supports NOIZ AI and Gemini Voice Characters)
   const handlePreviewVoice = (vName: string) => {
-    if (previewingVoiceName === vName) {
+    const canonical = migrateLegacyVoiceKey(vName);
+    if (previewingVoiceName === canonical || previewingVoiceName === vName) {
       stopVoicePreview();
       setPreviewingVoiceName(null);
       return;
     }
     stopVoicePreview();
     if (voiceAudioRef.current) voiceAudioRef.current.pause();
-    setPreviewingVoiceName(vName);
-    setVoiceName(vName);
-    setStoredVoiceName(vName);
+    setPreviewingVoiceName(canonical);
+    setVoiceName(canonical);
+    setStoredVoiceName(canonical);
     setAudioUrl(null);
 
-    // If using Noiz TTS engine or a Noiz-specific voice, use Noiz preview
-    if (playbackSource === 'noiz_tts' || vName.toLowerCase().includes('noiz') || NOIZ_VOICES.some(v => v.id === vName.toLowerCase() || v.name.toLowerCase() === vName.toLowerCase())) {
-      previewNoizAiVoiceAudio(
-        vName,
-        () => setPreviewingVoiceName(vName),
-        () => setPreviewingVoiceName(null),
-        () => setPreviewingVoiceName(null)
-      );
-    } else {
-      previewVoiceCharacterAudio(
-        vName,
-        () => setPreviewingVoiceName(vName),
-        () => setPreviewingVoiceName(null),
-        () => setPreviewingVoiceName(null)
-      );
-    }
+    console.log(`[AudioPlayerView] Previewing voice: "${canonical}" for engine: "${playbackSource}"`);
+    previewNoizAiVoiceAudio(
+      canonical,
+      () => setPreviewingVoiceName(canonical),
+      () => setPreviewingVoiceName(null),
+      () => setPreviewingVoiceName(null)
+    );
   };
 
   // Test Tibetan Bell Chime
@@ -2072,7 +2068,7 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
                 <div className="flex items-center gap-1.5 text-[10px] font-mono">
                   <span className="text-stone-400">Suara Aktif:</span>
                   <span className="text-sky-400 font-bold px-2 py-0.5 rounded bg-sky-950/80 border border-sky-800">
-                    {voiceName}
+                    {getVoiceDisplayName(voiceName)}
                   </span>
                 </div>
               </div>
@@ -2142,15 +2138,16 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
 
             {/* Dynamic Voice Grid based on Engine */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
-              {(playbackSource === 'noiz_tts' ? NOIZ_VOICES : VOICES).map((v, index) => {
-                const isSelected = voiceName.toLowerCase() === v.name.toLowerCase() || voiceName.toLowerCase() === v.id.toLowerCase() || (playbackSource === 'noiz_tts' && index === 0 && !NOIZ_VOICES.some(nv => nv.name.toLowerCase() === voiceName.toLowerCase()));
-                const isVoicePreviewing = previewingVoiceName === v.name;
+              {NOIZ_VOICES.map((v, index) => {
+                const canonicalCurrent = migrateLegacyVoiceKey(voiceName);
+                const isSelected = canonicalCurrent === v.id;
+                const isVoicePreviewing = previewingVoiceName === v.id || previewingVoiceName === v.name;
 
                 return (
                   <div
-                    key={v.id || v.name}
-                    id={`voice-option-${v.id || index}`}
-                    onClick={() => handleVoiceSelect(v.name)}
+                    key={v.id}
+                    id={`voice-option-${v.id}`}
+                    onClick={() => handleVoiceSelect(v.id)}
                     className={`p-3 rounded-2xl border cursor-pointer transition-all flex flex-col justify-between gap-2.5 relative ${
                       isSelected
                         ? 'bg-gradient-to-br from-sky-950/90 via-stone-900 to-indigo-950/80 border-sky-500 ring-1 ring-sky-500 shadow-md shadow-sky-950/50 scale-[1.01]'
@@ -2166,13 +2163,13 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
                             {index + 1}
                           </span>
                           <span className="text-xs font-bold text-stone-100 truncate">
-                            {v.name}
+                            Noiz {v.name}
                           </span>
                         </div>
                         <span className={`text-[9px] px-1.5 py-0.5 rounded font-mono shrink-0 ${
                           isSelected ? 'bg-sky-950 text-sky-300 border border-sky-700' : 'bg-stone-900 text-stone-400 border border-stone-800'
                         }`}>
-                          {v.badge}
+                          {v.gender === 'female' ? 'Feminin' : 'Maskulin'}
                         </span>
                       </div>
 
@@ -2184,9 +2181,10 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
                     <div className="flex items-center justify-between pt-1.5 border-t border-stone-800/60 gap-1.5">
                       <button
                         type="button"
+                        id={`btn-select-voice-${v.id}`}
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleVoiceSelect(v.name);
+                          handleVoiceSelect(v.id);
                         }}
                         className={`flex-1 py-1 px-2 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1 ${
                           isSelected
@@ -2206,9 +2204,10 @@ export const AudioPlayerView: React.FC<AudioPlayerViewProps> = ({
 
                       <button
                         type="button"
+                        id={`btn-preview-voice-${v.id}`}
                         onClick={(e) => {
                           e.stopPropagation();
-                          handlePreviewVoice(v.name);
+                          handlePreviewVoice(v.id);
                         }}
                         className={`py-1 px-2.5 rounded-lg text-[10px] font-semibold transition flex items-center gap-1 shrink-0 ${
                           isVoicePreviewing

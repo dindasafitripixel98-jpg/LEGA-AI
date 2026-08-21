@@ -37,7 +37,8 @@ import {
   previewVoiceCharacterAudio,
   stopVoicePreview,
   getStoredVoiceName,
-  setStoredVoiceName
+  setStoredVoiceName,
+  migrateLegacyVoiceKey
 } from '../lib/voiceService';
 import { useDemoAuth } from '../lib/demoAuthManager';
 import { auth, signInWithGoogle } from '../lib/firebase';
@@ -88,8 +89,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   const [tone, setTone] = useState<'hangat' | 'tenang' | 'fokus'>(
     userProfile.preferredTone || 'tenang'
   );
-  const [selectedVoice, setSelectedVoice] = useState<string>(
-    userProfile.preferredVoice || getStoredVoiceName() || 'Suara Tenang'
+  const [selectedVoice, setSelectedVoice] = useState<string>(() =>
+    migrateLegacyVoiceKey(userProfile.preferredVoice || getStoredVoiceName())
   );
   const [primaryFocus, setPrimaryFocus] = useState<string>(
     userProfile.primaryEmotionFocus || 'overthinking'
@@ -345,12 +346,12 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
               {VOICE_CHARACTERS.map((v) => {
-                const isSelected = selectedVoice === v.name;
-                const isPlayingThis = activeVoicePreview === v.name;
+                const isSelected = selectedVoice.toLowerCase() === v.id || selectedVoice.toLowerCase() === v.name.toLowerCase();
+                const isPlayingThis = activeVoicePreview === v.id || activeVoicePreview === v.name;
                 return (
                   <div
                     key={v.id}
-                    onClick={() => setSelectedVoice(v.name)}
+                    onClick={() => setSelectedVoice(v.id)}
                     className={`p-3.5 rounded-2xl border cursor-pointer transition-all flex flex-col justify-between ${
                       isSelected
                         ? 'bg-emerald-950/40 border-emerald-500/60 ring-1 ring-emerald-500/40 shadow-lg'
@@ -380,7 +381,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handlePreviewVoice(v.name);
+                          handlePreviewVoice(v.id);
                         }}
                         className={`px-2.5 py-1 rounded-lg text-[10px] font-semibold flex items-center gap-1 transition ${
                           isPlayingThis

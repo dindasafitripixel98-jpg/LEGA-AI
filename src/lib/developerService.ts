@@ -73,10 +73,10 @@ export const DEFAULT_LANDING_PAGE_CONFIG = {
 
 const DEFAULT_DEV_CONFIG: DeveloperConfig = {
   geminiApiKey: '',
-  noizApiKey: 'ZDM2Njk3ZWYtYzdiMS00YzJhLWEwZjUtM2NhMjM1NGM5MDMwJHJpbmFva3Rhdmlhbmkubm92YTk3QGdtYWlsLmNvbQ==',
+  noizApiKey: '',
   openaiApiKey: '',
   isCustomGeminiSet: false,
-  isCustomNoizSet: true,
+  isCustomNoizSet: false,
   appTitle: 'LEGA SHAQILA DIGITAL 99',
   appTagline: 'Platform Kesadaran Diri, Manajemen Emosi & Relaksasi AI',
   developerName: 'SHAQILA DIGITAL 99',

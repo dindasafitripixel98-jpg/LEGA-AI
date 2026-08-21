@@ -28,6 +28,7 @@ import { INITIAL_ARTICLES } from '../data/initialData';
 import { Article, ArticleReference } from '../types';
 import { generateLegaArticle, generateGeminiTts } from '../lib/geminiApi';
 import { speakIndonesianNarration, stopIndonesianNarration } from '../lib/audioEngine';
+import { getStoredVoiceName } from '../lib/voiceService';
 import { VoiceGuideButton } from './VoiceGuideButton';
 
 const MASTER_CATEGORIES = [
@@ -148,7 +149,8 @@ export const ArticlesView: React.FC = () => {
     setIsPlayingAudio(true);
     showToast('Memutar narasi audio refleksi...');
     try {
-      const audioData = await generateGeminiTts(scriptText, 'Kore');
+      const activeVoice = getStoredVoiceName() || 'rina';
+      const audioData = await generateGeminiTts(scriptText, activeVoice);
       if (audioData) {
         const audioUrl = audioData.startsWith('data:') || audioData.startsWith('blob:') || audioData.startsWith('http')
           ? audioData

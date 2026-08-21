@@ -1,4 +1,5 @@
 import { generateLegaContextualChat } from './legaChatEngine';
+import { migrateLegacyVoiceKey } from './voiceService';
 
 export async function reflectSelfDiscovery(dataPayload: {
   items: any[];
@@ -379,7 +380,7 @@ export async function generateAudioScript(audioParams: {
     cleanScriptForTTS: `Selamat datang di ruang tenang Anda, ${userName}. Izinkan diri Anda untuk berhenti sejenak dari segala kesibukan. Tarik napas lembut, rasakan udara mengalir masuk, dan hembuskan perlahan. Perhatikan sensasi tubuh Anda di saat ini. Lepaskan ketegangan di area bahu, leher, dan rahang. Jika pikiran Anda terbawa oleh rasa ${emotion.toLowerCase()}, sadari saja tanpa menghakimi, lalu bawa kembali perhatian Anda ke napas yang mengalir tenang. Rasakan ketenangan hadir di setiap hembusan napas Anda. Terima kasih telah meluangkan waktu berharga untuk menyapa diri Anda hari ini.`,
     description: `Panduan audio meditasi terpersonalisasi untuk ${audioParams.userGoal || 'menemukan ketenangan'}.`,
     ttsPrompt: `Selamat datang di ruang tenang Anda, ${userName}...`,
-    voiceRecommended: audioParams.preferredVoice || audioParams.voiceName || 'Kore',
+    voiceRecommended: audioParams.preferredVoice || audioParams.voiceName || 'rina',
     reflectionPoints: [
       'Bagaimana sensasi napas dan tubuh Anda setelah jeda ini?',
       'Apa satu hal sederhana yang terasa lebih lega saat ini?'
@@ -1537,12 +1538,13 @@ export async function generateAiInsight(emotionLogs: any[], journals: any[]) {
   }
 }
 
-export async function generateGeminiTts(text: string, voiceName: string = 'Kore'): Promise<string | null> {
+export async function generateGeminiTts(text: string, voiceName: string = 'rina'): Promise<string | null> {
   try {
+    const canonicalVoice = migrateLegacyVoiceKey(voiceName);
     const res = await fetch('/api/gemini/tts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, voiceName }),
+      body: JSON.stringify({ text, voiceName: canonicalVoice }),
     });
     if (!res.ok) return null;
     const data = await res.json();
@@ -1561,11 +1563,13 @@ export async function generateNoizAiTts(
   speed: number = 1.0,
   emotion: string = 'calm'
 ): Promise<{ audioDataUrl: string | null; provider: string; voiceName: string } | null> {
+  const canonicalVoice = migrateLegacyVoiceKey(voiceName);
+  console.log(`[Noiz AI TTS Client] Dispatching TTS request for voiceName: "${canonicalVoice}" (input was: "${voiceName}")`);
   try {
     const res = await fetch('/api/noiz/tts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, voiceName, speed, emotion }),
+      body: JSON.stringify({ text, voiceName: canonicalVoice, speed, emotion }),
     });
     if (!res.ok) return null;
     const data = await res.json();
@@ -1574,7 +1578,7 @@ export async function generateNoizAiTts(
     return {
       audioDataUrl: audioUrl,
       provider: data.provider || 'noiz.ai',
-      voiceName: data.voiceName || voiceName
+      voiceName: data.voiceName || canonicalVoice
     };
   } catch (err: any) {
     console.warn('generateNoizAiTts notice:', err);
@@ -1608,11 +1612,13 @@ export async function fetchNoizVoices(): Promise<{
 }
 
 export async function previewNoizVoice(voiceId: string): Promise<string | null> {
+  const canonicalVoice = migrateLegacyVoiceKey(voiceId);
+  console.log(`[Noiz AI Preview Client] Dispatching preview request for voiceId: "${canonicalVoice}" (input was: "${voiceId}")`);
   try {
     const res = await fetch('/api/noiz/sample', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ voiceId }),
+      body: JSON.stringify({ voiceId: canonicalVoice }),
     });
     if (!res.ok) return null;
     const data = await res.json();

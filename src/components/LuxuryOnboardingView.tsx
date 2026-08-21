@@ -44,7 +44,7 @@ export const LuxuryOnboardingView: React.FC<LuxuryOnboardingViewProps> = ({
   const [userName, setUserName] = useState<string>(initialUserName);
   const [primaryGoal, setPrimaryGoal] = useState<string>('overthinking');
   const [selectedSoundscape, setSelectedSoundscape] = useState<string>('hujan');
-  const [selectedVoice, setSelectedVoice] = useState<string>('Suara Tenang');
+  const [selectedVoice, setSelectedVoice] = useState<string>('rina');
   const [activeVoicePreview, setActiveVoicePreview] = useState<string | null>(null);
   const [isSynthesizing, setIsSynthesizing] = useState<boolean>(false);
 
@@ -378,12 +378,12 @@ export const LuxuryOnboardingView: React.FC<LuxuryOnboardingViewProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[360px] overflow-y-auto pr-1">
                 {VOICE_CHARACTERS.map((v) => {
-                  const isSelected = selectedVoice === v.name;
-                  const isPlaying = activeVoicePreview === v.name;
+                  const isSelected = selectedVoice === v.id || selectedVoice === v.name;
+                  const isPlaying = activeVoicePreview === v.id || activeVoicePreview === v.name;
                   return (
                     <div
                       key={v.id}
-                      onClick={() => setSelectedVoice(v.name)}
+                      onClick={() => setSelectedVoice(v.id)}
                       className={`p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-3 ${
                         isSelected
                           ? 'bg-gradient-to-br from-amber-950/80 to-stone-900 border-amber-400 ring-1 ring-amber-400 shadow-lg shadow-amber-950'
@@ -405,7 +405,7 @@ export const LuxuryOnboardingView: React.FC<LuxuryOnboardingViewProps> = ({
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handlePreviewVoice(v.name);
+                            handlePreviewVoice(v.id);
                           }}
                           className={`px-2.5 py-1.5 rounded-xl text-[10px] font-bold flex items-center gap-1 transition ${
                             isPlaying

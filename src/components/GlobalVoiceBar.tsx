@@ -32,7 +32,7 @@ export const GlobalVoiceBar: React.FC = () => {
     currentTime: 0,
     duration: 0,
     engine: 'none',
-    voiceName: 'Suara Tenang'
+    voiceName: 'rina'
   }));
 
   const [isExpanded, setIsExpanded] = useState(false);

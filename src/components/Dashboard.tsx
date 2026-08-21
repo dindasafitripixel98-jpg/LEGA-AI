@@ -33,6 +33,7 @@ import {
 import { EmotionCategory, EmotionLog, JournalEntry, ModuleType, UserProfile } from '../types';
 import { getDashboardSummary, generateVoiceAudio } from '../lib/geminiApi';
 import { pcmToWavBlobUrl, speakIndonesianNarration, generateMeditationAmbientWav, stopIndonesianNarration } from '../lib/audioEngine';
+import { getStoredVoiceName } from '../lib/voiceService';
 import { VoiceGuideButton } from './VoiceGuideButton';
 
 interface DashboardProps {
@@ -162,7 +163,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
     setIsPlayingAudio(true);
     try {
-      const audioUrl = await generateVoiceAudio(script, 'Kore');
+      const activeVoice = getStoredVoiceName() || 'rina';
+      const audioUrl = await generateVoiceAudio(script, activeVoice);
       let finalAudioUrl = audioUrl;
 
       if (!finalAudioUrl) {

@@ -355,88 +355,88 @@ export interface VoiceCharacterProfile {
 
 export const VOICE_CHARACTERS: VoiceCharacterProfile[] = [
   {
-    id: 'suara-tenang',
-    name: 'Suara Tenang',
+    id: 'rina',
+    name: 'Rina',
     geminiVoice: 'Kore',
-    indonesianName: 'Suara Tenang',
-    label: 'Suara Tenang (Damai & Lembut)',
-    badge: 'Damai & Teduh',
+    indonesianName: 'Rina (Noiz AI)',
+    label: 'Rina — Hangat & Lembut',
+    badge: 'Hangat & Lembut',
     gender: 'female',
-    tone: 'Feminin Lembut & Mengayomi',
+    tone: 'Feminin Hangat & Welas Asih',
     pitch: 1.15,
     rate: 0.78,
-    description: 'Vokal feminin yang sangat tenang, damai, dan mengayomi. Artikulasi lembut menyejukkan batin, cocok untuk meditasi, kesadaran diri, dan refleksi mendalam.',
-    samplePhrase: 'Selamat datang di ruang tenang LEGA. Tarik napas lembut... izinkan tubuh dan pikiran Anda beristirahat dalam kedamaian.'
+    description: 'Artikulasi hangat, penuh penerimaan, nada welas asih lembut khas bahasa Indonesia untuk panduan harian.',
+    samplePhrase: 'Selamat datang di ruang tenang Anda bersama Noiz AI. Tarik napas lembut dan izinkan batin Anda beristirahat dalam kedamaian.'
   },
   {
-    id: 'suara-hangat',
-    name: 'Suara Hangat',
-    geminiVoice: 'Puck',
-    indonesianName: 'Suara Hangat',
-    label: 'Suara Hangat (Bersahabat & Ramah)',
-    badge: 'Hangat & Ramah',
-    gender: 'female',
-    tone: 'Hangat, Bersahabat & Merangkul',
-    pitch: 0.98,
-    rate: 0.92,
-    description: 'Vokal hangat, bersahabat, dan penuh penerimaan. Seperti teman terpercaya yang mendengarkan tanpa menghakimi.',
-    samplePhrase: 'Mari berhenti sejenak. Sadari apa yang sedang Anda rasakan saat ini dengan jujur, hangat, dan lapang dada.'
-  },
-  {
-    id: 'suara-lembut',
-    name: 'Suara Lembut',
-    geminiVoice: 'Aoede',
-    indonesianName: 'Suara Lembut',
-    label: 'Suara Lembut (Welas Asih & Hening)',
-    badge: 'Welas Asih & Hening',
-    gender: 'female',
-    tone: 'Sangat Lembut, Welas Asih & Hening',
-    pitch: 1.32,
-    rate: 0.68,
-    description: 'Vokal sangat lembut dan welas asih dengan tempo mengalir lambat. Ideal untuk latihan penerimaan diri, memaafkan, dan pengantar tidur.',
-    samplePhrase: 'Tarik napas perlahan... rasakan kelembutan udara yang mengalir, izinkan seluruh ketegangan batin Anda melunak.'
-  },
-  {
-    id: 'suara-natural',
-    name: 'Suara Natural',
-    geminiVoice: 'Zephyr',
-    indonesianName: 'Suara Natural',
-    label: 'Suara Natural (Alami & Santai)',
-    badge: 'Natural & Bersahaja',
-    gender: 'male',
-    tone: 'Alami, Bersahaja & Santai',
-    pitch: 0.80,
-    rate: 0.86,
-    description: 'Vokal alami maskulin bersahaja yang mengalir rileks dan organik, mengarahkan perhatian tanpa terasa menggurui.',
-    samplePhrase: 'Dengarkan suara alami di sekitar Anda. Anda tidak perlu terburu-buru, hadir seutuhnya di momen saat ini.'
-  },
-  {
-    id: 'suara-jernih',
-    name: 'Suara Jernih',
+    id: 'nova',
+    name: 'Nova',
     geminiVoice: 'Leda',
-    indonesianName: 'Suara Jernih',
-    label: 'Suara Jernih (Segar & Fokus)',
-    badge: 'Jernih & Fokus',
+    indonesianName: 'Nova (Noiz AI)',
+    label: 'Nova — Jernih & Elegan',
+    badge: 'Jernih & Elegan',
     gender: 'female',
-    tone: 'Jernih, Segar & Teratur',
+    tone: 'Jernih, Teratur & Elegan',
     pitch: 1.08,
-    rate: 1.02,
-    description: 'Vokal artikulasi jernih, terang, dan teratur yang membangkitkan kesegaran batin, fokus belajar/bekerja, dan mengurai overthinking.',
-    samplePhrase: 'Perhatikan setiap kejernihan pikiran Anda. Setiap tarikan napas membawa kesegaran baru bagi tubuh dan pikiran Anda.'
+    rate: 0.95,
+    description: 'Suara jernih, tenang, artikulasi presisi untuk meditasi kesadaran hadir dan mindfulness.',
+    samplePhrase: 'Setiap tarikan napas membawa kejernihan baru bagi pikiran Anda. Anda aman, tenang, dan hadir di saat ini.'
   },
   {
-    id: 'suara-dalam',
-    name: 'Suara Dalam',
-    geminiVoice: 'Fenrir',
-    indonesianName: 'Suara Dalam',
-    label: 'Suara Dalam (Bariton & Grounded)',
-    badge: 'Grounded & Berjangkar',
+    id: 'bayu',
+    name: 'Bayu',
+    geminiVoice: 'Puck',
+    indonesianName: 'Bayu (Noiz AI)',
+    label: 'Bayu — Tenang & Maskulin',
+    badge: 'Tenang & Maskulin',
     gender: 'male',
-    tone: 'Bariton Rendah, Mantap & Berjangkar',
-    pitch: 0.52,
-    rate: 0.72,
-    description: 'Resonansi vokal bariton rendah yang kuat, stabil, dan berjangkar. Sangat efektif untuk meredakan kepanikan, kecemasan tinggi, dan grounding tubuh.',
-    samplePhrase: 'Rasakan pijakan Anda yang kokoh dan berjangkar kuat. Napas Anda aman. Saat ini Anda berada dalam ruang perlindungan yang tenang.'
+    tone: 'Resonansi Maskulin Santai & Natural',
+    pitch: 0.90,
+    rate: 0.88,
+    description: 'Resonansi maskulin santai, bersahaja, natural tanpa beban untuk latihan grounding dan nafas.',
+    samplePhrase: 'Mari berhenti sejenak dari segala kesibukan. Sadari tubuh Anda dan lepaskan ketegangan secara perlahan.'
+  },
+  {
+    id: 'maya',
+    name: 'Maya',
+    geminiVoice: 'Aoede',
+    indonesianName: 'Maya (Noiz AI)',
+    label: 'Maya — Natural & Ramah',
+    badge: 'Natural & Ramah',
+    gender: 'female',
+    tone: 'Lembut, Ramah & Menyejukkan',
+    pitch: 1.25,
+    rate: 0.75,
+    description: 'Vokal lembut, menyejukkan, empati tinggi untuk pelepasan emosi dan muhasabah.',
+    samplePhrase: 'Tarik napas perlahan... rasakan kelembutan udara yang mengalir dan izinkan seluruh beban batin Anda melunak.'
+  },
+  {
+    id: 'arga',
+    name: 'Arga',
+    geminiVoice: 'Zephyr',
+    indonesianName: 'Arga (Noiz AI)',
+    label: 'Arga — Tegas & Profesional',
+    badge: 'Tegas & Profesional',
+    gender: 'male',
+    tone: 'Bariton Berwibawa & Berjangkar',
+    pitch: 0.65,
+    rate: 0.82,
+    description: 'Bariton berwibawa, dalam, menenangkan untuk panduan relaksasi malam dan grounding.',
+    samplePhrase: 'Rasakan pijakan Anda yang kokoh dan berjangkar kuat. Napas Anda aman di ruang perlindungan yang tenang ini.'
+  },
+  {
+    id: 'alisa',
+    name: 'Alisa',
+    geminiVoice: 'Fenrir',
+    indonesianName: 'Alisa (Noiz AI)',
+    label: 'Alisa — Ceria & Ekspresif',
+    badge: 'Ceria & Ekspresif',
+    gender: 'female',
+    tone: 'Ceria, Ekspresif & Pengantar Tidur',
+    pitch: 1.05,
+    rate: 0.70,
+    description: 'Tempo sangat lambat, ritme meninabobokan, optimal untuk pengantar tidur lelap dan istirahat.',
+    samplePhrase: 'Pejamkan mata Anda secara perlahan... biarkan rasa tenang meresap lembut ke setiap helai napas dan sel tubuh Anda.'
   }
 ];
 
@@ -1691,7 +1691,7 @@ export const LEGA_EMOTION_PRESETS: Record<string, EmotionalAudioPreset> = {
     natureTypes: ['angin-pepohonan', 'aliran-sungai'],
     ambientMusic: 'petikan-gitar',
     narrationPromptTone: 'Suara tenang, stabil, memberi ruang aman tanpa menghakimi, membantu meredakan gelora amarah.',
-    suggestedGeminiVoice: 'Suara Tenang',
+    suggestedGeminiVoice: 'Rina',
     sampleScript: 'Sadari rasa marah yang sedang hadir di dalam diri Anda. Anda tidak perlu melawannya atau menekannya. Izinkan napas Anda mengalir perlahan... Dengarkan semilir angin yang menaungi pepohonan dan arus air yang senantiasa mengalir. Bersama setiap hembusan napas, lepaskan ketegangan di rahang, leher, dan dada Anda. Anda aman di sini.',
     natureVolume: 0.55,
     musicVolume: 0.50,
@@ -1706,7 +1706,7 @@ export const LEGA_EMOTION_PRESETS: Record<string, EmotionalAudioPreset> = {
     natureTypes: ['hujan-lembut', 'gemericik-air'],
     ambientMusic: 'akustik-hangat',
     narrationPromptTone: 'Suara hangat dan lembut, penuh welas asih, merangkul tanpa terburu-buru menghibur.',
-    suggestedGeminiVoice: 'Suara Hangat',
+    suggestedGeminiVoice: 'Bayu',
     sampleScript: 'Izinkan diri Anda merasakan apa pun yang sedang hadir. Kesedihan adalah bukti bahwa ada hal berharga yang Anda pedulikan. Dengarkan rintik hujan lembut yang menyejukkan... Rasakan kehangatan musik yang menemani Anda tanpa menuntut apa pun. Berikan pelukan kasih sayang pada diri Anda sendiri saat ini.',
     natureVolume: 0.52,
     musicVolume: 0.50,
@@ -1721,7 +1721,7 @@ export const LEGA_EMOTION_PRESETS: Record<string, EmotionalAudioPreset> = {
     natureTypes: ['aliran-sungai', 'angin-pepohonan'],
     ambientMusic: 'harp-kalimba',
     narrationPromptTone: 'Suara jernih, stabil, dan konsisten, memandu kembali ke pijakan yang nyata.',
-    suggestedGeminiVoice: 'Suara Jernih',
+    suggestedGeminiVoice: 'Nova',
     sampleScript: 'Tarik napas perlahan... dan hembuskan dengan lembut. Sadari bahwa saat ini Anda berada di tempat yang aman. Dengarkan aliran air yang mengalir stabil di hadapan Anda... dan petikan nada lembut yang konstan. Pikiran Anda mungkin sedang mengembara ke masa depan, namun tubuh Anda ada di sini, aman dan terlindungi.',
     natureVolume: 0.55,
     musicVolume: 0.48,
@@ -1736,7 +1736,7 @@ export const LEGA_EMOTION_PRESETS: Record<string, EmotionalAudioPreset> = {
     natureTypes: ['hutan-alami', 'angin-pepohonan'],
     ambientMusic: 'akustik-hangat',
     narrationPromptTone: 'Suara dalam, kokoh, menenteramkan, dan meyakinkan rasa aman.',
-    suggestedGeminiVoice: 'Suara Dalam',
+    suggestedGeminiVoice: 'Arga',
     sampleScript: 'Anda tidak sendirian. Sadari telapak kaki Anda yang menopang ke bumi. Masuki keteduhan kanopi hutan yang kokoh dan melindungi Anda dari segala badai. Rasakan kehangatan nada musik yang menyelimuti tubuh Anda. Ambil napas dalam... di dalam ruang ini, Anda aman dan berdaya.',
     natureVolume: 0.52,
     musicVolume: 0.50,
@@ -1751,7 +1751,7 @@ export const LEGA_EMOTION_PRESETS: Record<string, EmotionalAudioPreset> = {
     natureTypes: ['aliran-sungai', 'angin-pepohonan'],
     ambientMusic: 'gitar-reflektif',
     narrationPromptTone: 'Suara lembut dan bijaksana, membimbing penerimaan realitas dengan lapang dada.',
-    suggestedGeminiVoice: 'Suara Lembut',
+    suggestedGeminiVoice: 'Maya',
     sampleScript: 'Kekecewaan hadir ketika harapan kita belum sesuai dengan kenyataan. Biarkan diri Anda bernapas bersama rasa ini... Dengarkan petikan gitar reflektif dan air yang mengalir melepaskan bebannya. Apa yang terjadi biarlah berlalu. Saat ini, Anda berhak memulihkan batin Anda kembali.',
     natureVolume: 0.52,
     musicVolume: 0.52,
@@ -1766,7 +1766,7 @@ export const LEGA_EMOTION_PRESETS: Record<string, EmotionalAudioPreset> = {
     natureTypes: ['aliran-sungai', 'gemericik-air'],
     ambientMusic: 'ambient-minimal',
     narrationPromptTone: 'Suara natural, santai, memberi jeda hening yang luas tanpa instruksi rumit.',
-    suggestedGeminiVoice: 'Suara Natural',
+    suggestedGeminiVoice: 'Bayu',
     sampleScript: 'Pikiran Anda telah bekerja sangat keras hari ini. Sekarang adalah waktunya beristirahat. Anda tidak perlu menganalisis atau memecahkan apa pun saat ini. Fokuskan pendengaran Anda hanya pada aliran air yang konstan dan jernih. Setiap kali pikiran muncul, biarkan ia mengalir seperti daun di atas air sungai.',
     natureVolume: 0.58,
     musicVolume: 0.44,
@@ -1781,7 +1781,7 @@ export const LEGA_EMOTION_PRESETS: Record<string, EmotionalAudioPreset> = {
     natureTypes: ['suasana-alam-tenang', 'burung-pagi', 'angin-pepohonan'],
     ambientMusic: 'ambient-minimal',
     narrationPromptTone: 'Suara jernih dan hadir, membimbing panca indra ke saat ini.',
-    suggestedGeminiVoice: 'Suara Jernih',
+    suggestedGeminiVoice: 'Nova',
     sampleScript: 'Bawa seluruh kesadaran Anda ke momen ini. Rasakan udara yang menyentuh kulit... dengarkan kicau burung fajar yang bergema di kejauhan... dan semilir angin di padang rumput terbuka. Tidak ada masa lalu, tidak ada masa depan. Hanya ada keheningan dan kehidupan di saat ini.',
     natureVolume: 0.58,
     musicVolume: 0.44,
@@ -1796,7 +1796,7 @@ export const LEGA_EMOTION_PRESETS: Record<string, EmotionalAudioPreset> = {
     natureTypes: ['aliran-sungai', 'angin-pepohonan'],
     ambientMusic: 'tibetan-bowl-deep',
     narrationPromptTone: 'Suara dalam, berakar, dan perlahan, memandu pemindaian tubuh secara bertahap.',
-    suggestedGeminiVoice: 'Suara Dalam',
+    suggestedGeminiVoice: 'Arga',
     sampleScript: 'Arahkan perhatian lembut Anda ke seluruh tubuh. Mulai dari ujung jari kaki... naik perlahan ke betis... paha... perut... hingga pundak dan wajah. Rasakan resonansi mangkuk hening dan aliran air yang merelakskan setiap serat otot Anda. Setiap napas masuk membawa ketenangan, setiap napas keluar melepaskan beban.',
     natureVolume: 0.54,
     musicVolume: 0.50,
@@ -1811,7 +1811,7 @@ export const LEGA_EMOTION_PRESETS: Record<string, EmotionalAudioPreset> = {
     natureTypes: ['aliran-sungai', 'angin-pepohonan', 'ombak-pantai'],
     ambientMusic: 'pad-sinematik',
     narrationPromptTone: 'Suara tenang dan mantap, memandu proses pelepasan emosi secara tuntas dan aman.',
-    suggestedGeminiVoice: 'Suara Tenang',
+    suggestedGeminiVoice: 'Rina',
     sampleScript: 'Tarik napas dalam-dalam memenuhi rongga dada Anda... tahan sejenak... dan hembuskan dengan kelegaan yang utuh melalui mulut. Lepaskan apa pun yang selama ini Anda genggam dengan erat. Dengarkan perpaduan arus air dan angin bebas. Biarkan diri Anda merasa lega, ringan, dan bebas.',
     natureVolume: 0.55,
     musicVolume: 0.52,
@@ -1826,7 +1826,7 @@ export const LEGA_EMOTION_PRESETS: Record<string, EmotionalAudioPreset> = {
     natureTypes: ['suasana-malam', 'hujan-lembut'],
     ambientMusic: 'lullaby-malam',
     narrationPromptTone: 'Suara sangat lembut, hangat, mengalun perlahan, menidurkan sistem syaraf.',
-    suggestedGeminiVoice: 'Suara Lembut',
+    suggestedGeminiVoice: 'Alisa',
     sampleScript: 'Hari ini telah usai, dan Anda telah melakukan yang terbaik. Biarkan tubuh Anda tenggelam dalam kelembutan kasur yang nyaman. Dengarkan suara malam yang hening dan rintik hujan yang menentramkan. Pejamkan mata Anda... biarkan pikiran Anda melayang dalam kedamaian... Selamat beristirahat dalam tidur yang lelap.',
     natureVolume: 0.48,
     musicVolume: 0.46,
@@ -1841,7 +1841,7 @@ export const LEGA_EMOTION_PRESETS: Record<string, EmotionalAudioPreset> = {
     natureTypes: ['gemericik-bambu-zen', 'angin-pepohonan'],
     ambientMusic: 'zen-flute-432hz',
     narrationPromptTone: 'Suara tenang dan meditatif, membimbing pemusatan pikiran pada keheningan saat ini.',
-    suggestedGeminiVoice: 'Suara Tenang',
+    suggestedGeminiVoice: 'Rina',
     sampleScript: 'Dengarkan nada suling bambu yang mengalun lembut di antara gemericik air dan ketukan bambu taman zen. Rasakan kejernihan yang hadir di sela-sela setiap hembusan napas Anda. Masuki ruang hening batin Anda yang selalu damai dan utuh.',
     natureVolume: 0.54,
     musicVolume: 0.54,
@@ -1856,7 +1856,7 @@ export const LEGA_EMOTION_PRESETS: Record<string, EmotionalAudioPreset> = {
     natureTypes: ['aliran-sungai', 'burung-pagi'],
     ambientMusic: 'solfeggio-528hz-healing',
     narrationPromptTone: 'Suara hangat dan mengayomi, mengalirkan rasa cinta kasih dan pemulihan ke seluruh tubuh.',
-    suggestedGeminiVoice: 'Suara Hangat',
+    suggestedGeminiVoice: 'Bayu',
     sampleScript: 'Biarkan getaran 528Hz ini meresap lembut ke setiap helai napas dan sel tubuh Anda. Frekuensi ini membawa energi pemulihan, cinta, dan ketenangan yang mendalam. Rasakan bahwa Anda sangat layak untuk merasa aman, tenang, dan pulih sepenuhnya.',
     natureVolume: 0.52,
     musicVolume: 0.55,
@@ -1871,7 +1871,7 @@ export const LEGA_EMOTION_PRESETS: Record<string, EmotionalAudioPreset> = {
     natureTypes: ['ombak-samudra-dalam', 'suasana-malam'],
     ambientMusic: 'celestial-binaural-theta',
     narrationPromptTone: 'Suara dalam dan menenangkan, membawa kesadaran melayang lembut ke titik relaksasi terdalam.',
-    suggestedGeminiVoice: 'Suara Dalam',
+    suggestedGeminiVoice: 'Arga',
     sampleScript: 'Gunakan earphone atau headset untuk merasakan gelombang binaural 6Hz ini. Rasakan ritme ombak samudra malam yang menyelaraskan gelombang otak Anda menuju keadaan relaksasi yang sangat dalam. Tubuh Anda terasa ringan dan mengambang bebas.',
     natureVolume: 0.55,
     musicVolume: 0.52,
@@ -1886,7 +1886,7 @@ export const LEGA_EMOTION_PRESETS: Record<string, EmotionalAudioPreset> = {
     natureTypes: ['hujan-kaca', 'angin-pepohonan'],
     ambientMusic: 'rain-glass-piano',
     narrationPromptTone: 'Suara lembut bersahaja, menemani jeda santai melepas kepenatan hari.',
-    suggestedGeminiVoice: 'Suara Lembut',
+    suggestedGeminiVoice: 'Maya',
     sampleScript: 'Dengarkan rintik hujan yang mengetuk kaca jendela dengan lembut, diiringi alunan nada piano yang hangat. Ruangan ini adalah tempat perlindungan Anda yang aman. Lepaskan seluruh kepenatan hari ini, dan nikmati ketenangan yang teduh ini bersama kami.',
     natureVolume: 0.52,
     musicVolume: 0.55,
@@ -2022,24 +2022,24 @@ export function getVoiceCharacter(nameOrKey?: string): VoiceCharacterProfile {
   );
   if (exact) return exact;
 
-  // 2. Keyword heuristic mapping for all 6 official voices
-  if (q.includes('tenang') || q.includes('kore') || q.includes('laras') || q === '1') {
-    return VOICE_CHARACTERS[0]; // Suara Tenang
+  // 2. Keyword heuristic mapping for all 6 official Noiz AI voices & legacy keys
+  if (q.includes('rina') || q.includes('tenang') || q.includes('kore') || q.includes('laras') || q === '1') {
+    return VOICE_CHARACTERS[0]; // Rina
   }
-  if (q.includes('hangat') || q.includes('puck') || q.includes('damai') || q === '2') {
-    return VOICE_CHARACTERS[1]; // Suara Hangat
+  if (q.includes('nova') || q.includes('jernih') || q.includes('leda') || q.includes('calliope') || q === '2') {
+    return VOICE_CHARACTERS[1]; // Nova
   }
-  if (q.includes('lembut') || q.includes('aoede') || q.includes('nirmala') || q === '3') {
-    return VOICE_CHARACTERS[2]; // Suara Lembut
+  if (q.includes('bayu') || q.includes('hangat') || q.includes('puck') || q.includes('damai') || q === '3') {
+    return VOICE_CHARACTERS[2]; // Bayu
   }
-  if (q.includes('natural') || q.includes('zephyr') || q.includes('bayu') || q === '4') {
-    return VOICE_CHARACTERS[3]; // Suara Natural
+  if (q.includes('maya') || q.includes('lembut') || q.includes('aoede') || q.includes('nirmala') || q === '4') {
+    return VOICE_CHARACTERS[3]; // Maya
   }
-  if (q.includes('jernih') || q.includes('leda') || q.includes('calliope') || q === '5') {
-    return VOICE_CHARACTERS[4]; // Suara Jernih
+  if (q.includes('arga') || q.includes('natural') || q.includes('zephyr') || q === '5') {
+    return VOICE_CHARACTERS[4]; // Arga
   }
-  if (q.includes('dalam') || q.includes('fenrir') || q.includes('arga') || q.includes('charon') || q.includes('orus') || q === '6') {
-    return VOICE_CHARACTERS[5]; // Suara Dalam
+  if (q.includes('alisa') || q.includes('dalam') || q.includes('fenrir') || q.includes('sleep') || q.includes('tidur') || q === '6') {
+    return VOICE_CHARACTERS[5]; // Alisa
   }
 
   // 3. Fallback fuzzy search

@@ -26,7 +26,7 @@ app.use((req, res, next) => {
 // Dynamic In-Memory Runtime Developer Configuration (Managed via Developer Control Panel)
 const runtimeDeveloperConfig = {
   geminiApiKey: process.env.GEMINI_API_KEY || '',
-  noizApiKey: process.env.NOIZ_AI_API_KEY || process.env.NOIZ_API_KEY || 'ZDM2Njk3ZWYtYzdiMS00YzJhLWEwZjUtM2NhMjM1NGM5MDMwJHJpbmFva3Rhdmlhbmkubm92YTk3QGdtYWlsLmNvbQ==',
+  noizApiKey: process.env.NOIZ_AI_API_KEY || process.env.NOIZ_API_KEY || '',
   openaiApiKey: process.env.OPENAI_API_KEY || '',
   appTitle: 'LEGA SHAQILA DIGITAL 99',
   appTagline: 'Platform Kesadaran Diri, Manajemen Emosi & Relaksasi AI',
@@ -2880,7 +2880,7 @@ app.post('/api/gemini/audio-script-generate', async (req, res) => {
       subcategory = 'Hadir Saat Ini',
       durationMinutes = 5,
       userExperienceLevel = 'pemula',
-      preferredVoice = 'Kore',
+      preferredVoice = 'rina',
       voiceName,
       speechSpeed = 'perlahan',
       spiritualMode = false,
@@ -2890,7 +2890,7 @@ app.post('/api/gemini/audio-script-generate', async (req, res) => {
 
     const actualEmotion = primaryEmotion || emotionState || 'Cemas';
     const actualGoal = userGoal || goal || 'Menenangkan pikiran dan melepaskan ketegangan';
-    const actualVoice = preferredVoice || voiceName || 'Kore';
+    const actualVoice = preferredVoice || voiceName || 'rina';
     const dur = Number(durationMinutes) || 5;
 
     const fallbackAudioData = {
@@ -4312,6 +4312,15 @@ const NOIZ_VOICE_PROFILES: Record<string, {
   }
 };
 
+const VOICE_MAP: Record<string, string> = {
+  rina: process.env.NOIZ_VOICE_RINA || process.env.NOIZ_VOICE_ID_RINA || 'rina_id_warm',
+  nova: process.env.NOIZ_VOICE_NOVA || process.env.NOIZ_VOICE_ID_NOVA || 'nova_id_peaceful',
+  bayu: process.env.NOIZ_VOICE_BAYU || process.env.NOIZ_VOICE_ID_BAYU || 'bayu_id_grounded',
+  maya: process.env.NOIZ_VOICE_MAYA || process.env.NOIZ_VOICE_ID_MAYA || 'maya_id_soothing',
+  arga: process.env.NOIZ_VOICE_ARGA || process.env.NOIZ_VOICE_ID_ARGA || 'arga_id_deep',
+  alisa: process.env.NOIZ_VOICE_ALISA || process.env.NOIZ_VOICE_ID_ALISA || 'alisa_id_sleep',
+};
+
 function getNoizApiKey(customKey?: string): string {
   return (
     customKey ||
@@ -4321,19 +4330,40 @@ function getNoizApiKey(customKey?: string): string {
     process.env.VITE_NOIZ_AI_API_KEY ||
     process.env.VITE_NOIZ_API_KEY ||
     process.env.NOIZ_KEY ||
-    'ZDM2Njk3ZWYtYzdiMS00YzJhLWEwZjUtM2NhMjM1NGM5MDMwJHJpbmFva3Rhdmlhbmkubm92YTk3QGdtYWlsLmNvbQ=='
+    ''
   );
 }
 
 function resolveNoizVoice(voiceKey?: string) {
-  if (!voiceKey) return NOIZ_VOICE_PROFILES['rina'];
+  if (!voiceKey) {
+    const profile = NOIZ_VOICE_PROFILES['rina'];
+    return { ...profile, noizVoiceId: VOICE_MAP.rina || profile.noizVoiceId };
+  }
+
   const q = voiceKey.toLowerCase().trim();
-  if (q.includes('nova')) return NOIZ_VOICE_PROFILES['nova'];
-  if (q.includes('bayu')) return NOIZ_VOICE_PROFILES['bayu'];
-  if (q.includes('maya')) return NOIZ_VOICE_PROFILES['maya'];
-  if (q.includes('arga')) return NOIZ_VOICE_PROFILES['arga'];
-  if (q.includes('alisa') || q.includes('sleep') || q.includes('tidur')) return NOIZ_VOICE_PROFILES['alisa'];
-  return NOIZ_VOICE_PROFILES['rina'];
+  let chosenKey = 'rina';
+
+  if (q === 'rina' || q.includes('rina') || q.includes('suara-tenang') || q.includes('suara tenang') || q.includes('kore') || q.includes('laras')) {
+    chosenKey = 'rina';
+  } else if (q === 'nova' || q.includes('nova') || q.includes('suara-jernih') || q.includes('suara jernih') || q.includes('leda') || q.includes('calliope')) {
+    chosenKey = 'nova';
+  } else if (q === 'bayu' || q.includes('bayu') || q.includes('suara-hangat') || q.includes('suara hangat') || q.includes('puck') || q.includes('damai')) {
+    chosenKey = 'bayu';
+  } else if (q === 'maya' || q.includes('maya') || q.includes('suara-lembut') || q.includes('suara lembut') || q.includes('aoede') || q.includes('nirmala')) {
+    chosenKey = 'maya';
+  } else if (q === 'arga' || q.includes('arga') || q.includes('suara-natural') || q.includes('suara natural') || q.includes('zephyr')) {
+    chosenKey = 'arga';
+  } else if (q === 'alisa' || q.includes('alisa') || q.includes('suara-dalam') || q.includes('suara dalam') || q.includes('fenrir') || q.includes('sleep') || q.includes('tidur')) {
+    chosenKey = 'alisa';
+  }
+
+  const profile = NOIZ_VOICE_PROFILES[chosenKey] || NOIZ_VOICE_PROFILES['rina'];
+  const mappedVoiceId = VOICE_MAP[chosenKey] || VOICE_MAP.rina || profile.noizVoiceId;
+  console.log(`[Noiz TTS Server] Resolved voiceKey: "${voiceKey}" -> "${profile.id}" (${profile.name}), mapped voice_id: "${mappedVoiceId}"`);
+  return {
+    ...profile,
+    noizVoiceId: mappedVoiceId
+  };
 }
 
 // Resilient Noiz AI TTS Invocation with Multi-Endpoint & Header Strategy

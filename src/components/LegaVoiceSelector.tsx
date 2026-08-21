@@ -38,7 +38,7 @@ export const LegaVoiceSelector: React.FC<LegaVoiceSelectorProps> = ({
   compact = false
 }) => {
   const [activeVoice, setActiveVoice] = useState<string>(
-    selectedVoice || getStoredVoiceName() || 'Suara Tenang'
+    selectedVoice || getStoredVoiceName() || 'rina'
   );
   const [previewingVoice, setPreviewingVoice] = useState<string | null>(null);
 
@@ -57,18 +57,18 @@ export const LegaVoiceSelector: React.FC<LegaVoiceSelectorProps> = ({
     return unsub;
   }, [activeVoice, selectedVoice]);
 
-  const handleSelectVoice = (vName: string) => {
-    setActiveVoice(vName);
-    setStoredVoiceName(vName);
+  const handleSelectVoice = (vId: string) => {
+    setActiveVoice(vId);
+    setStoredVoiceName(vId);
     if (onVoiceChange) {
-      onVoiceChange(vName);
+      onVoiceChange(vId);
     }
   };
 
   const handlePreviewVoice = (v: VoiceCharacterProfile, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
 
-    if (previewingVoice === v.name) {
+    if (previewingVoice === v.id || previewingVoice === v.name) {
       stopVoicePreview();
       stopVoiceNarration();
       setPreviewingVoice(null);
@@ -77,12 +77,12 @@ export const LegaVoiceSelector: React.FC<LegaVoiceSelectorProps> = ({
 
     stopVoicePreview();
     stopVoiceNarration();
-    setPreviewingVoice(v.name);
+    setPreviewingVoice(v.id);
 
     previewVoiceCharacterAudio(
-      v.name,
+      v.id,
       () => {
-        setPreviewingVoice(v.name);
+        setPreviewingVoice(v.id);
       },
       () => {
         setPreviewingVoice(null);
@@ -103,14 +103,14 @@ export const LegaVoiceSelector: React.FC<LegaVoiceSelectorProps> = ({
             <div className="flex items-center gap-2">
               <span className="text-xl">🎙️</span>
               <h3 className="text-sm md:text-base font-bold text-stone-100 flex items-center gap-2">
-                <span>Pilih Suara Narasi LEGA</span>
+                <span>Pilih Karakter Suara Noiz AI</span>
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-sky-950 text-sky-300 border border-sky-700/60 font-mono">
-                  6 Karakter Gemini TTS
+                  6 Karakter Noiz AI Ultra-Real
                 </span>
               </h3>
             </div>
             <p className="text-[11px] md:text-xs text-stone-400">
-              6 pilihan suara narasi Bahasa Indonesia dengan karakter dan konfigurasi Gemini TTS berbeda untuk seluruh modul LEGA.
+              6 pilihan suara narasi Bahasa Indonesia berkualitas ultra-realistis dari Noiz AI untuk seluruh modul dan bimbingan LEGA.
             </p>
           </div>
 
@@ -127,15 +127,15 @@ export const LegaVoiceSelector: React.FC<LegaVoiceSelectorProps> = ({
       {/* Grid of 6 LEGA Voices: Fully responsive for PC, Laptop, Tablet, iOS, Android */}
       <div className={`grid ${compact ? 'grid-cols-1 sm:grid-cols-2 gap-2.5' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5'}`}>
         {VOICE_CHARACTERS.map((v, index) => {
-          const isSelected = activeVoice === v.name || activeVoice === v.id || activeVoice.toLowerCase().includes(v.id.split('-')[1]);
-          const isPreviewing = previewingVoice === v.name;
+          const isSelected = activeVoice.toLowerCase() === v.id || activeVoice.toLowerCase() === v.name.toLowerCase();
+          const isPreviewing = previewingVoice === v.id || previewingVoice === v.name;
           const isFemale = v.gender === 'female';
 
           return (
             <div
               key={v.id}
               id={`voice-card-${v.id}`}
-              onClick={() => handleSelectVoice(v.name)}
+              onClick={() => handleSelectVoice(v.id)}
               className={`p-3.5 sm:p-4 rounded-2xl border cursor-pointer transition-all flex flex-col justify-between gap-3 relative group ${
                 isSelected
                   ? 'bg-gradient-to-br from-sky-950/80 via-stone-900 to-indigo-950/70 border-sky-500 ring-2 ring-sky-500/40 shadow-lg shadow-sky-950/50 scale-[1.01]'
@@ -162,7 +162,7 @@ export const LegaVoiceSelector: React.FC<LegaVoiceSelectorProps> = ({
                         <span className={`w-1.5 h-1.5 rounded-full ${isFemale ? 'bg-rose-400' : 'bg-sky-400'}`} />
                         <span>{isFemale ? 'Vokal Feminin' : 'Vokal Maskulin'}</span>
                         <span>•</span>
-                        <span className="text-stone-500">{v.geminiVoice} Engine</span>
+                        <span className="text-sky-400 font-medium">Noiz AI ({v.id})</span>
                       </p>
                     </div>
                   </div>
@@ -191,7 +191,7 @@ export const LegaVoiceSelector: React.FC<LegaVoiceSelectorProps> = ({
               <div className="pt-2 border-t border-stone-800/80 flex items-center justify-between gap-2">
                 <button
                   type="button"
-                  onClick={() => handleSelectVoice(v.name)}
+                  onClick={() => handleSelectVoice(v.id)}
                   className={`flex-1 py-1.5 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 ${
                     isSelected
                       ? 'bg-sky-500 text-stone-950 shadow-md shadow-sky-500/20'

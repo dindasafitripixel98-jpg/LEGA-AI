@@ -263,7 +263,7 @@ ${reflectionResult.reflectiveInsights?.wiseResponse || desiredWiseResponse || '-
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           text: track.textPrompt,
-          voiceName: 'Kore' // Warm calm female voice
+          voiceName: 'rina' // Warm calm female voice
         })
       });
 

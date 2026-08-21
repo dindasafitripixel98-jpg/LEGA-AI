@@ -304,7 +304,7 @@ Doa Pribadi:
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           text: track.textPrompt,
-          voiceName: 'Kore'
+          voiceName: 'rina'
         })
       });
 
@@ -972,7 +972,7 @@ Doa Pribadi:
                       <h4 className="text-sm font-bold text-stone-200 group-hover:text-emerald-300 transition">
                         {idx + 1}. {track.title}
                       </h4>
-                      <span className="text-[11px] text-stone-500">{track.duration} • Suara Kore</span>
+                      <span className="text-[11px] text-stone-500">{track.duration} • Suara Noiz Rina</span>
                     </div>
 
                     <button

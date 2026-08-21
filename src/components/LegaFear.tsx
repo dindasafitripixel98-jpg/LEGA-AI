@@ -249,7 +249,7 @@ ${reflectionResult.suggestedSafeAction || '-'}`;
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           text: track.textPrompt,
-          voiceName: 'Kore'
+          voiceName: 'rina'
         })
       });
 

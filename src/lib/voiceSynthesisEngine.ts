@@ -27,9 +27,9 @@ export interface VoiceAcousticProfile {
 }
 
 export const VOICE_ACOUSTIC_PROFILES: Record<string, VoiceAcousticProfile> = {
-  'suara-tenang': {
-    id: 'suara-tenang',
-    name: 'Suara Tenang',
+  'rina': {
+    id: 'rina',
+    name: 'Rina',
     gender: 'female',
     fundamentalFreq: 240, // High-medium melodic feminine (C4-D4)
     vibratoRate: 4.8,
@@ -40,56 +40,11 @@ export const VOICE_ACOUSTIC_PROFILES: Record<string, VoiceAcousticProfile> = {
     timbreType: 'sine',
     chimeNote: 528, // 528Hz Solfeggio Peace
     ambienceFreq: 264,
-    samplePhrase: 'Selamat datang di ruang tenang LEGA. Tarik napas lembut... izinkan tubuh dan pikiran Anda beristirahat dalam kedamaian.'
+    samplePhrase: 'Selamat datang di ruang tenang Anda bersama Noiz AI. Tarik napas lembut dan izinkan batin Anda beristirahat dalam kedamaian.'
   },
-  'suara-hangat': {
-    id: 'suara-hangat',
-    name: 'Suara Hangat',
-    gender: 'female',
-    fundamentalFreq: 200, // Warm conversational register (G3-A3)
-    vibratoRate: 5.2,
-    vibratoDepth: 4.2,
-    cadenceRate: 0.88,
-    formants: { f1: 580, f2: 1450, f3: 2400 },
-    filterQ: 1.8,
-    timbreType: 'triangle',
-    chimeNote: 432, // 432Hz Warmth
-    ambienceFreq: 216,
-    samplePhrase: 'Mari berhenti sejenak. Sadari apa yang sedang Anda rasakan saat ini dengan jujur, hangat, dan lapang dada.'
-  },
-  'suara-lembut': {
-    id: 'suara-lembut',
-    name: 'Suara Lembut',
-    gender: 'female',
-    fundamentalFreq: 285, // Ultra-soft, airy high register (D4-E4)
-    vibratoRate: 4.0,
-    vibratoDepth: 2.5,
-    cadenceRate: 0.70,
-    formants: { f1: 360, f2: 2100, f3: 3200 },
-    filterQ: 2.8,
-    timbreType: 'sine',
-    chimeNote: 639, // 639Hz Heart Compassion
-    ambienceFreq: 319.5,
-    samplePhrase: 'Tarik napas perlahan... rasakan kelembutan udara yang mengalir, izinkan seluruh ketegangan batin Anda melunak.'
-  },
-  'suara-natural': {
-    id: 'suara-natural',
-    name: 'Suara Natural',
-    gender: 'male',
-    fundamentalFreq: 135, // Natural relaxed masculine baritone (C#3)
-    vibratoRate: 4.5,
-    vibratoDepth: 3.0,
-    cadenceRate: 0.84,
-    formants: { f1: 450, f2: 1250, f3: 2200 },
-    filterQ: 1.6,
-    timbreType: 'triangle',
-    chimeNote: 396, // 396Hz Grounding Root
-    ambienceFreq: 198,
-    samplePhrase: 'Dengarkan suara alami di sekitar Anda. Anda tidak perlu terburu-buru, hadir seutuhnya di momen saat ini.'
-  },
-  'suara-jernih': {
-    id: 'suara-jernih',
-    name: 'Suara Jernih',
+  'nova': {
+    id: 'nova',
+    name: 'Nova',
     gender: 'female',
     fundamentalFreq: 232, // Crystal clear articulate register (A#3-B3)
     vibratoRate: 5.5,
@@ -100,11 +55,41 @@ export const VOICE_ACOUSTIC_PROFILES: Record<string, VoiceAcousticProfile> = {
     timbreType: 'sine',
     chimeNote: 741, // 741Hz Clarity & Awakening
     ambienceFreq: 370.5,
-    samplePhrase: 'Perhatikan setiap kejernihan pikiran Anda. Setiap tarikan napas membawa kesegaran baru bagi tubuh dan pikiran Anda.'
+    samplePhrase: 'Setiap tarikan napas membawa kejernihan baru bagi pikiran Anda. Anda aman, tenang, dan hadir di saat ini.'
   },
-  'suara-dalam': {
-    id: 'suara-dalam',
-    name: 'Suara Dalam',
+  'bayu': {
+    id: 'bayu',
+    name: 'Bayu',
+    gender: 'male',
+    fundamentalFreq: 135, // Natural relaxed masculine baritone (C#3)
+    vibratoRate: 4.5,
+    vibratoDepth: 3.0,
+    cadenceRate: 0.84,
+    formants: { f1: 450, f2: 1250, f3: 2200 },
+    filterQ: 1.6,
+    timbreType: 'triangle',
+    chimeNote: 396, // 396Hz Grounding Root
+    ambienceFreq: 198,
+    samplePhrase: 'Mari berhenti sejenak dari segala kesibukan. Sadari tubuh Anda dan lepaskan ketegangan secara perlahan.'
+  },
+  'maya': {
+    id: 'maya',
+    name: 'Maya',
+    gender: 'female',
+    fundamentalFreq: 285, // Ultra-soft, airy high register (D4-E4)
+    vibratoRate: 4.0,
+    vibratoDepth: 2.5,
+    cadenceRate: 0.70,
+    formants: { f1: 360, f2: 2100, f3: 3200 },
+    filterQ: 2.8,
+    timbreType: 'sine',
+    chimeNote: 639, // 639Hz Heart Compassion
+    ambienceFreq: 319.5,
+    samplePhrase: 'Tarik napas perlahan... rasakan kelembutan udara yang mengalir dan izinkan seluruh beban batin Anda melunak.'
+  },
+  'arga': {
+    id: 'arga',
+    name: 'Arga',
     gender: 'male',
     fundamentalFreq: 88, // Deep resonant bass-baritone (F2)
     vibratoRate: 3.8,
@@ -115,7 +100,113 @@ export const VOICE_ACOUSTIC_PROFILES: Record<string, VoiceAcousticProfile> = {
     timbreType: 'triangle',
     chimeNote: 174, // 174Hz Deep Foundation Anchor
     ambienceFreq: 88,
-    samplePhrase: 'Rasakan pijakan Anda yang kokoh dan berjangkar kuat. Napas Anda aman. Saat ini Anda berada dalam ruang perlindungan yang tenang.'
+    samplePhrase: 'Rasakan pijakan Anda yang kokoh dan berjangkar kuat. Napas Anda aman di ruang perlindungan yang tenang ini.'
+  },
+  'alisa': {
+    id: 'alisa',
+    name: 'Alisa',
+    gender: 'female',
+    fundamentalFreq: 200, // Warm slow register for sleep
+    vibratoRate: 3.5,
+    vibratoDepth: 2.2,
+    cadenceRate: 0.65,
+    formants: { f1: 420, f2: 1600, f3: 2600 },
+    filterQ: 2.0,
+    timbreType: 'sine',
+    chimeNote: 432, // 432Hz Calm
+    ambienceFreq: 216,
+    samplePhrase: 'Pejamkan mata Anda secara perlahan... biarkan rasa tenang meresap lembut ke setiap helai napas dan sel tubuh Anda.'
+  },
+  // Legacy aliases
+  'suara-tenang': {
+    id: 'rina',
+    name: 'Rina',
+    gender: 'female',
+    fundamentalFreq: 240,
+    vibratoRate: 4.8,
+    vibratoDepth: 3.5,
+    cadenceRate: 0.78,
+    formants: { f1: 480, f2: 1750, f3: 2800 },
+    filterQ: 2.2,
+    timbreType: 'sine',
+    chimeNote: 528,
+    ambienceFreq: 264,
+    samplePhrase: 'Selamat datang di ruang tenang Anda bersama Noiz AI. Tarik napas lembut dan izinkan batin Anda beristirahat dalam kedamaian.'
+  },
+  'suara-jernih': {
+    id: 'nova',
+    name: 'Nova',
+    gender: 'female',
+    fundamentalFreq: 232,
+    vibratoRate: 5.5,
+    vibratoDepth: 4.0,
+    cadenceRate: 0.95,
+    formants: { f1: 520, f2: 1950, f3: 3400 },
+    filterQ: 2.4,
+    timbreType: 'sine',
+    chimeNote: 741,
+    ambienceFreq: 370.5,
+    samplePhrase: 'Setiap tarikan napas membawa kejernihan baru bagi pikiran Anda. Anda aman, tenang, dan hadir di saat ini.'
+  },
+  'suara-hangat': {
+    id: 'bayu',
+    name: 'Bayu',
+    gender: 'male',
+    fundamentalFreq: 135,
+    vibratoRate: 4.5,
+    vibratoDepth: 3.0,
+    cadenceRate: 0.84,
+    formants: { f1: 450, f2: 1250, f3: 2200 },
+    filterQ: 1.6,
+    timbreType: 'triangle',
+    chimeNote: 396,
+    ambienceFreq: 198,
+    samplePhrase: 'Mari berhenti sejenak dari segala kesibukan. Sadari tubuh Anda dan lepaskan ketegangan secara perlahan.'
+  },
+  'suara-lembut': {
+    id: 'maya',
+    name: 'Maya',
+    gender: 'female',
+    fundamentalFreq: 285,
+    vibratoRate: 4.0,
+    vibratoDepth: 2.5,
+    cadenceRate: 0.70,
+    formants: { f1: 360, f2: 2100, f3: 3200 },
+    filterQ: 2.8,
+    timbreType: 'sine',
+    chimeNote: 639,
+    ambienceFreq: 319.5,
+    samplePhrase: 'Tarik napas perlahan... rasakan kelembutan udara yang mengalir dan izinkan seluruh beban batin Anda melunak.'
+  },
+  'suara-natural': {
+    id: 'arga',
+    name: 'Arga',
+    gender: 'male',
+    fundamentalFreq: 88,
+    vibratoRate: 3.8,
+    vibratoDepth: 2.0,
+    cadenceRate: 0.72,
+    formants: { f1: 260, f2: 850, f3: 1750 },
+    filterQ: 1.4,
+    timbreType: 'triangle',
+    chimeNote: 174,
+    ambienceFreq: 88,
+    samplePhrase: 'Rasakan pijakan Anda yang kokoh dan berjangkar kuat. Napas Anda aman di ruang perlindungan yang tenang ini.'
+  },
+  'suara-dalam': {
+    id: 'alisa',
+    name: 'Alisa',
+    gender: 'female',
+    fundamentalFreq: 200,
+    vibratoRate: 3.5,
+    vibratoDepth: 2.2,
+    cadenceRate: 0.65,
+    formants: { f1: 420, f2: 1600, f3: 2600 },
+    filterQ: 2.0,
+    timbreType: 'sine',
+    chimeNote: 432,
+    ambienceFreq: 216,
+    samplePhrase: 'Pejamkan mata Anda secara perlahan... biarkan rasa tenang meresap lembut ke setiap helai napas dan sel tubuh Anda.'
   }
 };
 
@@ -123,31 +214,31 @@ export const VOICE_ACOUSTIC_PROFILES: Record<string, VoiceAcousticProfile> = {
  * Resolves acoustic profile for any voice name or ID
  */
 export function getVoiceAcousticProfile(nameOrId?: string): VoiceAcousticProfile {
-  if (!nameOrId) return VOICE_ACOUSTIC_PROFILES['suara-tenang'];
+  if (!nameOrId) return VOICE_ACOUSTIC_PROFILES['rina'];
   const q = nameOrId.toLowerCase().trim();
 
   if (VOICE_ACOUSTIC_PROFILES[q]) return VOICE_ACOUSTIC_PROFILES[q];
 
-  if (q.includes('tenang') || q.includes('kore') || q.includes('laras') || q === '1') {
-    return VOICE_ACOUSTIC_PROFILES['suara-tenang'];
+  if (q.includes('rina') || q.includes('tenang') || q.includes('kore') || q.includes('laras') || q === '1') {
+    return VOICE_ACOUSTIC_PROFILES['rina'];
   }
-  if (q.includes('hangat') || q.includes('puck') || q.includes('bayu') || q === '2') {
-    return VOICE_ACOUSTIC_PROFILES['suara-hangat'];
+  if (q.includes('nova') || q.includes('jernih') || q.includes('leda') || q.includes('calliope') || q === '2') {
+    return VOICE_ACOUSTIC_PROFILES['nova'];
   }
-  if (q.includes('lembut') || q.includes('aoede') || q.includes('sinta') || q === '3') {
-    return VOICE_ACOUSTIC_PROFILES['suara-lembut'];
+  if (q.includes('bayu') || q.includes('hangat') || q.includes('puck') || q.includes('damai') || q === '3') {
+    return VOICE_ACOUSTIC_PROFILES['bayu'];
   }
-  if (q.includes('natural') || q.includes('zephyr') || q.includes('damai') || q === '4') {
-    return VOICE_ACOUSTIC_PROFILES['suara-natural'];
+  if (q.includes('maya') || q.includes('lembut') || q.includes('aoede') || q.includes('nirmala') || q === '4') {
+    return VOICE_ACOUSTIC_PROFILES['maya'];
   }
-  if (q.includes('jernih') || q.includes('leda') || q.includes('calliope') || q.includes('nirmala') || q === '5') {
-    return VOICE_ACOUSTIC_PROFILES['suara-jernih'];
+  if (q.includes('arga') || q.includes('natural') || q.includes('zephyr') || q === '5') {
+    return VOICE_ACOUSTIC_PROFILES['arga'];
   }
-  if (q.includes('dalam') || q.includes('fenrir') || q.includes('charon') || q.includes('arga') || q.includes('orus') || q === '6') {
-    return VOICE_ACOUSTIC_PROFILES['suara-dalam'];
+  if (q.includes('alisa') || q.includes('dalam') || q.includes('fenrir') || q.includes('sleep') || q.includes('tidur') || q === '6') {
+    return VOICE_ACOUSTIC_PROFILES['alisa'];
   }
 
-  return VOICE_ACOUSTIC_PROFILES['suara-tenang'];
+  return VOICE_ACOUSTIC_PROFILES['rina'];
 }
 
 // Memory cache for generated acoustic sample WAV URLs
