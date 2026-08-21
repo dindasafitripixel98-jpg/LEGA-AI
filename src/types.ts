@@ -193,7 +193,8 @@ export type AmbientMusicType =
   | 'celestial-binaural-theta'
   | 'deep-delta-sleep-wave'
   | 'acoustic-meditation-chimes'
-  | 'rain-glass-piano';
+  | 'rain-glass-piano'
+  | 'piano-pagi-positif';
 
 export interface AudioRelaxationMetadata {
   atmosphereTheme: string; // Tema suasana (e.g. "Ketenangan Senja")

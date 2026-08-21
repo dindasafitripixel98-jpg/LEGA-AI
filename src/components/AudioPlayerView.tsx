@@ -176,6 +176,7 @@ const CATEGORIES: AudioCategory[] = [
       'Inner Child Reflection',
       'Membangun Kebiasaan Baru',
       'Persiapan Menghadapi Hari',
+      'Relaksasi Pagi & Semangat Positif',
       'Meningkatkan Fokus',
       'Membangun Kepercayaan Diri'
     ]
@@ -207,6 +208,7 @@ const AMBIENT_OPTIONS: { id: AmbientMusicType; name: string; desc: string }[] = 
   { id: 'deep-delta-sleep-wave', name: 'Gelombang Delta 3Hz & Piano Malam (Tidur Lelap)', desc: 'Frekuensi delta 3.2Hz penenang syaraf & chord piano malam bertempo lambat' },
   { id: 'acoustic-meditation-chimes', name: 'Lonceng Angin Kristal & Akustik (432Hz)', desc: 'Gemerincing lonceng kristal meditatif berpadu petikan dawai peredam stres' },
   { id: 'rain-glass-piano', name: 'Hujan di Kaca & Piano Teduh (432Hz Neo-Classical)', desc: 'Harmoni progresi tuts piano akustik neo-klasik berpadu rintik hujan jendela kaca' },
+  { id: 'piano-pagi-positif', name: 'Piano Pagi Cerah & Energi Positif (432Hz)', desc: 'Alunan tuts piano akustik cerah membangkitkan semangat, optimisme, dan energi positif' },
   { id: 'piano-lembut', name: 'Piano Ambient Ringan & Hangat (432Hz)', desc: 'Ringan, hangat, cerah, natural, sederhana, lembut & stabil (latar tipis)' },
   { id: 'petikan-gitar', name: 'Petikan Gitar Akustik Lembut (432Hz)', desc: 'Petikan dawai lembut, stabil, tidak ramai, dan ritme perlahan' },
   { id: 'akustik-hangat', name: 'Instrumen Akustik Hangat (432Hz)', desc: 'Instrumen hangat dan aman, merangkul tanpa membuat suasana berat' },
@@ -664,6 +666,38 @@ const PRESET_LIBRARY: AudioLibraryTrack[] = [
       'hujan-kaca',
       'rain-glass-piano',
       { natureSoundTypes: ['hujan-kaca', 'angin-pepohonan'], narrationVolume: 90, natureVolume: 52, musicVolume: 55 }
+    )
+  },
+  {
+    id: 'track-relaksasi-pagi-semangat',
+    trackNumber: 17,
+    title: '17. 🌅 MUSIK RELAKSASI PAGI PENAMBAH SEMANGAT & ENERGI POSITIF',
+    subtitle: 'Instrumen Piano Cerah (432Hz) + Kicauan Burung Fajar & Udara Segar',
+    category: 'LEGA Growth',
+    subcategory: 'Relaksasi Pagi & Semangat Positif',
+    duration: '20 Menit / Loop Latar',
+    desc: 'Musik relaksasi pagi istimewa perpaduan alunan tuts piano akustik cerah bernada optimis dan kicauan burung alami fajar, membangkitkan semangat, menjernihkan pikiran, dan memancarkan energi positif untuk mengawali hari penuh berkah.',
+    purposes: ['semua', 'musik-tenang', 'bekerja-belajar', 'istirahat-meditasi', 'latihan-lega', 'menenangkan-pikiran'],
+    purposeLabels: ['Relaksasi Pagi', 'Semangat & Energi Positif', 'Piano & Kicau Burung'],
+    tagline: 'Sambut pagi dengan ketenangan, optimisme cerah, dan energi positif yang mengalir melimpah.',
+    sampleScript: 'Selamat pagi. Tarik napas dalam-dalam, rasakan segarnya udara fajar yang bersih dan murni memenuhi setiap sel tubuh Anda. Dengarkan merdunya kicauan burung-burung pagi menyambut mentari... dan alunan tuts piano cerah yang menyalakan kembali api semangat di dalam batin Anda. Hari ini adalah hari yang baru, penuh peluang dan harapan. Lepaskan beban kemarin, melangkahlah dengan damai, percaya diri, dan energi positif.',
+    natureTypes: ['burung-pagi', 'fajar-tenang', 'angin-pepohonan'],
+    ambientMusic: 'piano-pagi-positif',
+    narrationVolume: 90,
+    natureVolume: 56,
+    musicVolume: 55,
+    metadata: buildAudioRelaxationMetadata(
+      'Musik Relaksasi Pagi Penambah Semangat & Energi Positif',
+      'burung-pagi',
+      'piano-pagi-positif',
+      {
+        natureSoundTypes: ['burung-pagi', 'fajar-tenang', 'angin-pepohonan'],
+        narrationVolume: 90,
+        natureVolume: 56,
+        musicVolume: 55,
+        fadeInSeconds: 3.0,
+        fadeOutSeconds: 4.5
+      }
     )
   }
 ];

@@ -326,6 +326,12 @@ export const AMBIENT_MUSIC_DEFINITIONS: Record<AmbientMusicType, {
     description: 'Harmonisasi tuts piano akustik melankolis lembut 432Hz berpadu ritme rintik hujan jendela kaca yang menghangatkan batin.',
     character: 'Meneduhkan, Reflektif, Hangat, Nostalgik & Damai',
     recommendedFor: 'Menenangkan Pikiran Kalut, Relaksasi Sore Hari, Jeda Mental'
+  },
+  'piano-pagi-positif': {
+    name: 'Piano Pagi Cerah & Energi Positif (432Hz)',
+    description: 'Alunan tuts piano akustik cerah bernada optimis dan membangkitkan semangat, berpadu harmonik alami 432Hz yang menyegarkan pikiran dan mengalirkan energi positif untuk mengawali hari.',
+    character: 'Cerah, Menggugah, Hangat, Positif, Optimis & Segar',
+    recommendedFor: 'Relaksasi Pagi, Penambah Semangat, Energi Positif, Memulai Hari, Fokus Pagi'
   }
 };
 
@@ -618,6 +624,71 @@ export async function generateRelaxationSoundscapeWav(
           osc1.stop(Math.min(actualDuration, noteTime + 6.5));
           osc2.start(noteTime);
           osc2.stop(Math.min(actualDuration, noteTime + 6.5));
+        }
+      });
+    }
+  } else if (ambientType === 'piano-pagi-positif') {
+    // 🌅 PIANO AKUSTIK PAGI CERAH & ENERGI POSITIF (432Hz - Optimisme & Semangat Pagi)
+    // Progresi akor Mayor bernada cerah, lapang, membangkitkan semangat dan harapan baru:
+    // Cmaj9 -> G(add9) -> Fmaj7 -> D9
+    const morningPianoChords = [
+      [129.6, 259.2, 324, 388.8, 486, 576],    // C3 - C4 - E4 - G4 - B4 - D5 (Cerah, lapang & segar)
+      [97.2, 194.4, 291.6, 388.8, 432, 518.4], // G2 - G3 - D4 - G4 - A4 - C5 (Optimis & membangkitkan semangat)
+      [129.6, 172.8, 259.2, 324, 432, 576],    // C3 - F3 - C4 - E4 - A4 - D5 (Hangat & penuh rasa syukur)
+      [144, 216, 288, 360, 432, 576],          // D3 - A3 - D4 - F#4 - A4 - D5 (Bercahaya & bertenaga positif)
+    ];
+
+    const chordInterval = 5.2; // Tempo mengalir cerah dan membangkitkan energi
+    const numMorningChords = Math.ceil(actualDuration / chordInterval);
+
+    for (let c = 0; c < numMorningChords; c++) {
+      const chordTime = c * chordInterval + 0.4;
+      if (chordTime >= actualDuration - 1.5) break;
+
+      const notes = morningPianoChords[c % morningPianoChords.length];
+      notes.forEach((freq, nIdx) => {
+        // Arpeggiasi tuts piano mengalir naik berirama cerah
+        const noteTime = chordTime + nIdx * 0.18;
+        if (noteTime < actualDuration - 1.4) {
+          const osc1 = offlineCtx.createOscillator();
+          const osc2 = offlineCtx.createOscillator();
+          const sparkleOsc = offlineCtx.createOscillator();
+          const filter = offlineCtx.createBiquadFilter();
+          const gain = offlineCtx.createGain();
+
+          // Nada fundamental piano akustik hangat
+          osc1.type = 'sine';
+          osc1.frequency.setValueAtTime(freq, noteTime);
+
+          // Karakter bodi piano akustik
+          osc2.type = 'triangle';
+          osc2.frequency.setValueAtTime(freq * 2.001, noteTime);
+
+          // Kilau nada tinggi khas tuts piano pagi yang jernih
+          sparkleOsc.type = 'sine';
+          sparkleOsc.frequency.setValueAtTime(freq * 3.0, noteTime);
+
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(880, noteTime);
+          filter.frequency.exponentialRampToValueAtTime(260, Math.min(actualDuration, noteTime + 4.8));
+
+          const targetVol = musicVol * (0.60 / Math.sqrt(nIdx + 1));
+          gain.gain.setValueAtTime(0.0001, noteTime);
+          gain.gain.linearRampToValueAtTime(targetVol, noteTime + 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.0001, Math.min(actualDuration, noteTime + 5.2));
+
+          osc1.connect(filter);
+          osc2.connect(filter);
+          sparkleOsc.connect(filter);
+          filter.connect(gain);
+          gain.connect(offlineCtx.destination);
+
+          osc1.start(noteTime);
+          osc1.stop(Math.min(actualDuration, noteTime + 5.5));
+          osc2.start(noteTime);
+          osc2.stop(Math.min(actualDuration, noteTime + 5.5));
+          sparkleOsc.start(noteTime);
+          sparkleOsc.stop(Math.min(actualDuration, noteTime + 5.5));
         }
       });
     }
