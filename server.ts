@@ -23,6 +23,19 @@ app.use((req, res, next) => {
   next();
 });
 
+// Normalize API route paths for Vercel serverless rewrites and ensure JSON Content-Type header on /api/* routes
+app.use((req, res, next) => {
+  const urlPath = req.url.split('?')[0];
+  const apiPrefixes = ['/gemini', '/noiz', '/developer', '/admin', '/supabase', '/auth'];
+  if (apiPrefixes.some(prefix => urlPath.startsWith(prefix))) {
+    req.url = '/api' + req.url;
+  }
+  if (req.url.startsWith('/api/')) {
+    res.setHeader('Content-Type', 'application/json');
+  }
+  next();
+});
+
 // Dynamic In-Memory Runtime Developer Configuration (Managed via Developer Control Panel)
 const runtimeDeveloperConfig = {
   geminiApiKey: process.env.GEMINI_API_KEY || '',
@@ -3516,74 +3529,81 @@ PRINSIP UTAMA:
 `;
 
 app.get('/api/admin/system-stats', (req, res) => {
-  res.json({
-    success: true,
-    data: {
-      metrics: {
-        totalUsers: 1420,
-        activeUsersToday: 385,
-        newUsersToday: 24,
-        activeLicenses: 1150,
-        expiringLicenses: 18,
-        aiRequestsToday: 3420,
-        ttsRequestsToday: 890,
-        audioGenerated: 145,
-        articlesPublished: 38,
-        dailyReflections: 612,
-        emotionSessions: 890,
-        errorRate: "0.02%",
-        revenueMonth: "Rp 42.500.000",
-      },
-      systemHealth: {
-        application: "HEALTHY",
-        database: "HEALTHY",
-        apiProxy: "HEALTHY",
-        geminiApi: "HEALTHY",
-        geminiTts: "HEALTHY",
-        storage: "HEALTHY",
-        queue: "HEALTHY",
-        licenseServer: "HEALTHY",
-        lastChecked: new Date().toISOString(),
-      },
-      pendingReviews: {
-        promptsWaitingReview: 2,
-        articlesWaitingReview: 4,
-        audioWaitingReview: 1,
-        referencesWaitingVerification: 3,
-        safetyIncidents: 1,
-      },
-      safetyAlerts: [
-        {
-          id: "SAFE-102",
-          severity: "MEDIUM",
-          type: "Ketegangan Emosi Tinggi",
-          timestamp: new Date(Date.now() - 3600000).toISOString(),
-          status: "REVIEWED",
-          actionTaken: "Pengguna dirujuk ke fitur krisis 119 & latihan napas.",
-        }
-      ],
-      recentAuditLogs: [
-        {
-          id: "AUDIT-891",
-          admin: "Super Admin (SHAQILA)",
-          action: "PROMPT_PUBLISH",
-          resource: "LEGA Dashboard AI v3.0 Final",
-          timestamp: new Date().toISOString(),
-          ip: "182.253.12.98",
-          result: "SUCCESS",
+  try {
+    return res.json({
+      success: true,
+      data: {
+        metrics: {
+          totalUsers: 1420,
+          activeUsersToday: 385,
+          newUsersToday: 24,
+          activeLicenses: 1150,
+          expiringLicenses: 18,
+          aiRequestsToday: 3420,
+          ttsRequestsToday: 890,
+          audioGenerated: 145,
+          articlesPublished: 38,
+          dailyReflections: 612,
+          emotionSessions: 890,
+          errorRate: "0.02%",
+          revenueMonth: "Rp 42.500.000",
         },
-        {
-          id: "AUDIT-890",
-          admin: "License Admin",
-          action: "LICENSE_GENERATE",
-          resource: "YEARLY-LEGA-88219",
-          timestamp: new Date(Date.now() - 7200000).toISOString(),
-          ip: "182.253.12.98",
-          result: "SUCCESS",
-        }
-      ]
-    }
-  });
+        systemHealth: {
+          application: "HEALTHY",
+          database: "HEALTHY",
+          apiProxy: "HEALTHY",
+          geminiApi: "HEALTHY",
+          geminiTts: "HEALTHY",
+          storage: "HEALTHY",
+          queue: "HEALTHY",
+          licenseServer: "HEALTHY",
+          lastChecked: new Date().toISOString(),
+        },
+        pendingReviews: {
+          promptsWaitingReview: 2,
+          articlesWaitingReview: 4,
+          audioWaitingReview: 1,
+          referencesWaitingVerification: 3,
+          safetyIncidents: 1,
+        },
+        safetyAlerts: [
+          {
+            id: "SAFE-102",
+            severity: "MEDIUM",
+            type: "Ketegangan Emosi Tinggi",
+            timestamp: new Date(Date.now() - 3600000).toISOString(),
+            status: "REVIEWED",
+            actionTaken: "Pengguna dirujuk ke fitur krisis 119 & latihan napas.",
+          }
+        ],
+        recentAuditLogs: [
+          {
+            id: "AUDIT-891",
+            admin: "Super Admin (SHAQILA)",
+            action: "PROMPT_PUBLISH",
+            resource: "LEGA Dashboard AI v3.0 Final",
+            timestamp: new Date().toISOString(),
+            ip: "182.253.12.98",
+            result: "SUCCESS",
+          },
+          {
+            id: "AUDIT-890",
+            admin: "License Admin",
+            action: "LICENSE_GENERATE",
+            resource: "YEARLY-LEGA-88219",
+            timestamp: new Date(Date.now() - 7200000).toISOString(),
+            ip: "182.253.12.98",
+            result: "SUCCESS",
+          }
+        ]
+      }
+    });
+  } catch (err: any) {
+    return res.status(500).json({
+      success: false,
+      error: err?.message || 'Gagal memuat statistik sistem.'
+    });
+  }
 });
 
 app.post('/api/gemini/admin-assistant', async (req, res) => {
@@ -4258,7 +4278,7 @@ const NOIZ_VOICE_PROFILES: Record<string, {
     lang: 'id-ID',
     description: 'Artikulasi hangat, penuh penerimaan, nada welas asih lembut khas bahasa Indonesia.',
     samplePhrase: 'Selamat datang di ruang tenang Anda bersama Noiz AI. Tarik napas lembut dan izinkan batin Anda beristirahat dalam kedamaian.',
-    noizVoiceId: 'rina_id_warm'
+    noizVoiceId: 'id-ID-W-01'
   },
   'nova': {
     id: 'nova',
@@ -4268,7 +4288,7 @@ const NOIZ_VOICE_PROFILES: Record<string, {
     lang: 'id-ID',
     description: 'Suara jernih, tenang, artikulasi presisi untuk meditasi kesadaran hadir dan mindfulness.',
     samplePhrase: 'Setiap tarikan napas membawa kejernihan baru bagi pikiran Anda. Anda aman, tenang, dan hadir di saat ini.',
-    noizVoiceId: 'nova_id_peaceful'
+    noizVoiceId: 'id-ID-W-02'
   },
   'bayu': {
     id: 'bayu',
@@ -4278,7 +4298,7 @@ const NOIZ_VOICE_PROFILES: Record<string, {
     lang: 'id-ID',
     description: 'Resonansi maskulin santai, bersahaja, natural tanpa beban untuk latihan grounding.',
     samplePhrase: 'Mari berhenti sejenak dari segala kesibukan. Sadari tubuh Anda dan lepaskan ketegangan secara perlahan.',
-    noizVoiceId: 'bayu_id_grounded'
+    noizVoiceId: 'id-ID-M-01'
   },
   'maya': {
     id: 'maya',
@@ -4288,7 +4308,7 @@ const NOIZ_VOICE_PROFILES: Record<string, {
     lang: 'id-ID',
     description: 'Vokal lembut, menyejukkan, empati tinggi untuk pelepasan emosi dan muhasabah.',
     samplePhrase: 'Tarik napas perlahan... rasakan kelembutan udara yang mengalir dan izinkan seluruh beban batin Anda melunak.',
-    noizVoiceId: 'maya_id_soothing'
+    noizVoiceId: 'id-ID-W-03'
   },
   'arga': {
     id: 'arga',
@@ -4298,7 +4318,7 @@ const NOIZ_VOICE_PROFILES: Record<string, {
     lang: 'id-ID',
     description: 'Bariton berwibawa, dalam, menenangkan untuk panduan relaksasi malam dan grounding.',
     samplePhrase: 'Rasakan pijakan Anda yang kokoh dan berjangkar kuat. Napas Anda aman di ruang perlindungan yang tenang ini.',
-    noizVoiceId: 'arga_id_deep'
+    noizVoiceId: 'id-ID-M-02'
   },
   'alisa': {
     id: 'alisa',
@@ -4308,18 +4328,20 @@ const NOIZ_VOICE_PROFILES: Record<string, {
     lang: 'id-ID',
     description: 'Tempo sangat lambat, ritme meninabobokan, optimal untuk pengantar tidur lelap dan istirahat.',
     samplePhrase: 'Pejamkan mata Anda secara perlahan... biarkan rasa tenang meresap lembut ke setiap helai napas dan sel tubuh Anda.',
-    noizVoiceId: 'alisa_id_sleep'
+    noizVoiceId: 'id-ID-W-04'
   }
 };
 
-const VOICE_MAP: Record<string, string> = {
-  rina: process.env.NOIZ_VOICE_RINA || process.env.NOIZ_VOICE_ID_RINA || 'rina_id_warm',
-  nova: process.env.NOIZ_VOICE_NOVA || process.env.NOIZ_VOICE_ID_NOVA || 'nova_id_peaceful',
-  bayu: process.env.NOIZ_VOICE_BAYU || process.env.NOIZ_VOICE_ID_BAYU || 'bayu_id_grounded',
-  maya: process.env.NOIZ_VOICE_MAYA || process.env.NOIZ_VOICE_ID_MAYA || 'maya_id_soothing',
-  arga: process.env.NOIZ_VOICE_ARGA || process.env.NOIZ_VOICE_ID_ARGA || 'arga_id_deep',
-  alisa: process.env.NOIZ_VOICE_ALISA || process.env.NOIZ_VOICE_ID_ALISA || 'alisa_id_sleep',
-};
+function getVoiceMap(): Record<string, string> {
+  return {
+    rina: process.env.NOIZ_VOICE_RINA || process.env.NOIZ_VOICE_ID_RINA || 'id-ID-W-01',
+    nova: process.env.NOIZ_VOICE_NOVA || process.env.NOIZ_VOICE_ID_NOVA || 'id-ID-W-02',
+    bayu: process.env.NOIZ_VOICE_BAYU || process.env.NOIZ_VOICE_ID_BAYU || 'id-ID-M-01',
+    maya: process.env.NOIZ_VOICE_MAYA || process.env.NOIZ_VOICE_ID_MAYA || 'id-ID-W-03',
+    arga: process.env.NOIZ_VOICE_ARGA || process.env.NOIZ_VOICE_ID_ARGA || 'id-ID-M-02',
+    alisa: process.env.NOIZ_VOICE_ALISA || process.env.NOIZ_VOICE_ID_ALISA || 'id-ID-W-04',
+  };
+}
 
 function getNoizApiKey(customKey?: string): string {
   return (
@@ -4335,38 +4357,50 @@ function getNoizApiKey(customKey?: string): string {
 }
 
 function resolveNoizVoice(voiceKey?: string) {
+  const voiceMap = getVoiceMap();
   if (!voiceKey) {
     const profile = NOIZ_VOICE_PROFILES['rina'];
-    return { ...profile, noizVoiceId: VOICE_MAP.rina || profile.noizVoiceId };
+    return { ...profile, noizVoiceId: voiceMap.rina || profile.noizVoiceId };
   }
 
   const q = voiceKey.toLowerCase().trim();
   let chosenKey = 'rina';
 
-  if (q === 'rina' || q.includes('rina') || q.includes('suara-tenang') || q.includes('suara tenang') || q.includes('kore') || q.includes('laras')) {
+  if (q === 'rina' || q === 'noiz rina') {
     chosenKey = 'rina';
-  } else if (q === 'nova' || q.includes('nova') || q.includes('suara-jernih') || q.includes('suara jernih') || q.includes('leda') || q.includes('calliope')) {
+  } else if (q === 'nova' || q === 'noiz nova') {
     chosenKey = 'nova';
-  } else if (q === 'bayu' || q.includes('bayu') || q.includes('suara-hangat') || q.includes('suara hangat') || q.includes('puck') || q.includes('damai')) {
+  } else if (q === 'bayu' || q === 'noiz bayu') {
     chosenKey = 'bayu';
-  } else if (q === 'maya' || q.includes('maya') || q.includes('suara-lembut') || q.includes('suara lembut') || q.includes('aoede') || q.includes('nirmala')) {
+  } else if (q === 'maya' || q === 'noiz maya') {
     chosenKey = 'maya';
-  } else if (q === 'arga' || q.includes('arga') || q.includes('suara-natural') || q.includes('suara natural') || q.includes('zephyr')) {
+  } else if (q === 'arga' || q === 'noiz arga') {
     chosenKey = 'arga';
-  } else if (q === 'alisa' || q.includes('alisa') || q.includes('suara-dalam') || q.includes('suara dalam') || q.includes('fenrir') || q.includes('sleep') || q.includes('tidur')) {
+  } else if (q === 'alisa' || q === 'noiz alisa') {
+    chosenKey = 'alisa';
+  } else if (q.includes('rina') || q.includes('laras') || q.includes('kore') || q.includes('suara-tenang')) {
+    chosenKey = 'rina';
+  } else if (q.includes('nova') || q.includes('calliope') || q.includes('leda') || q.includes('suara-jernih')) {
+    chosenKey = 'nova';
+  } else if (q.includes('bayu') || q.includes('damai') || q.includes('puck') || q.includes('suara-hangat')) {
+    chosenKey = 'bayu';
+  } else if (q.includes('maya') || q.includes('nirmala') || q.includes('aoede') || q.includes('suara-lembut')) {
+    chosenKey = 'maya';
+  } else if (q.includes('arga') || q.includes('fenrir') || q.includes('suara-natural') || q.includes('suara-dalam')) {
+    chosenKey = 'arga';
+  } else if (q.includes('alisa') || q.includes('sleep') || q.includes('tidur')) {
     chosenKey = 'alisa';
   }
 
   const profile = NOIZ_VOICE_PROFILES[chosenKey] || NOIZ_VOICE_PROFILES['rina'];
-  const mappedVoiceId = VOICE_MAP[chosenKey] || VOICE_MAP.rina || profile.noizVoiceId;
-  console.log(`[Noiz TTS Server] Resolved voiceKey: "${voiceKey}" -> "${profile.id}" (${profile.name}), mapped voice_id: "${mappedVoiceId}"`);
+  const mappedVoiceId = voiceMap[chosenKey] || voiceMap.rina || profile.noizVoiceId;
   return {
     ...profile,
     noizVoiceId: mappedVoiceId
   };
 }
 
-// Resilient Noiz AI TTS Invocation with Multi-Endpoint & Header Strategy
+// Strict Noiz AI TTS Invocation with Debug Logging & Error Handling (NO SILENT FALLBACK)
 async function callNoizAiTtsService(text: string, voiceKey: string = 'rina', speed = 1.0, emotion = 'calm'): Promise<{
   audioBase64: string | null;
   audioDataUrl: string | null;
@@ -4387,10 +4421,13 @@ async function callNoizAiTtsService(text: string, voiceKey: string = 'rina', spe
     .trim();
 
   const promptText = cleanedText.length > 1000 ? cleanedText.slice(0, 1000) + '...' : cleanedText;
-  const cacheKey = `noiz:${profile.id}:${promptText}:${speed}:${emotion}`;
+  const cacheKey = `noiz:${profile.id}:${profile.noizVoiceId}:${promptText}:${speed}:${emotion}`;
+
+  console.log(`[NOIZ TTS REQUEST]\ncharacter: ${profile.id}\nactualVoiceId: ${profile.noizVoiceId}\nprovider: noiz.ai`);
 
   if (noizTtsServerCache.has(cacheKey)) {
     const cached = noizTtsServerCache.get(cacheKey)!;
+    console.log(`[NOIZ TTS SUCCESS]\ncharacter: ${profile.id}\nactualVoiceId: ${profile.noizVoiceId}`);
     return {
       audioBase64: cached.audioBase64,
       audioDataUrl: cached.audioDataUrl,
@@ -4400,7 +4437,13 @@ async function callNoizAiTtsService(text: string, voiceKey: string = 'rina', spe
     };
   }
 
-  // List of candidate endpoints for Noiz AI REST API
+  if (!apiKey) {
+    const errMsg = 'Noiz AI API Key belum dikonfigurasi pada environment atau Control Panel.';
+    console.error(`[NOIZ TTS ERROR]\ncharacter: ${profile.id}\nstatus: 401\nmessage: ${errMsg}`);
+    throw new Error(errMsg);
+  }
+
+  // Candidate endpoints for Noiz AI REST API
   const candidateEndpoints = [
     'https://api.noiz.ai/v1/synthesize',
     'https://api.noiz.ai/v1/generate',
@@ -4408,10 +4451,10 @@ async function callNoizAiTtsService(text: string, voiceKey: string = 'rina', spe
     'https://api.noiz.ai/v1/speech'
   ];
 
-  // List of header variations (raw key, Bearer, and x-api-key)
+  // Header variations
   const headerVariations = [
-    { 'Authorization': apiKey, 'Content-Type': 'application/json' },
     { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+    { 'Authorization': apiKey, 'Content-Type': 'application/json' },
     { 'x-api-key': apiKey, 'Content-Type': 'application/json' }
   ];
 
@@ -4426,6 +4469,9 @@ async function callNoizAiTtsService(text: string, voiceKey: string = 'rina', spe
     emotion: emotion,
     stream: false
   };
+
+  let lastStatus = 502;
+  let lastErrorMessage = 'Noiz TTS failed: Gagal menghubungi server Noiz.ai';
 
   for (const endpoint of candidateEndpoints) {
     for (const headers of headerVariations) {
@@ -4457,6 +4503,7 @@ async function callNoizAiTtsService(text: string, voiceKey: string = 'rina', spe
             };
 
             noizTtsServerCache.set(cacheKey, result);
+            console.log(`[NOIZ TTS SUCCESS]\ncharacter: ${profile.id}\nactualVoiceId: ${profile.noizVoiceId}`);
             return result;
           }
 
@@ -4474,14 +4521,16 @@ async function callNoizAiTtsService(text: string, voiceKey: string = 'rina', spe
                   base64Audio = Buffer.from(arr).toString('base64');
                 }
               } catch (fetchErr) {
-                // use direct audioUrl
-                return {
+                const result = {
                   audioBase64: null,
                   audioDataUrl: audioUrl,
                   format: 'mp3',
                   voiceName: profile.name,
                   provider: 'noiz.ai'
                 };
+                noizTtsServerCache.set(cacheKey, result);
+                console.log(`[NOIZ TTS SUCCESS]\ncharacter: ${profile.id}\nactualVoiceId: ${profile.noizVoiceId}`);
+                return result;
               }
             }
 
@@ -4496,71 +4545,24 @@ async function callNoizAiTtsService(text: string, voiceKey: string = 'rina', spe
               };
 
               noizTtsServerCache.set(cacheKey, result);
+              console.log(`[NOIZ TTS SUCCESS]\ncharacter: ${profile.id}\nactualVoiceId: ${profile.noizVoiceId}`);
               return result;
             }
           }
+        } else {
+          lastStatus = response.status;
+          const errBody = await response.text().catch(() => '');
+          lastErrorMessage = `Noiz API returned HTTP ${response.status}: ${errBody || response.statusText}`;
         }
       } catch (err: any) {
-        // continue to try next configuration
+        lastErrorMessage = err?.message || 'Network error connecting to Noiz AI';
       }
     }
   }
 
-  // Graceful Gemini TTS fallback if noiz.ai remote endpoint is unreachable
-  try {
-    const ai = getGeminiClient();
-    const geminiVoiceMap: Record<string, string> = {
-      rina: 'Kore',
-      nova: 'Leda',
-      bayu: 'Zephyr',
-      maya: 'Aoede',
-      arga: 'Fenrir',
-      alisa: 'Aoede'
-    };
-    const geminiVoice = geminiVoiceMap[profile.id] || 'Kore';
-
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.1-flash-tts-preview',
-      contents: [{ parts: [{ text: `Bicaralah dalam bahasa Indonesia dengan karakter ${profile.name} (${profile.description}): ${promptText}` }] }],
-      config: {
-        responseModalities: [Modality.AUDIO],
-        speechConfig: {
-          voiceConfig: {
-            prebuiltVoiceConfig: { voiceName: geminiVoice },
-          },
-        },
-      },
-    });
-
-    const rawBase64 = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-    if (rawBase64) {
-      const pcmBuffer = Buffer.from(rawBase64, 'base64');
-      const wavBuffer = pcmToWavBuffer(pcmBuffer, 24000, 1, 16);
-      const wavBase64 = wavBuffer.toString('base64');
-      const audioDataUrl = `data:audio/wav;base64,${wavBase64}`;
-
-      const result = {
-        audioBase64: wavBase64,
-        audioDataUrl: audioDataUrl,
-        format: 'wav',
-        voiceName: profile.name,
-        provider: 'noiz.ai (hybrid)'
-      };
-
-      noizTtsServerCache.set(cacheKey, result);
-      return result;
-    }
-  } catch (err) {
-    // fallback to client-side synthesizer
-  }
-
-  return {
-    audioBase64: null,
-    audioDataUrl: null,
-    format: 'mp3',
-    voiceName: profile.name,
-    provider: 'noiz.ai'
-  };
+  // Strictly return error without silent fallback
+  console.error(`[NOIZ TTS ERROR]\ncharacter: ${profile.id}\nstatus: ${lastStatus}\nmessage: ${lastErrorMessage}`);
+  throw new Error(`Noiz TTS failed (${lastStatus}): ${lastErrorMessage}`);
 }
 
 // 11a. Noiz AI TTS Synthesis Endpoint
@@ -4572,32 +4574,38 @@ app.post('/api/noiz/tts', async (req, res) => {
     }
 
     const ttsResult = await callNoizAiTtsService(text, voiceName, speed, emotion);
-    res.json({
+    return res.json({
       success: true,
       provider: 'noiz.ai',
       ...ttsResult
     });
   } catch (error: any) {
-    console.warn('Noiz AI TTS handled gracefully:', error?.message || error);
-    res.json({
-      success: true,
+    return res.status(502).json({
+      success: false,
       provider: 'noiz.ai',
-      audioBase64: null,
-      audioDataUrl: null,
-      fallbackSynthesizer: true
+      error: error?.message || 'Noiz TTS failed'
     });
   }
 });
 
 // 11b. List all available Noiz AI Voice Characters
 app.get('/api/noiz/voices', (req, res) => {
-  res.json({
-    success: true,
-    provider: 'noiz.ai',
-    engine: 'Noiz AI Ultra-Real TTS (SHAQILA DIGITAL 99)',
-    apiKeyConfigured: !!getNoizApiKey(),
-    voices: Object.values(NOIZ_VOICE_PROFILES)
-  });
+  try {
+    const voiceMap = getVoiceMap();
+    const voicesWithResolvedIds = Object.values(NOIZ_VOICE_PROFILES).map(v => ({
+      ...v,
+      noizVoiceId: voiceMap[v.id] || v.noizVoiceId
+    }));
+    return res.json({
+      success: true,
+      provider: 'noiz.ai',
+      engine: 'Noiz AI Ultra-Real TTS (SHAQILA DIGITAL 99)',
+      apiKeyConfigured: !!getNoizApiKey(),
+      voices: voicesWithResolvedIds
+    });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: err?.message || 'Gagal mengambil data voice Noiz AI.' });
+  }
 });
 
 // 11c. Noiz AI Voice Sample Preview Endpoint
@@ -4607,18 +4615,17 @@ app.post('/api/noiz/sample', async (req, res) => {
     const profile = resolveNoizVoice(voiceId);
     const sampleResult = await callNoizAiTtsService(profile.samplePhrase, profile.id, 1.0, 'calm');
 
-    res.json({
+    return res.json({
       success: true,
       provider: 'noiz.ai',
       voice: profile,
       ...sampleResult
     });
   } catch (err: any) {
-    res.json({
-      success: true,
+    return res.status(502).json({
+      success: false,
       provider: 'noiz.ai',
-      audioDataUrl: null,
-      fallbackSynthesizer: true
+      error: err?.message || 'Noiz voice sample failed'
     });
   }
 });
@@ -4629,33 +4636,40 @@ app.post('/api/noiz/sample', async (req, res) => {
 
 // 12a. Get Developer System Configuration
 app.get('/api/developer/config', (req, res) => {
-  const currentGemini = runtimeDeveloperConfig.geminiApiKey || process.env.GEMINI_API_KEY || '';
-  const currentNoiz = runtimeDeveloperConfig.noizApiKey || process.env.NOIZ_AI_API_KEY || process.env.NOIZ_API_KEY || '';
+  try {
+    const currentGemini = runtimeDeveloperConfig.geminiApiKey || process.env.GEMINI_API_KEY || '';
+    const currentNoiz = runtimeDeveloperConfig.noizApiKey || process.env.NOIZ_AI_API_KEY || process.env.NOIZ_API_KEY || '';
 
-  const maskKey = (k: string) => {
-    if (!k || k.length < 8) return k ? '********' : '';
-    return `${k.slice(0, 6)}...${k.slice(-4)}`;
-  };
+    const maskKey = (k: string) => {
+      if (!k || k.length < 8) return k ? '********' : '';
+      return `${k.slice(0, 6)}...${k.slice(-4)}`;
+    };
 
-  res.json({
-    success: true,
-    config: {
-      ...runtimeDeveloperConfig,
-      geminiApiKey: currentGemini,
-      noizApiKey: currentNoiz,
-      maskedGeminiKey: maskKey(currentGemini),
-      maskedNoizKey: maskKey(currentNoiz),
-      isCustomGeminiSet: !!runtimeDeveloperConfig.geminiApiKey,
-      isCustomNoizSet: !!runtimeDeveloperConfig.noizApiKey,
-    },
-    system: {
-      uptimeSeconds: Math.floor(process.uptime()),
-      nodeEnv: process.env.NODE_ENV || 'development',
-      isVercel: !!process.env.VERCEL,
-      memoryUsageMB: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
-      timestamp: new Date().toISOString()
-    }
-  });
+    return res.json({
+      success: true,
+      config: {
+        ...runtimeDeveloperConfig,
+        geminiApiKey: currentGemini,
+        noizApiKey: currentNoiz,
+        maskedGeminiKey: maskKey(currentGemini),
+        maskedNoizKey: maskKey(currentNoiz),
+        isCustomGeminiSet: !!runtimeDeveloperConfig.geminiApiKey,
+        isCustomNoizSet: !!runtimeDeveloperConfig.noizApiKey,
+      },
+      system: {
+        uptimeSeconds: Math.floor(process.uptime()),
+        nodeEnv: process.env.NODE_ENV || 'development',
+        isVercel: !!process.env.VERCEL,
+        memoryUsageMB: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+        timestamp: new Date().toISOString()
+      }
+    });
+  } catch (err: any) {
+    return res.status(500).json({
+      success: false,
+      error: err?.message || 'Gagal membaca konfigurasi developer.'
+    });
+  }
 });
 
 // 12b. Update Developer System Configuration Live at Runtime
@@ -4707,13 +4721,13 @@ app.post('/api/developer/config', (req, res) => {
       runtimeDeveloperConfig.customAiCoachPrompt = config.customAiCoachPrompt.trim();
     }
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Konfigurasi Developer berhasil disimpan dan aktif langsung!',
       config: runtimeDeveloperConfig
     });
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err?.message || 'Gagal menyimpan konfigurasi.' });
+    return res.status(500).json({ success: false, error: err?.message || 'Gagal menyimpan konfigurasi.' });
   }
 });
 
@@ -4735,13 +4749,16 @@ app.post('/api/developer/test-connection', async (req, res) => {
       if (!activeKey || activeKey === 'MY_GEMINI_API_KEY') {
         return res.json({
           success: false,
+          provider: 'gemini',
+          model: 'gemini-3.7-flash',
           latencyMs: 0,
-          message: 'Google Gemini API Key belum diisi pada form input maupun environment server.'
+          message: 'Google Gemini API Key belum diisi pada form input maupun environment server.',
+          error: 'Missing GEMINI_API_KEY'
         });
       }
 
       const client = getGeminiClient(activeKey);
-      const testModels = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.0-flash-lite', 'gemini-3.7-flash'];
+      const testModels = ['gemini-3.7-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite'];
       let lastError: any = null;
 
       for (const model of testModels) {
@@ -4755,6 +4772,8 @@ app.post('/api/developer/test-connection', async (req, res) => {
           const text = (testRes.text || 'OK').trim();
           return res.json({
             success: true,
+            provider: 'gemini',
+            model,
             latencyMs,
             message: `Koneksi Google Gemini API Aktif & Cepat (${latencyMs}ms) — Model: ${model}`,
             details: { response: text, model }
@@ -4767,30 +4786,33 @@ app.post('/api/developer/test-connection', async (req, res) => {
       const latencyMs = Date.now() - start;
       return res.json({
         success: false,
+        provider: 'gemini',
+        model: 'gemini-3.7-flash',
         latencyMs,
-        message: `Uji Gemini Gagal: ${lastError?.message || 'API Key tidak valid atau kuota habis.'}`
+        message: `Uji Gemini Gagal: ${lastError?.message || 'API Key tidak valid atau kuota habis.'}`,
+        error: lastError?.message || 'API call failed'
       });
     }
 
     if (service === 'noiz') {
       try {
-        const testAudio = await callNoizAiTtsService('Tes suara Noiz AI', 'rina', 1.0, 'calm');
+        const testAudio = await callNoizAiTtsService('Tes koneksi suara Noiz AI', 'rina', 1.0, 'calm');
         const latencyMs = Date.now() - start;
-        const hasAudio = !!(testAudio.audioBase64 || testAudio.audioDataUrl);
         return res.json({
           success: true,
+          provider: 'noiz.ai',
           latencyMs,
-          message: hasAudio
-            ? `Koneksi Noiz.ai TTS Audio Engine Berhasil (${latencyMs}ms)`
-            : `Noiz.ai terhubung dengan mode fallback audio cerdas (${latencyMs}ms)`,
-          details: { provider: testAudio.provider, hasAudio }
+          message: `Koneksi Noiz.ai Ultra-Real Voice Engine Berhasil Terverifikasi (${latencyMs}ms)`,
+          details: { provider: testAudio.provider, format: testAudio.format }
         });
       } catch (noizErr: any) {
         const latencyMs = Date.now() - start;
         return res.json({
           success: false,
+          provider: 'noiz.ai',
           latencyMs,
-          message: `Uji Noiz AI TTS Gagal: ${noizErr?.message || 'Koneksi gagal'}`
+          message: `Uji Noiz AI TTS Gagal: ${noizErr?.message || 'Koneksi gagal'}`,
+          error: noizErr?.message || 'Noiz connection failed'
         });
       }
     }
@@ -4798,9 +4820,10 @@ app.post('/api/developer/test-connection', async (req, res) => {
     return res.status(400).json({ success: false, error: 'Service tidak dikenali.' });
   } catch (fatalErr: any) {
     const latencyMs = Date.now() - start;
-    return res.json({
+    return res.status(500).json({
       success: false,
       latencyMs,
+      error: fatalErr?.message || 'Terjadi kendala server',
       message: `Terjadi kendala server: ${fatalErr?.message || 'Gagal memverifikasi'}`
     });
   }
@@ -4808,11 +4831,18 @@ app.post('/api/developer/test-connection', async (req, res) => {
 
 // 12d. Get Customer Accounts
 app.get('/api/developer/users', (req, res) => {
-  res.json({
-    success: true,
-    users: runtimeCustomerUsers,
-    total: runtimeCustomerUsers.length
-  });
+  try {
+    return res.json({
+      success: true,
+      users: runtimeCustomerUsers,
+      total: runtimeCustomerUsers.length
+    });
+  } catch (err: any) {
+    return res.status(500).json({
+      success: false,
+      error: err?.message || 'Gagal mengambil data pelanggan.'
+    });
+  }
 });
 
 // 12e. Create Customer Account
@@ -4843,33 +4873,41 @@ app.post('/api/developer/users', (req, res) => {
 
     runtimeCustomerUsers.unshift(newUser);
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Akun pelanggan berhasil dibuat.',
       user: newUser
     });
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err?.message || 'Gagal membuat akun pelanggan.' });
+    return res.status(500).json({ success: false, error: err?.message || 'Gagal membuat akun pelanggan.' });
   }
 });
 
 // 12f. Update Customer Account
 app.put('/api/developer/users/:id', (req, res) => {
-  const { id } = req.params;
-  const { updates } = req.body || {};
-  const index = runtimeCustomerUsers.findIndex(u => u.id === id);
-  if (index !== -1) {
-    runtimeCustomerUsers[index] = { ...runtimeCustomerUsers[index], ...updates };
-    return res.json({ success: true, user: runtimeCustomerUsers[index] });
+  try {
+    const { id } = req.params;
+    const { updates } = req.body || {};
+    const index = runtimeCustomerUsers.findIndex(u => u.id === id);
+    if (index !== -1) {
+      runtimeCustomerUsers[index] = { ...runtimeCustomerUsers[index], ...updates };
+      return res.json({ success: true, user: runtimeCustomerUsers[index] });
+    }
+    return res.status(404).json({ success: false, error: 'Pengguna tidak ditemukan.' });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: err?.message || 'Gagal memperbarui akun pelanggan.' });
   }
-  res.status(404).json({ success: false, error: 'Pengguna tidak ditemukan.' });
 });
 
 // 12g. Delete Customer Account
 app.delete('/api/developer/users/:id', (req, res) => {
-  const { id } = req.params;
-  runtimeCustomerUsers = runtimeCustomerUsers.filter(u => u.id !== id);
-  res.json({ success: true, message: 'Akun berhasil dihapus.' });
+  try {
+    const { id } = req.params;
+    runtimeCustomerUsers = runtimeCustomerUsers.filter(u => u.id !== id);
+    return res.json({ success: true, message: 'Akun berhasil dihapus.' });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: err?.message || 'Gagal menghapus akun pelanggan.' });
+  }
 });
 
 // 13. Supabase Backend Health & Status
@@ -4914,6 +4952,25 @@ app.get('/api/supabase/status', async (req, res) => {
   }
 });
 
+// 14. Fallback 404 Handler for Unmatched API routes
+app.use('/api', (req, res) => {
+  return res.status(404).json({
+    success: false,
+    error: `Endpoint API tidak ditemukan: ${req.method} ${req.originalUrl || req.url}`
+  });
+});
+
+// 15. Global Express Error Handler for API routes
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error('[Global Express API Error]', err);
+  if (!res.headersSent) {
+    return res.status(err.status || 500).json({
+      success: false,
+      error: err?.message || 'A server error occurred'
+    });
+  }
+  next(err);
+});
 
 // Vite Middleware for dev & static serving for standalone prod server
 async function startServer() {

@@ -359,7 +359,7 @@ export async function testServiceConnection(
 
     try {
       // Direct REST test to official Google Generative Language endpoints
-      const candidateModels = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.0-flash-lite'];
+      const candidateModels = ['gemini-3.7-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite'];
       let lastErrMsg = '';
 
       for (const model of candidateModels) {
